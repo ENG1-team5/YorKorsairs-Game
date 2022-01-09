@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.Texture;
 public class Player {
 
     // Declare config, variables
+    private static final Texture shipTexture = new Texture(Gdx.files.internal("ship.png"));
     public final float shipWidth = Game.PPT * 1f;
     public final float maxSpeed = Game.PPT * 1.5f; // Units / Second
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
@@ -37,7 +38,6 @@ public class Player {
         inputDir = new Vector2(Vector2.Zero);
 
         // Initialize sprite
-        Texture shipTexture = new Texture(Gdx.files.internal("ship.png"));
         float ratio = (float)shipTexture.getHeight() / (float)shipTexture.getWidth();
         shipSprite = new Sprite(shipTexture);
         shipSprite.setSize(shipWidth, shipWidth * ratio);

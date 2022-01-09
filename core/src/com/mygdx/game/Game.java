@@ -51,6 +51,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 	private Player player;
 	private ArrayList<College> colleges;
 	private ArrayList<Projectile> projectiles;
+	private ArrayList<Particle> particles;
 
 	private enum GameState { READY, RUNNING, FINISHED };
 	private GameState gameState;
@@ -109,6 +110,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		colleges.add(new College(this, new Vector2(PPT * 12f, PPT * 3f)));
 		colleges.add(new College(this, new Vector2(PPT * 9f, PPT * 13f)));
 		projectiles = new ArrayList<>();
+		particles = new ArrayList<>();
 		inputZoomed = 0.0f;
 		zoomVel = 0.0f;
 
@@ -132,13 +134,14 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		// Run update functions
 		handleInput();
 		updateCamera();
-		player.update();
 		for (College college : colleges) college.update();
 		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
 			Projectile p = pItr.next();
 			p.update();
 			if (p.shouldRemove()) pItr.remove();
 		}
+		player.update();
+		for (Particle particle : particles) particle.update();
 	}
 
 
@@ -196,10 +199,11 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		tiledMapRenderer.setView(camera);
 		tiledMapRenderer.render();
 
-		// Render players and colleges
-		for (Projectile projectile : projectiles) projectile.render(gameBatch);
+		// Render projectiles, colleges, players, particles
 		for (College college : colleges) college.render(gameBatch);
+		for (Projectile projectile : projectiles) projectile.render(gameBatch);
 		player.render(gameBatch);
+		for (Particle particle : particles) particle.render(gameBatch);
 
 		// Draw batch
 		gameBatch.end();
