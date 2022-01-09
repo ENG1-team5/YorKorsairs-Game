@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="25" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="2" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="25" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="26">
  <tileset firstgid="1" source="mapTileset.tsx"/>
- <layer id="1" name="Tile Layer 1" width="25" height="15">
+ <layer id="1" name="Background" width="25" height="15">
   <data encoding="csv">
 5,5,5,5,5,5,5,5,5,5,5,5,5,4,4,5,5,5,5,5,5,5,5,5,5,
 5,5,5,4,4,4,4,4,4,4,4,4,5,5,5,5,4,4,4,4,4,5,5,5,5,
@@ -20,4 +20,19 @@
 4,4,5,5,5,5,5,5,5,5,5,4,5,5,5,5,5,5,5,5,5,5,5,5,5
 </data>
  </layer>
+ <objectgroup id="2" name="Collision">
+  <object id="2" x="71.5284" y="24" width="168.392" height="15.4432"/>
+  <object id="3" x="231.909" y="39.6364" width="64.4091" height="16.0909"/>
+  <object id="5" x="279.818" y="55.7273" width="24.25" height="16.0909"/>
+  <object id="7" x="296" y="72.0909" width="48.2841" height="15.7273"/>
+  <object id="9" x="328" y="87.5455" width="48.8182" height="16.2727"/>
+  <object id="11" x="359.818" y="104" width="17" height="113.261"/>
+  <object id="12" x="215.716" y="200" width="143.92" height="17.2159"/>
+  <object id="13" x="168.068" y="168.034" width="47.375" height="49.3068"/>
+  <object id="18" x="24.625" y="200.091" width="143.102" height="16.9318"/>
+  <object id="19" x="24.5341" y="112.091" width="14.7386" height="88.0909"/>
+  <object id="20" x="39.2727" y="40.716" width="16.5455" height="79.1023"/>
+  <object id="22" x="56.1818" y="23.75" width="15.7273" height="32.0682"/>
+  <object id="25" x="168.063" y="151.847" width="31.75" height="15.9318"/>
+ </objectgroup>
 </map>

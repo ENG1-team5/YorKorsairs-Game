@@ -5,6 +5,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -15,13 +16,14 @@ import com.badlogic.gdx.graphics.Texture;
 public class Player {
 
     // Declare config, variables
-    public final float shipWidth = 65;
-    public final float maxSpeed = 65;
-    private final float acceleration = 200;
-    private final float friction = 0.99f;
+    public final float shipWidth = Game.PPT * 1f;
+    public final float maxSpeed = Game.PPT * 1.5f; // Units / Second
+    private final float acceleration = Game.PPT * 7f; // Units / Second^2
+    private final float friction = 0.985f;
 
     private Game game;
     private Sprite shipSprite;
+
     private Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
@@ -45,7 +47,7 @@ public class Player {
 
 
     public void update() {
-        handleInput();
+        if (game.getRunning()) handleInput();
         updateMovement();
         updateSprite();
     }
@@ -67,17 +69,29 @@ public class Player {
         vel.y += inputDir.y * acceleration * Gdx.graphics.getDeltaTime();
         if (vel.len2() > (maxSpeed * maxSpeed)) vel = vel.setLength(maxSpeed);
 
-        // Update position and apply friction
-        pos.x += vel.x * Gdx.graphics.getDeltaTime();
-        pos.y += vel.y * Gdx.graphics.getDeltaTime();
+        // Move ship with velocity
+        float diffX = vel.x * Gdx.graphics.getDeltaTime();
+        float diffY =  vel.y * Gdx.graphics.getDeltaTime();
+        pos.x += diffX;
+        pos.y += diffY;
         vel.x *= friction;
         vel.y *= friction;
+
+        // Check if overlapping, and if so move back
+        Rectangle rect = getCollisionRect();
+        if (game.checkCollision(rect)) {
+            pos.x -= diffX;
+            pos.y -= diffY;
+            vel.x = 0;
+            vel.y = 0;
+        }
     }
 
 
     private void updateSprite() {
         // Update the ship sprite position and flip
-        shipSprite.setFlip((vel.x < 0), false);
+        if (!shipSprite.isFlipX() && (vel.x < 0)
+            || shipSprite.isFlipX() && (vel.x > 0)) shipSprite.flip(true, false);
         shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y - shipSprite.getOriginY());
     }
 
@@ -91,6 +105,15 @@ public class Player {
     public void dispose() {
         // Dispose of ship texture afterwards
         shipSprite.getTexture().dispose();
+    }
+
+
+    public Rectangle getCollisionRect() {
+        // Calculate collision rectangle
+        return new Rectangle(
+            pos.x - shipWidth * 0.4f, pos.y,
+            shipWidth * 0.8f, shipWidth * 0.2f
+        );
     }
 
 
