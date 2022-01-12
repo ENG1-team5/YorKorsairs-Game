@@ -12,6 +12,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Projectile {
 
+    // TODO:
+    //  - Make a IHittable interface that Player and College inherits
+    //  - Game can then perform checkHitHittable that returns either interface or null
+    // TODO:
+    //  - Call triggerHit on the IHittable returned when hit
+    //  - This function should affect health / generate particles
+
+
     // Declare config, variables
     private static final Texture texture = new Texture(Gdx.files.internal("projectile.png"));
     private final float width = Game.PPT * 0.15f;

@@ -15,6 +15,18 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class Player {
 
+    // TODO:
+    //  - Health variable which is limited, and detects when dead
+    //  - This needs to trigger a function on Game to say player died
+    //  - Also probably need a shipDead.png
+    // TODO:
+    //  - method of UI to show this below the ship
+    //  - Potentially just a green texture scaled based on health overtop a red texture
+    //  - Will probably need a renderUI() function that is called by Game()
+    // TODO:
+    //  - Generate growing circular wave particles behind ship while moving
+
+
     // Declare config, variables
     private static final Texture idleTexture = new Texture(Gdx.files.internal("ship.png"));
     private static final Texture movingTexture = new Texture(Gdx.files.internal("shipMoving.png"));

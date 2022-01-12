@@ -13,6 +13,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class College {
 
+    // TODO:
+    //  - Add a teamID variable that allows it to decide whether to shoot player / enemy
+    //      that is set in the constructor.
+    //  - Player would need a public getTeam() function.
+    //      - Maybe worth thinking about other ships and their team
+    //  - This would also allows some way of differentiating visuals.
+    //  - Can also pass this into the projectile.
+
+
     // Declare config, variables
     private static final Texture collegeTexture = new Texture(Gdx.files.internal("college.png"));
     private static final Texture collegeShotTexture = new Texture(Gdx.files.internal("collegeShot.png"));
@@ -50,15 +59,17 @@ public class College {
 
 
     private void checkAttack() {
-        // Check whether player in range
+        // Get direction to player
         Player player = game.getPlayer();
-        Vector2 dir = new Vector2(player.getPosition()).sub(pos);
+        Vector2 newPos = new Vector2(pos);
+        newPos.y += collegeSprite.getHeight() * 0.92f;
+        Vector2 dir = new Vector2(player.getPosition()).sub(newPos);
+
+        // Check whether player in range
         if (dir.len2() < (shootRange * shootRange)) {
 
             // Create projectile towards player
             if (shotTimer == 0.0f) {
-                Vector2 newPos = new Vector2(pos);
-                newPos.y += collegeSprite.getHeight() * 0.92f;
                 Projectile projectile = new Projectile(game, newPos, dir.nor());
                 game.addProjectile(projectile);
                 shotTimer = shotTimerMax;
