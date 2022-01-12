@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Particle {
 
-
     // TODO: Add shouldRemove() function for removing
     // TODO: Timer and TimerMax updated during update function
     // TODO: Parameters for gravity or other force in constructor

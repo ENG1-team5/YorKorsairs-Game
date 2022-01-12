@@ -30,10 +30,10 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
 	// Declare config, variables
 	public static final float PPT = 16; // Pixel Per Tile - Used to standardize scaling
+	public static final long startTime = System.currentTimeMillis();
 	private final float ZoomFriction = 0.86f;
 	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.02f };
 	private final float initialZoom = PPT * 0.01f;
-	private final long startTime = System.currentTimeMillis();
 
 	private OrthographicCamera camera;
 	private SpriteBatch gameBatch;
@@ -60,6 +60,14 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void create() {
+		// Run setup functions
+		setupScene();
+		setupTextures();
+		resetGame();
+	}
+
+
+	private void setupScene() {
 		// Setup scene input / output
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -67,34 +75,40 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		UIBatch = new SpriteBatch();
 		Gdx.input.setInputProcessor(this);
 
+	}
+
+
+	private void setupTextures() {
 		// Setup tiled map
-		tiledMap = new TmxMapLoader().load("map.tmx");
+		tiledMap = new TmxMapLoader().load("./tiles/map.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 		MapLayer collisionLayer = tiledMap.getLayers().get(1);
 		collisionObjects = collisionLayer.getObjects();
 
-		// Load textures
-		startSprite = new Sprite(new Texture(Gdx.files.internal("startSplash.png")));
+		// Load splash textures
+		startSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/startSplash.png")));
 		startSprite.setSize(PPT * 30f, PPT * 30f * (float)startSprite.getHeight() / startSprite.getWidth());
 		startSprite.setOrigin(startSprite.getWidth() * 0.5f, startSprite.getHeight() * 0.5f);
 		startSprite.setPosition(
 			Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
-		winSprite = new Sprite(new Texture(Gdx.files.internal("winSplash.png")));
+			Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f
+		);
+
+		winSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/winSplash.png")));
 		winSprite.setSize(PPT * 30f, PPT * 30f * (float)winSprite.getHeight() / winSprite.getWidth());
 		winSprite.setOrigin(startSprite.getWidth() * 0.5f, winSprite.getHeight() * 0.5f);
 		winSprite.setPosition(
-				Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
-				Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
-		lostSprite = new Sprite(new Texture(Gdx.files.internal("lostSplash.png")));
+			Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
+			Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f
+		);
+
+		lostSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/lostSplash.png")));
 		lostSprite.setSize(PPT * 30f, PPT * 30f * (float)lostSprite.getHeight() / lostSprite.getWidth());
 		lostSprite.setOrigin(lostSprite.getWidth() * 0.5f, lostSprite.getHeight() * 0.5f);
 		lostSprite.setPosition(
-				Gdx.graphics.getWidth() * 0.5f - lostSprite.getWidth() * 0.5f,
-				Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f);
-
-		// Reset game to initial state
-		resetGame();
+			Gdx.graphics.getWidth() * 0.5f - lostSprite.getWidth() * 0.5f,
+			Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f
+		);
 	}
 
 
@@ -109,6 +123,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		colleges = new ArrayList<>();
 		colleges.add(new College(this, new Vector2(PPT * 12f, PPT * 3f)));
 		colleges.add(new College(this, new Vector2(PPT * 9f, PPT * 13f)));
+		colleges.add(new College(this, new Vector2(PPT * 21f, PPT * 10f)));
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
 		inputZoomed = 0.0f;
@@ -184,7 +199,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		update();
 
 		// Clear then run render functions
-		ScreenUtils.clear(0.443f, 0.718f, 0.467f, 1.0f);
+		ScreenUtils.clear(169/255f, 208/255f, 137/255f, 1f);
 		renderGame();
 		renderUI();
 	}
@@ -195,7 +210,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		gameBatch.setProjectionMatrix(camera.combined);
 		gameBatch.begin();
 
-		// Render tile map
+		// Render terrain tilemap
 		tiledMapRenderer.setView(camera);
 		tiledMapRenderer.render();
 

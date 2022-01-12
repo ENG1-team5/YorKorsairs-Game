@@ -13,8 +13,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Projectile {
 
     // Declare config, variables
-    private final float width = Game.PPT * 0.15f;
     private static final Texture texture = new Texture(Gdx.files.internal("projectile.png"));
+    private final float width = Game.PPT * 0.15f;
 
     private Game game;
     private Sprite sprite;
@@ -52,18 +52,11 @@ public class Projectile {
         // Detect hitting player
         Rectangle rect = getCollisionRect();
         if (game.checkHitPlayer(rect)) {
-            if (canHit) {
-                System.out.println("Hit player");
-                toRemove = true;
-            }
-
+            if (canHit) toRemove = true;
 
         // Detect hitting wall
         } else if (game.checkCollision(rect)) {
-            if (canHit) {
-                System.out.println("Hit wall");
-                toRemove = true;
-            }
+            if (canHit) toRemove = true;
 
         // Once off of wall then can hit players
         } else canHit = true;

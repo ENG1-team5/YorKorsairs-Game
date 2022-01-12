@@ -14,9 +14,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class College {
 
     // Declare config, variables
-    private final float collegeWidth = Game.PPT * 2f;
-    private final float shotTimerMax = 0.4f;
-    private final float shootRange = Game.PPT * 6.0f;
+    private static final Texture collegeTexture = new Texture(Gdx.files.internal("college.png"));
+    private static final Texture collegeShotTexture = new Texture(Gdx.files.internal("collegeShot.png"));
+    private final float collegeWidth = Game.PPT * 2.5f;
+    private final float shotTimerMax = 1.5f;
+    private final float shootRange = Game.PPT * 4.0f;
 
     private Game game;
     private Sprite collegeSprite;
@@ -32,7 +34,6 @@ public class College {
         shotTimer = 0.0f;
 
         // Initialize sprite
-        Texture collegeTexture = new Texture(Gdx.files.internal("college.png"));
         float ratio = (float)collegeTexture.getHeight() / (float)collegeTexture.getWidth();
         collegeSprite = new Sprite(collegeTexture);
         collegeSprite.setSize(collegeWidth, collegeWidth * ratio);
@@ -44,6 +45,7 @@ public class College {
     public void update() {
         // Run update functions
         if (game.getRunning()) checkAttack();
+        updateSprite();
     }
 
 
@@ -55,7 +57,9 @@ public class College {
 
             // Create projectile towards player
             if (shotTimer == 0.0f) {
-                Projectile projectile = new Projectile(game, new Vector2(pos), dir.nor());
+                Vector2 newPos = new Vector2(pos);
+                newPos.y += collegeSprite.getHeight() * 0.92f;
+                Projectile projectile = new Projectile(game, newPos, dir.nor());
                 game.addProjectile(projectile);
                 shotTimer = shotTimerMax;
             }
@@ -63,6 +67,14 @@ public class College {
 
         // Update shot timer
         shotTimer = (float)Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0.0f);
+    }
+
+
+    private void updateSprite() {
+        // Change sprite based on shotTimer
+        if (shotTimer < shotTimerMax * 0.2f) {
+            if (collegeSprite.getTexture() != collegeTexture) collegeSprite.setTexture(collegeTexture);
+        } else if (collegeSprite.getTexture() != collegeShotTexture) collegeSprite.setTexture(collegeShotTexture);
     }
 
 
