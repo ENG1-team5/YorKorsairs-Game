@@ -53,12 +53,12 @@ public class College {
 
     public void update() {
         // Run update functions
-        if (game.getRunning()) checkAttack();
+        if (game.getRunning()) updateAI();
         updateSprite();
     }
 
 
-    private void checkAttack() {
+    private void updateAI() {
         // Get direction to player
         Player player = game.getPlayer();
         Vector2 newPos = new Vector2(pos);

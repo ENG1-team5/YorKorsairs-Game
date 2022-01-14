@@ -8,6 +8,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -119,11 +120,11 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		camera.zoom = initialZoom;
 
 		// Initialize player and colleges
-		player = new Player(this, new Vector2(PPT * 3.5f, PPT * 3f));
+		player = new Player(this, new Vector2(PPT * 17f, PPT * 14.5f));
 		colleges = new ArrayList<>();
-		colleges.add(new College(this, new Vector2(PPT * 12f, PPT * 3f)));
-		colleges.add(new College(this, new Vector2(PPT * 9f, PPT * 13f)));
-		colleges.add(new College(this, new Vector2(PPT * 21f, PPT * 10f)));
+		colleges.add(new College(this, new Vector2(PPT * 25f, PPT * 14.5f)));
+		colleges.add(new College(this, new Vector2(PPT * 22f, PPT * 24.5f)));
+		colleges.add(new College(this, new Vector2(PPT * 35f, PPT * 24.5f)));
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
 		inputZoomed = 0.0f;
@@ -209,9 +210,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		// Setup batch
 		gameBatch.setProjectionMatrix(camera.combined);
 		gameBatch.begin();
+		tiledMapRenderer.setView(camera);
 
 		// Render terrain tilemap
-		tiledMapRenderer.setView(camera);
 		tiledMapRenderer.render();
 
 		// Render projectiles, colleges, players, particles
