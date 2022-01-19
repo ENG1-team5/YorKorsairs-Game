@@ -23,8 +23,8 @@ public class College {
 
 
     // Declare config, variables
-    private static final Texture collegeTexture = new Texture(Gdx.files.internal("college.png"));
-    private static final Texture collegeShotTexture = new Texture(Gdx.files.internal("collegeShot.png"));
+    private static final Texture collegeTexture = new Texture(Gdx.files.internal("./colleges/college.png"));
+    private static final Texture collegeShotTexture = new Texture(Gdx.files.internal("./colleges/collegeShot.png"));
     private final float collegeWidth = Game.PPT * 2.5f;
     private final float shotTimerMax = 1.5f;
     private final float shootRange = Game.PPT * 4.0f;

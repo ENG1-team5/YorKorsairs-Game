@@ -4,10 +4,8 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,9 +25,12 @@ public class Player {
     //  - Generate growing circular wave particles behind ship while moving
 
 
-    // Declare config, variables
-    private static final Texture idleTexture = new Texture(Gdx.files.internal("ship.png"));
-    private static final Texture movingTexture = new Texture(Gdx.files.internal("shipMoving.png"));
+    // Declare static, config, variables
+    private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
+    private static final Texture movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
+    private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
+    private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
+
     private final float shipWidth = Game.PPT * 1.3f;
     private final float maxSpeed = Game.PPT * 1.5f; // Units / Second
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
@@ -38,13 +39,17 @@ public class Player {
     private final float idleSwayMag = 0.12f;
     private final float idleSwayFreq = 0.2f;
     private final float swayAcceleration = Game.PPT * 2.0f;
+    private final float maxHealth = 100;
 
     private Game game;
     private Sprite shipSprite;
+    private Sprite healthbarBackSprite;
+    private Sprite healthbarFillSprite;
 
     private Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
+    private float health;
 
 
     Player(Game game_, Vector2 pos_) {
@@ -53,13 +58,28 @@ public class Player {
         pos = pos_;
         vel = new Vector2(Vector2.Zero);
         inputDir = new Vector2(Vector2.Zero);
+        health = 100;
 
-        // Initialize sprite
+        // Initialize ship sprite
         float ratio = (float)idleTexture.getHeight() / (float)idleTexture.getWidth();
         shipSprite = new Sprite(idleTexture);
         shipSprite.setSize(shipWidth, shipWidth * ratio);
         shipSprite.setOrigin(shipSprite.getWidth() * 0.5f, 0);
         shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y- shipSprite.getOriginY());
+
+        // Initialize health bar sprites
+        float backRatio = (float)healthbarBackTexture.getHeight() / healthbarBackTexture.getWidth();
+        float backWidth = shipWidth * 0.8f;
+        float backHeight = backWidth * backRatio;
+        float pixelSize = backHeight / 12f;
+        float fillWidth = backWidth - (pixelSize * 3) * 2;
+        float fillHeight = backHeight - (pixelSize * 2) * 2;
+        healthbarBackSprite = new Sprite(healthbarBackTexture);
+        healthbarBackSprite.setSize(backWidth, backHeight);
+        healthbarBackSprite.setOrigin(backWidth * 0.5f, backHeight * 0.5f);
+        healthbarFillSprite = new Sprite(healthbarFillTexture);
+        healthbarFillSprite.setSize(fillWidth, fillHeight);
+        healthbarFillSprite.setOrigin(fillWidth * 0.5f, fillHeight * 0.5f);
     }
 
 
@@ -136,8 +156,19 @@ public class Player {
 
 
     public void render(SpriteBatch batch) {
-        // Draw ship to screen
+        // Draw ship
         shipSprite.draw(batch);
+
+        // Update then draw health bar
+        healthbarBackSprite.setPosition(
+        pos.x - healthbarBackSprite.getOriginX(),
+        pos.y - healthbarBackSprite.getOriginY() - healthbarBackSprite.getHeight());
+        healthbarFillSprite.setPosition(
+                pos.x - healthbarFillSprite.getOriginX(),
+                pos.y - healthbarFillSprite.getOriginY() - healthbarBackSprite.getHeight());
+        healthbarFillSprite.setScale(health / maxHealth, 1.0f);
+        healthbarBackSprite.draw(batch);
+        healthbarFillSprite.draw(batch);
     }
 
 
