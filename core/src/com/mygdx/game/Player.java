@@ -31,7 +31,7 @@ public class Player implements IHittable {
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
-    private final float shipWidth = Game.PPT * 1.3f;
+    private final float shipWidth = Game.PPT * 1f;
     private final float maxSpeed = Game.PPT * 1.5f; // Units / Second
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float friction = 0.985f;
@@ -166,7 +166,7 @@ public class Player implements IHittable {
         } else target = -vel.x / maxSpeed * 0.5f * (2 * (float)Math.PI);
 
         // Sway towards target rotation
-        shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
+//        shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
     }
 
 

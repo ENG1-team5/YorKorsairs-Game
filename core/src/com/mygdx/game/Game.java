@@ -89,29 +89,25 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		collisionObjects = collisionLayer.getObjects();
 
 		// Load splash textures
+		float splashWidth = 350f;
 		startSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/startSplash.png")));
-		startSprite.setSize(PPT * 30f, PPT * 30f * (float)startSprite.getHeight() / startSprite.getWidth());
+		startSprite.setSize(splashWidth, splashWidth * (float)startSprite.getHeight() / startSprite.getWidth());
 		startSprite.setOrigin(startSprite.getWidth() * 0.5f, startSprite.getHeight() * 0.5f);
 		startSprite.setPosition(
 			Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f
-		);
-
+			Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
 		winSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/winSplash.png")));
-		winSprite.setSize(PPT * 30f, PPT * 30f * (float)winSprite.getHeight() / winSprite.getWidth());
+		winSprite.setSize(splashWidth, splashWidth * (float)winSprite.getHeight() / winSprite.getWidth());
 		winSprite.setOrigin(startSprite.getWidth() * 0.5f, winSprite.getHeight() * 0.5f);
 		winSprite.setPosition(
 			Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f
-		);
-
+			Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
 		lostSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/lostSplash.png")));
-		lostSprite.setSize(PPT * 30f, PPT * 30f * (float)lostSprite.getHeight() / lostSprite.getWidth());
+		lostSprite.setSize(splashWidth, splashWidth * (float)lostSprite.getHeight() / lostSprite.getWidth());
 		lostSprite.setOrigin(lostSprite.getWidth() * 0.5f, lostSprite.getHeight() * 0.5f);
 		lostSprite.setPosition(
 			Gdx.graphics.getWidth() * 0.5f - lostSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f
-		);
+			Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f);
 	}
 
 
