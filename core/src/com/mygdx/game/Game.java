@@ -28,14 +28,14 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
 
 
-public class Game extends ApplicationAdapter implements InputProcessor {
+public class Game extends ApplicationAdapter {
 
 	// Declare config, variables
 	public static final float PPT = 16; // Pixel Per Tile - Used to standardize scaling
 	public static final long startTime = System.currentTimeMillis();
 	private final float ZoomFriction = 0.86f;
-	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.02f };
-	private final float initialZoom = PPT * 0.01f;
+	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.025f };
+	private final float initialZoom = PPT * 0.017f;
 
 	private OrthographicCamera camera;
 	private SpriteBatch gameBatch;
@@ -78,7 +78,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		gameBatch = new SpriteBatch();
 		UIBatch = new SpriteBatch();
-		Gdx.input.setInputProcessor(this);
+		Gdx.input.setInputProcessor(Binding.getInstance());
 	}
 
 	private void setupTextures() {
@@ -111,7 +111,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 	}
 
 
-	private void resetGame() {
+	public void resetGame() {
 		// Reset camera zoom
 		inputZoomed = 0.0f;
 		zoomVel = 0.0f;
@@ -137,14 +137,19 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		hasWon = false;
 	}
 
-	private void startGame() {
+	public void startGame() {
 		// Start game running
 		gameState = GameState.RUNNING;
 	}
 
-	private void stopGame() {
+	public void stopGame() {
 		// Stop game from running
 		gameState = GameState.FINISHED;
+	}
+
+	public void closeGame() {
+		// Close game window
+		Gdx.app.exit();
 	}
 
 
@@ -170,7 +175,20 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
 			Projectile p = pItr.next();
 			p.update();
-			if (p.shouldRemove()) pItr.remove();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
+
+		// Update particles, allowing for deletion
+		for (Iterator<Particle> pItr = particles.iterator(); pItr.hasNext();) {
+			Particle p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
 		}
 
 		// Check if objective is complete
@@ -178,14 +196,12 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 	}
 
 	private void handleInput() {
-		// Start game on space
-		if (gameState == GameState.READY && Gdx.input.isKeyPressed(Input.Keys.SPACE)) startGame();
+		// Start, stop, restart game on "startGame"
+		if (gameState == GameState.READY && Binding.getInstance().isActionJustPressed("startGame")) startGame();
+		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")) resetGame();
 
-		// Stop game on escape
-		else if (gameState == GameState.RUNNING && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) stopGame();
-
-		// Restart game on escape
-		else if (gameState == GameState.FINISHED && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) resetGame();
+		// Close game on "closeGame"
+		if (Binding.getInstance().isActionJustPressed("closeGame")) closeGame();
 	}
 
 	private void updateCamera() {
@@ -198,7 +214,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		// Zoom camera based on input
 		if (gameState == GameState.RUNNING) {
 			float ZoomAcceleration = 0.5f;
-			zoomVel += inputZoomed * ZoomAcceleration * Gdx.graphics.getDeltaTime();
+			zoomVel += Binding.getInstance().getScrollAmount() * ZoomAcceleration * Gdx.graphics.getDeltaTime();
 			zoomVel *= ZoomFriction;
 			camera.zoom += zoomVel;
 			camera.zoom = Math.max(Math.min(camera.zoom, ZoomLim[1]), ZoomLim[0]);
@@ -234,10 +250,10 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		tiledMapRenderer.render();
 
 		// Render projectiles, colleges, players, particles
+		for (Particle particle : particles) particle.render(gameBatch);
 		for (College college : colleges) college.render(gameBatch);
 		for (Projectile projectile : projectiles) projectile.render(gameBatch);
 		player.render(gameBatch);
-		for (Particle particle : particles) particle.render(gameBatch);
 
 		// Draw batch
 		gameBatch.end();
@@ -278,15 +294,25 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 	@Override
 	public void dispose() {
 		// Run dispatch functions on player / colleges
-		for (College college : colleges) college.dispose();
-		player.dispose();
 		tiledMap.dispose();
+		startSprite.getTexture().dispose();
+		winSprite.getTexture().dispose();
+		lostSprite.getTexture().dispose();
+		player.dispose();
+		for (College college : colleges) college.dispose();
+		Projectile.staticDispose();
+		Particle.staticDispose();
 	}
 
 
 	public void addProjectile(Projectile projectile) {
 		// Add projectile
 		projectiles.add(projectile);
+	}
+
+	public void addParticle(Particle particle) {
+		// Add particle
+		particles.add(particle);
 	}
 
 
@@ -304,7 +330,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		// Check whether rect overlaps the player collision rect
 		return Intersector.overlaps(player.getCollisionRect(), rect);
 	}
-
 
 	public IHittable checkHitHittable(Rectangle rect) {
 		// Loop over and check collision against each hittable
@@ -331,33 +356,5 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 	public Vector2 getWorldMousePos() {
 		// Getter for world mouse pos
 		return new Vector2(worldMousePos.x, worldMousePos.y);
-	}
-
-
-	@Override
-	public boolean keyDown (int keycode) { return false; }
-
-	@Override
-	public boolean keyUp (int keycode) { return false; }
-
-	@Override
-	public boolean keyTyped (char character) { return false; }
-
-	@Override
-	public boolean touchDown (int screenX, int screenY, int pointer, int button) { return false; }
-
-	@Override
-	public boolean touchUp (int screenX, int screenY, int pointer, int button) { return false; }
-
-	@Override
-	public boolean touchDragged (int screenX, int screenY, int pointer) { return false; }
-
-	@Override
-	public boolean mouseMoved (int screenX, int screenY) { return false; }
-
-	@Override
-	public boolean scrolled(float amountX, float amountY) {
-		inputZoomed = amountY;
-		return true;
 	}
 }

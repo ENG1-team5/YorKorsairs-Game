@@ -13,34 +13,24 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class Player implements IHittable {
 
-    // TODO:
-    //  - Health variable which is limited, and detects when dead
-    //  - This needs to trigger a function on Game to say player died
-    //  - Also probably need a shipDead.png
-    // TODO:
-    //  - method of UI to show this below the ship
-    //  - Potentially just a green texture scaled based on health overtop a red texture
-    //  - Will probably need a renderUI() function that is called by Game()
-    // TODO:
-    //  - Generate growing circular wave particles behind ship while moving
-
-
     // Declare static, config, variables
     private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
     private static final Texture movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
+    private static final Texture deadTexture = new Texture(Gdx.files.internal("./ships/shipDead.png"));
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
-    private final float shipWidth = Game.PPT * 1f;
+    private final float shipWidth = Game.PPT * 1.65f;
     private final float maxSpeed = Game.PPT * 1.5f; // Units / Second
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float friction = 0.985f;
     private final float idleSpeed = Game.PPT * 0.4f;
-    private final float idleSwayMag = 0.12f;
+    private final float idleSwayMag = 0.16f;
     private final float idleSwayFreq = 0.2f;
-    private final float swayAcceleration = Game.PPT * 2.0f;
+    private final float swayAcceleration = 100f;
     private final float maxHealth = 100;
-    private final float shotTimerMax = 0.8f;
+    private final float shotTimerMax = 0.2f;
+    private final float particleTimerMax = 0.4f;
 
     private Game game;
     private Sprite shipSprite;
@@ -52,6 +42,7 @@ public class Player implements IHittable {
     private Vector2 inputDir;
     private float health;
     private float shotTimer;
+    private float particleTimer;
 
 
     Player(Game game_, Vector2 pos_) {
@@ -62,6 +53,7 @@ public class Player implements IHittable {
         inputDir = new Vector2(Vector2.Zero);
         health = 100;
         shotTimer = 0.0f;
+        particleTimer = 0.0f;
 
         // Initialize ship sprite
         float ratio = (float)idleTexture.getHeight() / (float)idleTexture.getWidth();
@@ -96,13 +88,13 @@ public class Player implements IHittable {
     private void handleInput() {
         // Calculate input direction
         inputDir = new Vector2(0, 0);
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) inputDir.x--;
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) inputDir.x++;
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) inputDir.y--;
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) inputDir.y++;
+        if (Binding.getInstance().isActionPressed("moveLeft")) inputDir.x--;
+        if (Binding.getInstance().isActionPressed("moveRight")) inputDir.x++;
+        if (Binding.getInstance().isActionPressed("moveDown")) inputDir.y--;
+        if (Binding.getInstance().isActionPressed("moveUp")) inputDir.y++;
 
-        // Shoot if clicked
-        if (Gdx.input.isButtonJustPressed(0) && shotTimer == 0.0f) {
+        // Shoot on "shoot"
+        if (Binding.getInstance().isActionPressed("shoot") && shotTimer == 0.0f) {
             Vector2 dir = game.getWorldMousePos().sub(pos);
             Vector2 newPos = new Vector2(pos);
             Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
@@ -137,15 +129,31 @@ public class Player implements IHittable {
             vel.x = 0;
             vel.y = 0;
         }
+
+        // Create particles if moving
+        if (vel.len2() > (idleSpeed * idleSpeed)) {
+            particleTimer = Math.max(particleTimer - Gdx.graphics.getDeltaTime(), 0f);
+            if (particleTimer == 0.0f) {
+                float pSizeStart = 0.0f;
+                float pSizeEnd = ((float)Math.random() * 0.3f + 0.6f) * (vel.len2() / (maxSpeed * maxSpeed)) * shipWidth;
+                float pTime = (float)Math.random() * 0.5f + 2.0f;
+                Particle particle = new Particle("splash", new Vector2(pos), pSizeStart, pSizeEnd, 0.0f, pTime);
+                game.addParticle(particle);
+                particleTimer = particleTimerMax;
+            }
+
+        // Reset particle timer if not moving
+        } else particleTimer = 0.0f;
     }
 
 
     private void updateSprite() {
         // Update sprite based on whether moving
-        if (vel.len2() < (idleSpeed * idleSpeed)) {
-            if (shipSprite.getTexture() != idleTexture) shipSprite.setTexture(idleTexture);
-        } else if (shipSprite.getTexture() != movingTexture) shipSprite.setTexture(movingTexture);
-
+        if (health > 0.0f) {
+            if (vel.len2() < (idleSpeed * idleSpeed)) {
+                if (shipSprite.getTexture() != idleTexture) shipSprite.setTexture(idleTexture);
+            } else if (shipSprite.getTexture() != movingTexture) shipSprite.setTexture(movingTexture);
+        } else if (shipSprite.getTexture() != deadTexture) shipSprite.setTexture(deadTexture);
 
         // Update the ship sprite position and flip
         if (!shipSprite.isFlipX() && (vel.x < 0)
@@ -166,7 +174,7 @@ public class Player implements IHittable {
         } else target = -vel.x / maxSpeed * 0.5f * (2 * (float)Math.PI);
 
         // Sway towards target rotation
-//        shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
+        shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
     }
 
 
@@ -188,8 +196,12 @@ public class Player implements IHittable {
 
 
     public void dispose() {
-        // Dispose of ship texture afterwards
-        shipSprite.getTexture().dispose();
+        // Dispose of all ship textures
+        movingTexture.dispose();
+        idleTexture.dispose();
+        deadTexture.dispose();
+        healthbarBackTexture.dispose();
+        healthbarFillTexture.dispose();
     }
 
 
@@ -203,8 +215,23 @@ public class Player implements IHittable {
 
 
     public boolean damage(float damage) {
-        health -= damage;
+        health = (float)Math.max(health - damage, 0.0f);
+        if (health == 0f) destroy();
         return true;
+    }
+
+
+    private void destroy() {
+        if (health != 0) return;
+
+        // Add particles
+        for (int i = 0; i < Math.random() * 3f + 4f; i++) {
+            Particle particle = new Particle("rock", new Vector2(pos), Game.PPT * 0.1f, Game.PPT * 0.5f, 0.7f);
+            game.addParticle(particle);
+        }
+
+        // Alert game of death
+        game.stopGame();
     }
 
 

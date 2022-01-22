@@ -14,21 +14,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class College implements IHittable {
 
-    // TODO:
-    //  - Add a teamID variable that allows it to decide whether to shoot player / enemy
-    //      that is set in the constructor.
-    //  - Player would need a public getTeam() function.
-    //      - Maybe worth thinking about other ships and their team
-    //  - This would also allows some way of differentiating visuals.
-    //  - Can also pass this into the projectile.
-
-
     // Declare config, variables
     private static final Texture collegeTexture = new Texture(Gdx.files.internal("./colleges/college.png"));
     private static final Texture collegeShotTexture = new Texture(Gdx.files.internal("./colleges/collegeShot.png"));
     private final float collegeWidth = Game.PPT * 2.5f;
-    private final float shotTimerMax = 1.5f;
-    private final float shootRange = Game.PPT * 4.0f;
+    private final float shotTimerMax = 1.2f;
+    private final float shootRange = Game.PPT * 6.5f;
 
     private Game game;
     private Sprite collegeSprite;
@@ -105,7 +96,7 @@ public class College implements IHittable {
     @Override
     public Rectangle getCollisionRect() {
         return new Rectangle(
-            pos.x - collegeSprite.getOriginX() - collegeWidth * 0.5f,
+            pos.x - collegeSprite.getOriginX(),
             pos.y - collegeSprite.getOriginY(),
             collegeSprite.getWidth(), collegeSprite.getHeight() * 0.5f
         );

@@ -12,14 +12,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Projectile {
 
-    // TODO:
-    //  - Make a IHittable interface that Player and College inherits
-    //  - Game can then perform checkHitHittable that returns either interface or null
-    // TODO:
-    //  - Call triggerHit on the IHittable returned when hit
-    //  - This function should affect health / generate particles
-
-
     // Declare config, variables
     private static final Texture texture = new Texture(Gdx.files.internal("projectile.png"));
     private final float width = Game.PPT * 0.15f;
@@ -76,6 +68,11 @@ public class Projectile {
                 // Hit something that is not friendly
                 hittableHit.damage(10.0f);
                 toRemove = true;
+
+                for (int i = 0; i < Math.random() * 3f + 4f; i++) {
+                    Particle particle = new Particle("rock", new Vector2(pos), Game.PPT * 0.1f, Game.PPT * 0.5f, 0.7f);
+                    game.addParticle(particle);
+                }
             }
         }
     }
@@ -92,6 +89,8 @@ public class Projectile {
         return toRemove;
     }
 
+    public void beenRemoved() { }
+
 
     public Rectangle getCollisionRect() {
         // Calculate collision rectangle
@@ -100,5 +99,11 @@ public class Projectile {
             pos.y - width * 0.5f,
             width, width
         );
+    }
+
+
+    public static void staticDispose() {
+        // Dispose static textures
+        texture.dispose();
     }
 }
