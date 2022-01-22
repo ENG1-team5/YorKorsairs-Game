@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
 
 
-public class Player {
+public class Player implements IHittable {
 
     // TODO:
     //  - Health variable which is limited, and detects when dead
@@ -40,6 +40,7 @@ public class Player {
     private final float idleSwayFreq = 0.2f;
     private final float swayAcceleration = Game.PPT * 2.0f;
     private final float maxHealth = 100;
+    private final float shotTimerMax = 0.8f;
 
     private Game game;
     private Sprite shipSprite;
@@ -50,6 +51,7 @@ public class Player {
     private Vector2 vel;
     private Vector2 inputDir;
     private float health;
+    private float shotTimer;
 
 
     Player(Game game_, Vector2 pos_) {
@@ -59,6 +61,7 @@ public class Player {
         vel = new Vector2(Vector2.Zero);
         inputDir = new Vector2(Vector2.Zero);
         health = 100;
+        shotTimer = 0.0f;
 
         // Initialize ship sprite
         float ratio = (float)idleTexture.getHeight() / (float)idleTexture.getWidth();
@@ -97,6 +100,18 @@ public class Player {
         if(Gdx.input.isKeyPressed(Input.Keys.D)) inputDir.x++;
         if(Gdx.input.isKeyPressed(Input.Keys.S)) inputDir.y--;
         if(Gdx.input.isKeyPressed(Input.Keys.W)) inputDir.y++;
+
+        // Shoot if clicked
+        if (Gdx.input.isButtonJustPressed(0) && shotTimer == 0.0f) {
+            Vector2 dir = game.getWorldMousePos().sub(pos);
+            Vector2 newPos = new Vector2(pos);
+            Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
+            game.addProjectile(projectile);
+            shotTimer = shotTimerMax;
+        }
+
+        // Update shot timer
+        shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0);
     }
 
 
@@ -185,6 +200,15 @@ public class Player {
             shipWidth * 0.8f, shipWidth * 0.2f
         );
     }
+
+
+    public boolean damage(float damage) {
+        health -= damage;
+        return true;
+    }
+
+
+    public boolean getFriendly() { return true; }
 
 
     public Vector2 getPosition() { return pos; }

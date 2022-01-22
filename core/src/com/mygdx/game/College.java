@@ -4,6 +4,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,7 +12,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
-public class College {
+public class College implements IHittable {
 
     // TODO:
     //  - Add a teamID variable that allows it to decide whether to shoot player / enemy
@@ -70,7 +71,7 @@ public class College {
 
             // Create projectile towards player
             if (shotTimer == 0.0f) {
-                Projectile projectile = new Projectile(game, newPos, dir.nor());
+                Projectile projectile = new Projectile(game, this, newPos, dir.nor(), false);
                 game.addProjectile(projectile);
                 shotTimer = shotTimerMax;
             }
@@ -98,5 +99,27 @@ public class College {
     public void dispose() {
         // Dispose of ship texture afterwards
         collegeSprite.getTexture().dispose();
+    }
+
+
+    @Override
+    public Rectangle getCollisionRect() {
+        return new Rectangle(
+            pos.x - collegeSprite.getOriginX() - collegeWidth * 0.5f,
+            pos.y - collegeSprite.getOriginY(),
+            collegeSprite.getWidth(), collegeSprite.getHeight() * 0.5f
+        );
+    }
+
+
+    @Override
+    public boolean getFriendly() {
+        return false;
+    }
+
+
+    @Override
+    public boolean damage(float amount) {
+        return false;
     }
 }

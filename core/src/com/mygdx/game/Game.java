@@ -4,6 +4,7 @@ package com.mygdx.game;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -49,10 +50,14 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
 	private float inputZoomed;
 	private float zoomVel;
+	private Vector3 worldMousePos;
+
+	private Objective objective;
 	private Player player;
 	private ArrayList<College> colleges;
 	private ArrayList<Projectile> projectiles;
 	private ArrayList<Particle> particles;
+	private ArrayList<IHittable> hittables;
 
 	private enum GameState { READY, RUNNING, FINISHED };
 	private GameState gameState;
@@ -67,7 +72,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		resetGame();
 	}
 
-
 	private void setupScene() {
 		// Setup scene input / output
 		camera = new OrthographicCamera();
@@ -75,9 +79,7 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		gameBatch = new SpriteBatch();
 		UIBatch = new SpriteBatch();
 		Gdx.input.setInputProcessor(this);
-
 	}
-
 
 	private void setupTextures() {
 		// Setup tiled map
@@ -120,19 +122,33 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		camera.zoom = initialZoom;
 
 		// Initialize player and colleges
-		player = new Player(this, new Vector2(PPT * 17f, PPT * 14.5f));
+		objective = Objective.getRandomObjective();
 		colleges = new ArrayList<>();
+		projectiles = new ArrayList<>();
+		particles = new ArrayList<>();
+		hittables = new ArrayList<>();
+		player = new Player(this, new Vector2(PPT * 17f, PPT * 14.5f));
 		colleges.add(new College(this, new Vector2(PPT * 25f, PPT * 14.5f)));
 		colleges.add(new College(this, new Vector2(PPT * 22f, PPT * 24.5f)));
 		colleges.add(new College(this, new Vector2(PPT * 35f, PPT * 24.5f)));
-		projectiles = new ArrayList<>();
-		particles = new ArrayList<>();
+		hittables.add(player);
+		for (College college : colleges) hittables.add(college);
 		inputZoomed = 0.0f;
 		zoomVel = 0.0f;
 
 		// reset game state
 		gameState = GameState.READY;
 		hasWon = false;
+	}
+
+	private void startGame() {
+		// Start game running
+		gameState = GameState.RUNNING;
+	}
+
+	private void stopGame() {
+		// Stop game from running
+		gameState = GameState.FINISHED;
 	}
 
 
@@ -151,27 +167,30 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		handleInput();
 		updateCamera();
 		for (College college : colleges) college.update();
+		for (Particle particle : particles) particle.update();
+		player.update();
+
+		// Update projectiles, allowing for deletion
 		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
 			Projectile p = pItr.next();
 			p.update();
 			if (p.shouldRemove()) pItr.remove();
 		}
-		player.update();
-		for (Particle particle : particles) particle.update();
-	}
 
+		// Check if objective is complete
+		if (objective.checkComplete(this)) stopGame();
+	}
 
 	private void handleInput() {
 		// Start game on space
-		if (gameState == GameState.READY && Gdx.input.isKeyPressed(Input.Keys.SPACE)) gameState = GameState.RUNNING;
+		if (gameState == GameState.READY && Gdx.input.isKeyPressed(Input.Keys.SPACE)) startGame();
 
 		// Stop game on escape
-		else if (gameState == GameState.RUNNING && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) gameState = GameState.FINISHED;
+		else if (gameState == GameState.RUNNING && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) stopGame();
 
 		// Restart game on escape
 		else if (gameState == GameState.FINISHED && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) resetGame();
 	}
-
 
 	private void updateCamera() {
 		// Follow player with camera
@@ -192,6 +211,10 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 
 		// Update camera
 		camera.update();
+
+		// Get world mouse pos
+		Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0.0f);
+		worldMousePos = camera.unproject(mousePos);
 	}
 
 
@@ -204,7 +227,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		renderGame();
 		renderUI();
 	}
-
 
 	private void renderGame() {
 		// Setup batch
@@ -224,7 +246,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		// Draw batch
 		gameBatch.end();
 	}
-
 
 	private void renderUI() {
 		// Setup batch
@@ -250,6 +271,9 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 			}
 		}
 
+		// Draw objective
+		objective.renderUI(UIBatch);
+
 		// Draw batch
 		UIBatch.end();
 	}
@@ -270,24 +294,6 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 	}
 
 
-	public void removeProjectile(Projectile projectile) {
-		// Remove projectile
-		projectiles.remove(projectile);
-	}
-
-
-	public Player getPlayer() {
-		// Return player
-		return player;
-	}
-
-
-	public boolean getRunning() {
-		// Getter for isRunning
-		return gameState == GameState.RUNNING;
-	}
-
-
 	public boolean checkCollision(Rectangle rect) {
 		// Check whether rect overlaps any collision objects
 		for (RectangleMapObject rectObj : collisionObjects.getByType(RectangleMapObject.class)) {
@@ -298,10 +304,37 @@ public class Game extends ApplicationAdapter implements InputProcessor {
 		return false;
 	}
 
-
 	public boolean checkHitPlayer(Rectangle rect) {
 		// Check whether rect overlaps the player collision rect
 		return Intersector.overlaps(player.getCollisionRect(), rect);
+	}
+
+
+	public IHittable checkHitHittable(Rectangle rect) {
+		// Loop over and check collision against each hittable
+		for (IHittable hittable : hittables) {
+			Rectangle hittableRect = hittable.getCollisionRect();
+			if (Intersector.overlaps(rect, hittableRect)) {
+				return hittable;
+			}
+		}
+		return null;
+	}
+
+
+	public Player getPlayer() {
+		// Return player
+		return player;
+	}
+
+	public boolean getRunning() {
+		// Getter for isRunning
+		return gameState == GameState.RUNNING;
+	}
+
+	public Vector2 getWorldMousePos() {
+		// Getter for world mouse pos
+		return new Vector2(worldMousePos.x, worldMousePos.y);
 	}
 
 

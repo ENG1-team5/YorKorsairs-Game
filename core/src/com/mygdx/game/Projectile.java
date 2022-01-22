@@ -23,22 +23,29 @@ public class Projectile {
     // Declare config, variables
     private static final Texture texture = new Texture(Gdx.files.internal("projectile.png"));
     private final float width = Game.PPT * 0.15f;
+    private final float timeMax = 3f;
+    private final float speed = Game.PPT * 2.5f;
 
     private Game game;
+    IHittable source;
     private Sprite sprite;
     private Vector2 pos;
     private Vector2 vel;
-    private boolean canHit;
+    private boolean isFriendly;
+    private float currentTime;
     private boolean toRemove;
 
 
-    Projectile(Game game_, Vector2 pos_, Vector2 vel_) {
+    Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_) {
         // Declare variables
         game = game_;
+        source = source_;
         sprite = new Sprite(texture);
         pos = pos_;
-        vel = vel_;
-        canHit = false;
+        vel = vel_.nor();
+        isFriendly = isFriendly_;
+        currentTime = 0.0f;
+        toRemove = false;
 
         // Setup sprite
         sprite.setPosition(pos.x, pos.y);
@@ -50,24 +57,27 @@ public class Projectile {
 
     public void update() {
         // Update position with velocity
-        pos.x += vel.x;
-        pos.y += vel.y;
+        pos.x += vel.x * speed * Gdx.graphics.getDeltaTime();
+        pos.y += vel.y * speed * Gdx.graphics.getDeltaTime();
 
         // Update sprite
         sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
 
+        // Update timer
+        currentTime += Gdx.graphics.getDeltaTime();
+        if (currentTime > timeMax) toRemove = true;
 
-        // Detect hitting player
+        // Check if hit anything
         Rectangle rect = getCollisionRect();
-        if (game.checkHitPlayer(rect)) {
-            if (canHit) toRemove = true;
+        IHittable hittableHit = game.checkHitHittable(rect);
+        if (hittableHit != null) {
+            if (isFriendly != hittableHit.getFriendly() && hittableHit != source) {
 
-        // Detect hitting wall
-        } else if (game.checkCollision(rect)) {
-            if (canHit) toRemove = true;
-
-        // Once off of wall then can hit players
-        } else canHit = true;
+                // Hit something that is not friendly
+                hittableHit.damage(10.0f);
+                toRemove = true;
+            }
+        }
     }
 
 
