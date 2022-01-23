@@ -84,6 +84,12 @@ public class Projectile {
     }
 
 
+    public static void staticDispose() {
+        // Dispose static textures
+        texture.dispose();
+    }
+
+
     public boolean shouldRemove() {
         // Return whether it should be removed
         return toRemove;
@@ -99,11 +105,5 @@ public class Projectile {
             pos.y - width * 0.5f,
             width, width
         );
-    }
-
-
-    public static void staticDispose() {
-        // Dispose static textures
-        texture.dispose();
     }
 }

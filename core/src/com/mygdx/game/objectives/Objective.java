@@ -1,36 +1,42 @@
 
 package com.mygdx.game.objectives;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
 public abstract class Objective {
 
     // Declare variables
-    private static BitmapFont font = new BitmapFont();
+    private GlyphLayout currentTextGlyph = new GlyphLayout();
+    protected Game game;
 
 
-    public static Objective getRandomObjective() {
+    Objective(Game game_) {
+        game = game_;
+    }
+
+
+    public static Objective getRandomObjective(Game game_) {
         // Pick a random objective
         float r = (float)Math.random();
-        if (r < 1f / 3f) return new DestroyCollegeObjective();
-        else if (r < 2f / 3f) return new AttainGoldObjective();
-        else return new KillShipObjective();
+        float numChoices = 2f;
+        if (r < 1f / numChoices) return new DestroyCollegeObjective(game_);
+        else return new AttainGoldObjective(game_);
     }
 
 
     public void renderUI(SpriteBatch batch) {
         // Draw requirement text to screen
-        // TODO:
-        //  - Figure out why font positioning is wrong
-        // TODO:
-        //  - Get a better font and sort antialiasing
-        font.setColor(0, 0, 0, 1);
-        font.getData().setScale(3.5f);
-        font.draw(batch, getRequirementText(), Gdx.graphics.getWidth() * 0.5f, Gdx.graphics.getHeight() - 25.0f);
+        float time = (System.currentTimeMillis() - Game.startTime) / 100f;
+        Game.mainFont.getData().setScale(0.99f + 0.02f * (float)Math.sin(time / 4f));
+        currentTextGlyph.setText(Game.mainFont, getRequirementText());
+        Game.mainFont.draw(batch, getRequirementText(), Gdx.graphics.getWidth() * 0.5f - currentTextGlyph.width * 0.5f, Gdx.graphics.getHeight() - currentTextGlyph.height * 0.5f);
+        Game.mainFont.getData().setScale(1f);
     }
 
 

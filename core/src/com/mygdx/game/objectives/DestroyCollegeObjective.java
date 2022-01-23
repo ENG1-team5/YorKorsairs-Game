@@ -12,7 +12,9 @@ public class DestroyCollegeObjective extends Objective {
     private int collegesLeft;
 
 
-    DestroyCollegeObjective() {
+    DestroyCollegeObjective(Game game_) {
+        super(game_);
+
         // Initialize variables
         collegesLeft = collegesRequired;
     }

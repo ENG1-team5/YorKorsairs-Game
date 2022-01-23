@@ -4,12 +4,11 @@ package com.mygdx.game;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -33,16 +32,20 @@ public class Game extends ApplicationAdapter {
 	// Declare config, variables
 	public static final float PPT = 16; // Pixel Per Tile - Used to standardize scaling
 	public static final long startTime = System.currentTimeMillis();
+	public static BitmapFont mainFont;
 	private final float ZoomFriction = 0.86f;
 	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.025f };
 	private final float initialZoom = PPT * 0.017f;
+	private final int xpPerLevel = 100;
 
 	private OrthographicCamera camera;
+	private OrthographicCamera UICamera;
 	private SpriteBatch gameBatch;
 	private SpriteBatch UIBatch;
 	private TiledMap tiledMap;
 	private TiledMapRenderer tiledMapRenderer;
 	private MapObjects collisionObjects;
+	private GlyphLayout currentUITextGlyph = new GlyphLayout();
 
 	private Sprite startSprite;
 	private Sprite winSprite;
@@ -51,6 +54,12 @@ public class Game extends ApplicationAdapter {
 	private float inputZoomed;
 	private float zoomVel;
 	private Vector3 worldMousePos;
+	private enum GameState { READY, RUNNING, FINISHED };
+	private GameState gameState;
+	private boolean hasWon;
+	public float currentGold;
+	public int currentLevel;
+	public int currentXP;
 
 	private Objective objective;
 	private Player player;
@@ -59,16 +68,12 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<Particle> particles;
 	private ArrayList<IHittable> hittables;
 
-	private enum GameState { READY, RUNNING, FINISHED };
-	private GameState gameState;
-	private boolean hasWon;
-
 
 	@Override
 	public void create() {
 		// Run setup functions
 		setupScene();
-		setupTextures();
+		setupAssets();
 		resetGame();
 	}
 
@@ -76,12 +81,14 @@ public class Game extends ApplicationAdapter {
 		// Setup scene input / output
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		UICamera = new OrthographicCamera();
+		UICamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		gameBatch = new SpriteBatch();
 		UIBatch = new SpriteBatch();
 		Gdx.input.setInputProcessor(Binding.getInstance());
 	}
 
-	private void setupTextures() {
+	private void setupAssets() {
 		// Setup tiled map
 		tiledMap = new TmxMapLoader().load("./tiles/map.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
@@ -108,33 +115,38 @@ public class Game extends ApplicationAdapter {
 		lostSprite.setPosition(
 			Gdx.graphics.getWidth() * 0.5f - lostSprite.getWidth() * 0.5f,
 			Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f);
+
+		// Setup font
+		mainFont = new BitmapFont(Gdx.files.internal("./fonts/Pixellari.fnt"));
+		mainFont.setColor(0f, 0f, 0f, 1f);
 	}
 
 
 	public void resetGame() {
-		// Reset camera zoom
+		// Reset main variables
+		camera.zoom = initialZoom;
 		inputZoomed = 0.0f;
 		zoomVel = 0.0f;
-		camera.zoom = initialZoom;
+		gameState = GameState.READY;
+		hasWon = false;
+		currentGold = 0f;
+		currentLevel = 1;
+		currentXP = 0;
 
-		// Initialize player and colleges
-		objective = Objective.getRandomObjective();
+		// Initialize objects
+		objective = Objective.getRandomObjective(this);
 		colleges = new ArrayList<>();
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
 		hittables = new ArrayList<>();
-		player = new Player(this, new Vector2(PPT * 17f, PPT * 14.5f));
-		colleges.add(new College(this, new Vector2(PPT * 25f, PPT * 14.5f)));
-		colleges.add(new College(this, new Vector2(PPT * 22f, PPT * 24.5f)));
-		colleges.add(new College(this, new Vector2(PPT * 35f, PPT * 24.5f)));
+		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
+		colleges.add(new College(this, new Vector2(PPT * 25f, PPT * 14.5f), true));
+		colleges.add(new College(this, new Vector2(PPT * 22f, PPT * 24.5f), false));
+		colleges.add(new College(this, new Vector2(PPT * 35f, PPT * 24.5f), false));
+		colleges.add(new College(this, new Vector2(PPT * 38f, PPT * 24.5f), false));
+		colleges.add(new College(this, new Vector2(PPT * 41f, PPT * 24.5f), false));
 		hittables.add(player);
 		for (College college : colleges) hittables.add(college);
-		inputZoomed = 0.0f;
-		zoomVel = 0.0f;
-
-		// reset game state
-		gameState = GameState.READY;
-		hasWon = false;
 	}
 
 	public void startGame() {
@@ -142,8 +154,15 @@ public class Game extends ApplicationAdapter {
 		gameState = GameState.RUNNING;
 	}
 
-	public void stopGame() {
-		// Stop game from running
+	public void winGame() {
+		// Stop game from running and win
+		hasWon = true;
+		gameState = GameState.FINISHED;
+	}
+
+	public void loseGame() {
+		// Stop game from running and lose
+		hasWon = false;
 		gameState = GameState.FINISHED;
 	}
 
@@ -158,6 +177,7 @@ public class Game extends ApplicationAdapter {
 		// Resize camera and move to maintain centre
 		Vector3 position = new Vector3(camera.position);
 		camera.setToOrtho(false, width, height);
+		UICamera.setToOrtho(false, width, height);
 		camera.translate(-camera.viewportWidth * 0.5f, -camera.viewportHeight * 0.5f);
 		camera.translate(position.x, position.y);
 	}
@@ -192,7 +212,7 @@ public class Game extends ApplicationAdapter {
 		}
 
 		// Check if objective is complete
-		if (objective.checkComplete(this)) stopGame();
+		if (objective.checkComplete(this)) winGame();
 	}
 
 	private void handleInput() {
@@ -223,6 +243,7 @@ public class Game extends ApplicationAdapter {
 
 		// Update camera
 		camera.update();
+		UICamera.update();
 
 		// Get world mouse pos
 		Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0.0f);
@@ -250,10 +271,10 @@ public class Game extends ApplicationAdapter {
 		tiledMapRenderer.render();
 
 		// Render projectiles, colleges, players, particles
-		for (Particle particle : particles) particle.render(gameBatch);
 		for (College college : colleges) college.render(gameBatch);
-		for (Projectile projectile : projectiles) projectile.render(gameBatch);
+		for (Particle particle : particles) particle.render(gameBatch);
 		player.render(gameBatch);
+		for (Projectile projectile : projectiles) projectile.render(gameBatch);
 
 		// Draw batch
 		gameBatch.end();
@@ -261,12 +282,16 @@ public class Game extends ApplicationAdapter {
 
 	private void renderUI() {
 		// Setup batch
+		UIBatch.setProjectionMatrix(UICamera.combined);
 		UIBatch.begin();
 
 		// Draw start splash
 		float time = (System.currentTimeMillis() - startTime) / 100f;
 		if (gameState == GameState.READY) {
 			startSprite.setScale(0.95f + 0.1f * (float)Math.sin(time / 2f));
+			startSprite.setPosition(
+					Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
+					Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
 			startSprite.draw(UIBatch);
 
 		} else if (gameState == GameState.FINISHED) {
@@ -274,17 +299,45 @@ public class Game extends ApplicationAdapter {
 			// Draw win splash
 			if (hasWon) {
 				winSprite.setScale(0.95f + 0.1f * (float)Math.sin(time / 2f));
+				winSprite.setPosition(
+					Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
+					Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
 				winSprite.draw(UIBatch);
 
 			// Draw lost splash
 			} else {
 				lostSprite.setScale(0.95f + 0.1f * (float)Math.sin(time / 2f));
+				lostSprite.setPosition(
+					Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
+					Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
 				lostSprite.draw(UIBatch);
 			}
 		}
 
-		// Draw objective
+		// Draw objective UI
 		objective.renderUI(UIBatch);
+
+
+		// Draw gold count
+		mainFont.getData().setScale(0.5f);
+		float currentHeight = 0f;
+		float spacing = 10f;
+
+		String goldText = "Gold: " + currentGold;
+		currentUITextGlyph.setText(mainFont, goldText);
+		currentHeight += currentUITextGlyph.height + spacing;
+		mainFont.draw(UIBatch, goldText, spacing, currentHeight);
+
+		String xpText = "XP: " + currentXP + " / " + xpPerLevel;
+		currentUITextGlyph.setText(mainFont, xpText);
+		currentHeight += currentUITextGlyph.height + spacing;
+		mainFont.draw(UIBatch, xpText, spacing, currentHeight);
+
+		String levelText = "Level " + currentLevel;
+		currentUITextGlyph.setText(mainFont, levelText);
+		currentHeight += currentUITextGlyph.height + spacing;
+		mainFont.draw(UIBatch, levelText, spacing, currentHeight);
+		mainFont.getData().setScale(1f);
 
 		// Draw batch
 		UIBatch.end();
@@ -302,6 +355,7 @@ public class Game extends ApplicationAdapter {
 		for (College college : colleges) college.dispose();
 		Projectile.staticDispose();
 		Particle.staticDispose();
+		mainFont.dispose();
 	}
 
 

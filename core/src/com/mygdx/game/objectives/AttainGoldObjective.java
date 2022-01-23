@@ -9,24 +9,19 @@ public class AttainGoldObjective extends Objective {
     // Declare config, variables
     private static int goldRequired = 300;
 
-    private int goldLeft;
 
-
-    AttainGoldObjective() {
-        // Initialize variables
-        goldLeft = goldRequired;
-    }
+    AttainGoldObjective(Game game_) { super(game_); }
 
 
     @Override
     protected String getRequirementText() {
         // Return requirement text
-        return "Get " + goldLeft + " more gold!";
+        return "Get " + Math.max(goldRequired - game.currentGold, 0) + " more gold!";
     }
 
 
     @Override
     public boolean checkComplete(Game game) {
-        return false;
+        return game.currentGold >= goldRequired;
     }
 }
