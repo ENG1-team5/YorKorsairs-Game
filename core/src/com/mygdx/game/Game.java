@@ -3,7 +3,6 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
@@ -29,6 +28,12 @@ import com.badlogic.gdx.maps.MapObjects;
 
 public class Game extends ApplicationAdapter {
 
+	// TODO:
+	//  - Tutorial popups for input
+	// TODO:
+	//  - Random positioning for college start
+	//  - Assigned random college
+
 	// Declare config, variables
 	public static final float PPT = 16; // Pixel Per Tile - Used to standardize scaling
 	public static final long startTime = System.currentTimeMillis();
@@ -36,7 +41,8 @@ public class Game extends ApplicationAdapter {
 	private final float ZoomFriction = 0.86f;
 	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.025f };
 	private final float initialZoom = PPT * 0.017f;
-	private final int xpPerLevel = 100;
+	private final int xpPerLevel = 50;
+	private final float xpGain = 0.5f;
 
 	private OrthographicCamera camera;
 	private OrthographicCamera UICamera;
@@ -51,7 +57,6 @@ public class Game extends ApplicationAdapter {
 	private Sprite winSprite;
 	private Sprite lostSprite;
 
-	private float inputZoomed;
 	private float zoomVel;
 	private Vector3 worldMousePos;
 	private enum GameState { READY, RUNNING, FINISHED };
@@ -59,7 +64,7 @@ public class Game extends ApplicationAdapter {
 	private boolean hasWon;
 	public float currentGold;
 	public int currentLevel;
-	public int currentXP;
+	public float currentXP;
 
 	private Objective objective;
 	private Player player;
@@ -125,7 +130,6 @@ public class Game extends ApplicationAdapter {
 	public void resetGame() {
 		// Reset main variables
 		camera.zoom = initialZoom;
-		inputZoomed = 0.0f;
 		zoomVel = 0.0f;
 		gameState = GameState.READY;
 		hasWon = false;
@@ -134,19 +138,17 @@ public class Game extends ApplicationAdapter {
 		currentXP = 0;
 
 		// Initialize objects
-		objective = Objective.getRandomObjective(this);
 		colleges = new ArrayList<>();
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
 		hittables = new ArrayList<>();
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
-		colleges.add(new College(this, new Vector2(PPT * 25f, PPT * 14.5f), true));
-		colleges.add(new College(this, new Vector2(PPT * 22f, PPT * 24.5f), false));
-		colleges.add(new College(this, new Vector2(PPT * 35f, PPT * 24.5f), false));
-		colleges.add(new College(this, new Vector2(PPT * 38f, PPT * 24.5f), false));
-		colleges.add(new College(this, new Vector2(PPT * 41f, PPT * 24.5f), false));
+		colleges.add(new College("Constantine", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
+		colleges.add(new College("Goodricke", this, new Vector2(PPT * 22f, PPT * 24.5f), false));
+		colleges.add(new College("Langwith", this, new Vector2(PPT * 35f, PPT * 24.5f), false));
 		hittables.add(player);
 		for (College college : colleges) hittables.add(college);
+		objective = Objective.getRandomObjective(this);
 	}
 
 	public void startGame() {
@@ -187,6 +189,7 @@ public class Game extends ApplicationAdapter {
 		// Run update functions
 		handleInput();
 		updateCamera();
+		updateLogic();
 		for (College college : colleges) college.update();
 		for (Particle particle : particles) particle.update();
 		player.update();
@@ -239,7 +242,6 @@ public class Game extends ApplicationAdapter {
 			camera.zoom += zoomVel;
 			camera.zoom = Math.max(Math.min(camera.zoom, ZoomLim[1]), ZoomLim[0]);
 		}
-		inputZoomed = 0.0f;
 
 		// Update camera
 		camera.update();
@@ -248,6 +250,17 @@ public class Game extends ApplicationAdapter {
 		// Get world mouse pos
 		Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0.0f);
 		worldMousePos = camera.unproject(mousePos);
+	}
+
+	private void updateLogic() {
+		// Increase XP and handle levelling up
+		if (gameState == GameState.RUNNING) {
+			addResources(0, Gdx.graphics.getDeltaTime() * xpGain);
+			if (currentXP > xpPerLevel) {
+				currentXP = currentXP % xpPerLevel;
+				currentLevel++;
+			}
+		}
 	}
 
 
@@ -328,10 +341,11 @@ public class Game extends ApplicationAdapter {
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, goldText, spacing, currentHeight);
 
-		String xpText = "XP: " + currentXP + " / " + xpPerLevel;
+		String xpText = "XP: " + ((float)Math.round(currentXP * 100f) / 100f);
 		currentUITextGlyph.setText(mainFont, xpText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, xpText, spacing, currentHeight);
+		mainFont.draw(UIBatch, "/ " + xpPerLevel, spacing * 14.5f, currentHeight);
 
 		String levelText = "Level " + currentLevel;
 		currentUITextGlyph.setText(mainFont, levelText);
@@ -369,12 +383,19 @@ public class Game extends ApplicationAdapter {
 		particles.add(particle);
 	}
 
+	public void addResources(float gold, float xp) {
+		// Gain the specified resources
+		currentGold += gold;
+		currentXP += xp;
+	}
+
 
 	public boolean checkCollision(Rectangle rect) {
 		// Check whether rect overlaps any collision objects
 		for (RectangleMapObject rectObj : collisionObjects.getByType(RectangleMapObject.class)) {
 			if (Intersector.overlaps(rectObj.getRectangle(), rect)) {
 				return true;
+
 			}
 		}
 		return false;
@@ -410,5 +431,10 @@ public class Game extends ApplicationAdapter {
 	public Vector2 getWorldMousePos() {
 		// Getter for world mouse pos
 		return new Vector2(worldMousePos.x, worldMousePos.y);
+	}
+
+	public ArrayList<College> getColleges() {
+		// Return colleges
+		return colleges;
 	}
 }

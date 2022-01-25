@@ -42,7 +42,6 @@ public abstract class Objective {
 
     protected abstract String getRequirementText();
 
-    // TODO:
-    //  - Make checkComplete functions for each child using game.getPlayer() and new variables
+
     public abstract boolean checkComplete(Game game);
 }

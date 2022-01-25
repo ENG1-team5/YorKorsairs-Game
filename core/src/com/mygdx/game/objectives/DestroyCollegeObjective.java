@@ -2,33 +2,50 @@
 package com.mygdx.game.objectives;
 
 import com.mygdx.game.Game;
+import com.mygdx.game.College;
+import java.util.ArrayList;
 
 
 public class DestroyCollegeObjective extends Objective {
 
-    // Declare config, variables
-    private final int collegesRequired = 5;
-
-    private int collegesLeft;
+    // Declare variables
+    private ArrayList<College> colleges;
+    private College nextCollege;
+    private int collegesRequired;
+    private int killableColleges;
 
 
     DestroyCollegeObjective(Game game_) {
         super(game_);
 
         // Initialize variables
-        collegesLeft = collegesRequired;
+        colleges = game.getColleges();
+        collegesRequired = 0;
+        for (College college : colleges) {
+            if (!college.getFriendly()) collegesRequired++;
+            if (nextCollege == null) nextCollege = college;
+        }
+
+        // Call once to update killable colleges
+        getRequirementText();
     }
 
 
     @Override
     protected String getRequirementText() {
         // Return requirement text
-        return "Destroy " + collegesLeft + " more colleges!";
+        killableColleges = 0;
+        if (!nextCollege.getAlive()) nextCollege = null;
+        for (College college : colleges) {
+            if (!college.getFriendly() && college.getAlive()) killableColleges++;
+            if (nextCollege == null) nextCollege = college;
+        }
+        return "Destroy " + killableColleges + " more colleges!";
     }
 
 
     @Override
     public boolean checkComplete(Game game) {
-        return false;
+        return killableColleges == 0;
     }
 }

@@ -5,6 +5,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -15,10 +16,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class College implements IHittable {
 
+    // TODO:
+    //  - Add collegeName to constructor
+    //  - Get image of college based on college name
+    //  - Might not need to cache textures as there should only be 1 of each
+    // TODO:
+    //  - isAlive() function on college for use by the Game class
+
+
     // Declare config, variables
-    private static final Texture collegeTexture = new Texture(Gdx.files.internal("./colleges/college.png"));
-    private static final Texture collegeShotTexture = new Texture(Gdx.files.internal("./colleges/collegeShot.png"));
-    private static final Texture collegeDeadTexture = new Texture(Gdx.files.internal("./colleges/collegeDead.png"));
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
     private final float collegeWidth = Game.PPT * 2.5f;
@@ -27,10 +33,15 @@ public class College implements IHittable {
     private final float shootRange = Game.PPT * 6.5f;
     private final float maxHealth = 200.0f;
 
+    private String name;
     private Game game;
+    private Texture collegeTexture;
+    private Texture collegeShotTexture;
+    private Texture collegeDeadTexture;
     private Sprite collegeSprite;
     private Sprite healthbarBackSprite;
     private Sprite healthbarFillSprite;
+    private GlyphLayout currentTextGlyph = new GlyphLayout();
 
     private Vector2 pos;
     private float health;
@@ -39,14 +50,20 @@ public class College implements IHittable {
     private float smokeTimer;
 
 
-    College(Game game_, Vector2 pos_, boolean isFriendly_) {
+    College(String name_, Game game_, Vector2 pos_, boolean isFriendly_) {
         // Initialize variables
+        name = name_;
         game = game_;
         pos = pos_;
         health = maxHealth;
         isFriendly = isFriendly_;
         shotTimer = 0f;
         smokeTimer = 0f;
+
+        // Initialize textures
+        collegeTexture = new Texture(Gdx.files.internal("./colleges/" + name + ".png"));
+        collegeDeadTexture = new Texture(Gdx.files.internal("./colleges/" + name + "Dead.png"));
+        collegeShotTexture = new Texture(Gdx.files.internal("./colleges/" + name + "Shot.png"));
 
         // Initialize sprite
         float ratio = (float)collegeTexture.getHeight() / (float)collegeTexture.getWidth();
@@ -147,6 +164,12 @@ public class College implements IHittable {
         collegeSprite.draw(batch);
         healthbarBackSprite.draw(batch);
         healthbarFillSprite.draw(batch);
+
+        // Render name text
+        Game.mainFont.getData().setScale(0.2f / 16f * Game.PPT);
+        currentTextGlyph.setText(Game.mainFont, name);
+        Game.mainFont.draw(batch, name, pos.x - currentTextGlyph.width * 0.5f, pos.y - currentTextGlyph.height);
+        Game.mainFont.getData().setScale(1f);
     }
 
 
@@ -171,8 +194,19 @@ public class College implements IHittable {
             game.addParticle(particle);
         }
 
-        // Give gold
-        if (!getFriendly()) game.currentGold += 150 + Math.floor((float)Math.random() * 10f);
+        // Give gold and XP
+        if (!getFriendly()) {
+            game.addResources(
+                50 + (int)Math.floor((float)Math.random() * 15),
+                15 + (int)Math.floor((float)Math.random() * 10)
+            );
+        }
+    }
+
+
+    public boolean getAlive() {
+        // Return if alive
+        return health != 0f;
     }
 
 

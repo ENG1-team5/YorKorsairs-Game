@@ -15,14 +15,20 @@ public class Player implements IHittable {
     // TODO:
     //  - It is VERY inefficient to use entirely different files for each frame
     //  - Need to change to using a spritesheet and TextureRegions
+    // TODO:
+    //  - Increase stats as you level up
 
     // Declare static, config, variables
     private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
     private static final Texture idleShot0Texture = new Texture(Gdx.files.internal("./ships/shipShot0.png"));
     private static final Texture idleShot1Texture = new Texture(Gdx.files.internal("./ships/shipShot1.png"));
+    // private static final Texture idleShot2Texture = new Texture(Gdx.files.internal("./ships/shipShot2.png"));
+    // private static final Texture idleShot3Texture = new Texture(Gdx.files.internal("./ships/shipShot3.png"));
     private static final Texture movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
     private static final Texture movingShot0Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot0.png"));
     private static final Texture movingShot1Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot1.png"));
+    // private static final Texture movingShot2Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot2.png"));
+    // private static final Texture movingShot3Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot3.png"));
     private static final Texture deadTexture = new Texture(Gdx.files.internal("./ships/shipDead.png"));
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
@@ -111,7 +117,7 @@ public class Player implements IHittable {
             Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
             game.addProjectile(projectile);
             shotTimer = shotTimerMax;
-            shotTurn = 1 - shotTurn;
+            shotTurn = (shotTurn + 1) % 2;
         }
 
         // Update shot timer
@@ -167,11 +173,15 @@ public class Player implements IHittable {
                 if (shotTimer > (shotTimerMax * 0.5f)) {
                     if (shotTurn == 0) targetTexture = idleShot0Texture;
                     else targetTexture = idleShot1Texture;
+                    // else if (shotTurn == 2) targetTexture = idleShot2Texture;
+                    // else targetTexture = idleShot3Texture;
                 } else targetTexture = idleTexture;
             } else {
                 if (shotTimer > (shotTimerMax * 0.5f)) {
                     if (shotTurn == 0) targetTexture = movingShot0Texture;
                     else targetTexture = movingShot1Texture;
+                    // else if (shotTurn == 2) targetTexture = movingShot2Texture;
+                    // else targetTexture = movingShot3Texture;
                 } else targetTexture = movingTexture;
             }
         } else targetTexture = deadTexture;
