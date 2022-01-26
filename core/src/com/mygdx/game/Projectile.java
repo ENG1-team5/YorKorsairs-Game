@@ -3,6 +3,7 @@ package com.mygdx.game;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,10 +14,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Projectile {
 
     // Declare config, variables
-    private static final Texture texture = new Texture(Gdx.files.internal("projectile.png"));
-    private final float width = Game.PPT * 0.15f;
+    private static final Texture texture = new Texture(Gdx.files.internal("./projectiles/cannonball.png"));
+    private final float width = Game.PPT * 0.22f;
     private final float timeMax = 3f;
-    private final float speed = Game.PPT * 2.5f;
+    private final float speed = Game.PPT * 3f;
+    private final float damage = 15f;
 
     private Game game;
     IHittable source;
@@ -41,7 +43,7 @@ public class Projectile {
 
         // Setup sprite
         sprite.setPosition(pos.x, pos.y);
-        sprite.setSize(width, width);
+        sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
         sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
         sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
     }
@@ -66,7 +68,7 @@ public class Projectile {
             if (isFriendly != hittableHit.getFriendly() && hittableHit != source) {
 
                 // Hit something that is not friendly
-                hittableHit.damage(10.0f);
+                hittableHit.damage(damage);
                 toRemove = true;
 
                 for (int i = 0; i < Math.random() * 3f + 4f; i++) {
@@ -75,6 +77,10 @@ public class Projectile {
                 }
             }
         }
+
+        // Rotate sprite in correct direction
+        float angle = MathUtils.radiansToDegrees * (float)Math.atan2(vel.y, vel.x);
+        sprite.setRotation(angle);
     }
 
 

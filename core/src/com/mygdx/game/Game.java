@@ -42,6 +42,7 @@ public class Game extends ApplicationAdapter {
 	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.022f };
 	private final float initialZoom = PPT * 0.0135f;
 	private final float zoomSpeed = PPT * 0.0075f;
+	private final float splashWidth = 500f;
 	private final int xpPerLevel = 50;
 	private final float xpGain = 0.5f;
 
@@ -73,6 +74,7 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<Projectile> projectiles;
 	private ArrayList<Particle> particles;
 	private ArrayList<IHittable> hittables;
+	private ArrayList<Enemy> enemies;
 
 
 	@Override
@@ -102,7 +104,6 @@ public class Game extends ApplicationAdapter {
 		collisionObjects = collisionLayer.getObjects();
 
 		// Load splash textures
-		float splashWidth = 350f;
 		startSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/startSplash.png")));
 		startSprite.setSize(splashWidth, splashWidth * (float)startSprite.getHeight() / startSprite.getWidth());
 		startSprite.setOrigin(startSprite.getWidth() * 0.5f, startSprite.getHeight() * 0.5f);
@@ -143,12 +144,23 @@ public class Game extends ApplicationAdapter {
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
 		hittables = new ArrayList<>();
+		enemies = new ArrayList<>();
+
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Constantine", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 22f, PPT * 24.5f), false));
-		colleges.add(new College("Langwith", this, new Vector2(PPT * 33f, PPT * 23.5f), false));
+		colleges.add(new College("Langwith", this, new Vector2(PPT * 34f, PPT * 21.5f), false));
+		colleges.add(new College("James", this, new Vector2(PPT * 26f, PPT * 29.5f), false));
+		colleges.add(new College("Alcuin", this, new Vector2(PPT * 39f, PPT * 13f), false));
+		colleges.add(new College("Anne-Lister", this, new Vector2(PPT * 57f, PPT * 10.5f), false));
+		colleges.add(new College("Derwent", this, new Vector2(PPT * 48f, PPT * 24.5f), false));
+		colleges.add(new College("Vanbrugh", this, new Vector2(PPT * 62f, PPT * 26.5f), false));
+		colleges.add(new College("Halifax", this, new Vector2(PPT * 34f, PPT * 38f), false));
 		hittables.add(player);
 		for (College college : colleges) hittables.add(college);
+		enemies.add(new Enemy(this, new Vector2(PPT * 33f, PPT * 36f)));
+		enemies.add(new Enemy(this, new Vector2(PPT * 26f, PPT * 35f)));
+		enemies.add(new Enemy(this, new Vector2(PPT * 40f, PPT * 25f)));
 		objective = Objective.getRandomObjective(this);
 	}
 
@@ -194,6 +206,7 @@ public class Game extends ApplicationAdapter {
 		for (College college : colleges) college.update();
 		for (Particle particle : particles) particle.update();
 		player.update();
+		for (Enemy enemy : enemies) enemy.update();
 
 		// Update projectiles, allowing for deletion
 		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
@@ -223,7 +236,8 @@ public class Game extends ApplicationAdapter {
 		// Start, stop, restart game on "startGame"
 		if (gameState == GameState.READY && Binding.getInstance().isActionJustPressed("startGame")) startGame();
 		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame")) resetGame();
-		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")) resetGame();
+		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")
+			|| gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("resetGame")) resetGame();
 
 		// Close game on "closeGame"
 		if (Binding.getInstance().isActionJustPressed("closeGame")) closeGame();
@@ -270,7 +284,7 @@ public class Game extends ApplicationAdapter {
 		update();
 
 		// Clear then run render functions
-		// ScreenUtils.clear(169/255f, 208/255f, 137/255f, 1f);
+		 ScreenUtils.clear(122/255f, 183/255f, 84/255f, 1f);
 		renderGame();
 		renderUI();
 	}
@@ -287,6 +301,7 @@ public class Game extends ApplicationAdapter {
 		// Render projectiles, colleges, players, particles
 		for (College college : colleges) college.render(gameBatch);
 		for (Particle particle : particles) particle.render(gameBatch);
+		for (Enemy enemy : enemies) enemy.render(gameBatch);
 		player.render(gameBatch);
 		for (Projectile projectile : projectiles) projectile.render(gameBatch);
 
@@ -368,6 +383,7 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void dispose() {
 		// Run dispatch functions on player / colleges
+		mainFont.dispose();
 		tiledMap.dispose();
 		startSprite.getTexture().dispose();
 		winSprite.getTexture().dispose();
@@ -376,7 +392,7 @@ public class Game extends ApplicationAdapter {
 		for (College college : colleges) college.dispose();
 		Projectile.staticDispose();
 		Particle.staticDispose();
-		mainFont.dispose();
+		Enemy.staticDispose();
 	}
 
 

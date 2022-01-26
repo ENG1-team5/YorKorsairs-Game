@@ -2,13 +2,14 @@
 package com.mygdx.game;
 
 
-import com.badlogic.gdx.Gdx;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -25,13 +26,14 @@ public class College implements IHittable {
 
 
     // Declare config, variables
+    private static ArrayList<String> implemented = new ArrayList<String>() {{ add("goodricke"); add("constantine"); add("langwith"); }};
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
     private final float collegeWidth = Game.PPT * 2.5f;
-    private final float shotTimerMax = 0.75f;
+    private final float shotTimerMax = 0.8f;
     private final float smokeTimerMax = 0.1f;
     private final float shootRange = Game.PPT * 6.5f;
-    private final float maxHealth = 200.0f;
+    private final float maxHealth = 300f;
 
     private String name;
     private Game game;
@@ -61,9 +63,11 @@ public class College implements IHittable {
         smokeTimer = 0f;
 
         // Initialize textures
-        collegeTexture = new Texture(Gdx.files.internal("./colleges/" + name + ".png"));
-        collegeDeadTexture = new Texture(Gdx.files.internal("./colleges/" + name + "Dead.png"));
-        collegeShotTexture = new Texture(Gdx.files.internal("./colleges/" + name + "Shot.png"));
+        String path = name.toLowerCase();
+        if (!implemented.contains(path)) path = "goodricke";
+        collegeTexture = new Texture(Gdx.files.internal("./colleges/" + path + ".png"));
+        collegeDeadTexture = new Texture(Gdx.files.internal("./colleges/" + path + "Dead.png"));
+        collegeShotTexture = new Texture(Gdx.files.internal("./colleges/" + path + "Shot.png"));
 
         // Initialize sprite
         float ratio = (float)collegeTexture.getHeight() / (float)collegeTexture.getWidth();
@@ -109,17 +113,19 @@ public class College implements IHittable {
         if (game.getRunning()) {
             if (!isFriendly) {
                 Player player = game.getPlayer();
-                Vector2 newPos = new Vector2(pos);
-                newPos.y += collegeSprite.getHeight() * 0.92f;
-                Vector2 dir = new Vector2(player.getPosition()).sub(newPos);
+                Vector2 dir = new Vector2(player.getPosition()).sub(pos);
 
                 // Check whether player in range
                 if (dir.len2() < (shootRange * shootRange)) {
-
-                    // Create projectile towards player
                     if (shotTimer == 0.0f) {
-                        Projectile projectile = new Projectile(game, this, newPos, dir.nor(), false);
-                        game.addProjectile(projectile);
+                        Vector2 pos1 = new Vector2(pos).add(new Vector2(-collegeSprite.getWidth() * 0.45f, collegeSprite.getHeight() * 0.65f));
+                        Vector2 pos2 = new Vector2(pos).add(new Vector2(collegeSprite.getWidth() * 0.45f, collegeSprite.getHeight() * 0.65f));
+                        Vector2 vel1 = new Vector2(player.getPosition()).sub(pos1);
+                        Vector2 vel2 = new Vector2(player.getPosition()).sub(pos2);
+                        Projectile p1 = new Projectile(game, this, pos1, vel1.nor(), false);
+                        Projectile p2 = new Projectile(game, this, pos2, vel2.nor(), false);
+                        game.addProjectile(p1);
+                        game.addProjectile(p2);
                         shotTimer = shotTimerMax;
                     }
                 }
@@ -211,10 +217,9 @@ public class College implements IHittable {
     }
 
 
-    public boolean getAlive() {
-        // Return if alive
-        return health != 0f;
-    }
+    public Vector2 getPosition() { return pos; }
+
+    public boolean getAlive() { return health != 0f; }
 
 
     @Override

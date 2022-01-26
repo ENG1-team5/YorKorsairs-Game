@@ -3,11 +3,14 @@ package com.mygdx.game;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
+
+import java.util.ArrayList;
 
 
 public class Player implements IHittable {
@@ -38,22 +41,28 @@ public class Player implements IHittable {
     private final float shipWidth = Game.PPT * 1.4f;
     private final int shotCount = 4;
     private final float maxSpeed = Game.PPT * 1.25f; // Units / Second
-    private final float maxSpeedScale = Game.PPT * 0.2f;
+    private final float maxSpeedScale = Game.PPT * 0.5f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
+    private final float accelerationScale = Game.PPT * 1f;
     private final float friction = 0.985f;
     private final float idleSpeed = Game.PPT * 0.55f;
     private final float idleSwayMag = 0.16f;
     private final float idleSwayFreq = 0.2f;
     private final float swayAcceleration = 20f;
     private final float maxHealth = 100;
+    private final float passiveHealthRegen = 2.5f;
+    private final float homeHealthRegen = 7.5f;
+    private final float regenRange = Game.PPT * 5f;
     private final float shotTimerMax = 0.55f;
     private final float shotTimerMaxScale = -0.1f;
     private final float particleTimerMax = 0.4f;
+    private final float combatTimerMax = 2.0f;
 
     private Game game;
     private Sprite shipSprite;
     private Sprite healthbarBackSprite;
     private Sprite healthbarFillSprite;
+    private GlyphLayout currentTextGlyph = new GlyphLayout();
 
     private Vector2 pos;
     private Vector2 vel;
@@ -62,6 +71,8 @@ public class Player implements IHittable {
     private float shotTimer;
     private int shotTurn;
     private float particleTimer;
+    private float combatTimer;
+    private boolean atHome;
 
 
     Player(Game game_, Vector2 pos_) {
@@ -74,6 +85,7 @@ public class Player implements IHittable {
         shotTimer = 0.0f;
         shotTurn = 0;
         particleTimer = 0.0f;
+        atHome = false;
 
         // Initialize ship sprite
         float ratio = (float)idleTexture.getHeight() / (float)idleTexture.getWidth();
@@ -102,6 +114,7 @@ public class Player implements IHittable {
         if (game.getRunning()) {
             handleInput();
             updateMovement();
+            updateLogic();
         }
         updateSprite();
     }
@@ -123,6 +136,7 @@ public class Player implements IHittable {
             game.addProjectile(projectile);
             shotTimer = getShotTimerMax();
             shotTurn = (shotTurn + 1) % shotCount;
+            combatTimer = combatTimerMax;
         }
 
         // Update shot timer
@@ -132,8 +146,8 @@ public class Player implements IHittable {
 
     private void updateMovement() {
         // Accelerate velocity in inputDir and limit to maxSpeed
-        vel.x += inputDir.x * acceleration * Gdx.graphics.getDeltaTime();
-        vel.y += inputDir.y * acceleration * Gdx.graphics.getDeltaTime();
+        vel.x += inputDir.x * getAcceleration() * Gdx.graphics.getDeltaTime();
+        vel.y += inputDir.y * getAcceleration() * Gdx.graphics.getDeltaTime();
         if (vel.len2() > (getMaxSpeed() * getMaxSpeed())) vel = vel.setLength(getMaxSpeed());
 
         // Move ship with velocity
@@ -152,23 +166,7 @@ public class Player implements IHittable {
             vel.x = 0;
             vel.y = 0;
         }
-
-        // Create particles if moving
-        if (vel.len2() > (idleSpeed * idleSpeed)) {
-            particleTimer = Math.max(particleTimer - Gdx.graphics.getDeltaTime(), 0f);
-            if (particleTimer == 0.0f) {
-                float pSizeStart = 0.0f;
-                float pSizeEnd = ((float)Math.random() * 0.3f + 0.6f) * (vel.len2() / (maxSpeed * maxSpeed)) * shipWidth;
-                float pTime = (float)Math.random() * 0.5f + 2.0f;
-                Particle particle = new Particle("splash", new Vector2(pos), pSizeStart, pSizeEnd, 0.0f, pTime);
-                game.addParticle(particle);
-                particleTimer = particleTimerMax;
-            }
-
-        // Reset particle timer if not moving
-        } else particleTimer = 0.0f;
     }
-
 
     private void updateSprite() {
         // Update sprite based on whether moving
@@ -210,12 +208,69 @@ public class Player implements IHittable {
         healthbarFillSprite.setScale(health / maxHealth, 1.0f);
     }
 
+    private void updateLogic() {
+        // Create particles if moving
+        if (vel.len2() > (idleSpeed * idleSpeed)) {
+            particleTimer = Math.max(particleTimer - Gdx.graphics.getDeltaTime(), 0f);
+            if (particleTimer == 0.0f) {
+                float pSizeStart = 0.0f;
+                float pSizeEnd = ((float)Math.random() * 0.3f + 0.6f) * (vel.len2() / (maxSpeed * maxSpeed)) * shipWidth;
+                float pTime = (float)Math.random() * 0.5f + 2.0f;
+                Particle particle = new Particle("splash", new Vector2(pos), pSizeStart, pSizeEnd, 0.0f, pTime);
+                game.addParticle(particle);
+                particleTimer = particleTimerMax;
+            }
+
+        // Reset particle timer if not moving
+        } else particleTimer = 0.0f;
+
+
+        // Update combat timer
+        combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
+
+
+        // Regen health passively
+        if (combatTimer == 0f) health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
+
+        // Regen faster if at home
+        ArrayList<College> colleges = game.getColleges();
+        atHome = false;
+        for (College c : colleges) {
+            if (c.getFriendly()) {
+                Vector2 dir = new Vector2(c.getPosition()).sub(pos);
+                if (dir.len2() < (regenRange * regenRange)) atHome = true;
+            }
+        }
+        if (atHome) health += homeHealthRegen * Gdx.graphics.getDeltaTime();
+
+        // Limit to max
+        health = Math.min(health, maxHealth);
+    }
+
 
     public void render(SpriteBatch batch) {
         // Draw ship
         shipSprite.draw(batch);
         healthbarBackSprite.draw(batch);
         healthbarFillSprite.draw(batch);
+
+        // Render health regen for at home or passive
+        if (atHome) {
+            Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
+            currentTextGlyph.setText(Game.mainFont, "++");
+            Game.mainFont.draw(batch, "++",
+                    healthbarBackSprite.getX() + healthbarBackSprite.getWidth() + 10f,
+                    healthbarBackSprite.getY() + healthbarBackSprite.getHeight());
+            Game.mainFont.getData().setScale(1f);
+
+        } else if (combatTimer == 0f && health < maxHealth) {
+            Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
+            currentTextGlyph.setText(Game.mainFont, "+");
+            Game.mainFont.draw(batch, "+",
+                    healthbarBackSprite.getX() + healthbarBackSprite.getWidth() + 10f,
+                    healthbarBackSprite.getY() + healthbarBackSprite.getHeight());
+            Game.mainFont.getData().setScale(1f);
+        }
     }
 
 
@@ -247,6 +302,8 @@ public class Player implements IHittable {
 
     private float getMaxSpeed() { return maxSpeed + (game.currentLevel - 1) * maxSpeedScale; }
 
+    private float getAcceleration() { return acceleration + (game.currentLevel - 1) * accelerationScale; }
+
     private float getShotTimerMax() { return shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale; }
 
 
@@ -262,6 +319,7 @@ public class Player implements IHittable {
     @Override
     public boolean damage(float damage) {
         health = (float)Math.max(health - damage, 0.0f);
+        combatTimer = combatTimerMax;
         if (health == 0f) destroy();
         return true;
     }

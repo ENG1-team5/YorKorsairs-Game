@@ -25,6 +25,7 @@ public class DestroyCollegeObjective extends Objective {
             if (!college.getFriendly()) collegesRequired++;
             if (nextCollege == null) nextCollege = college;
         }
+        collegesRequired /= 2;
 
         // Call once to update killable colleges
         getRequirementText();
