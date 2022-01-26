@@ -221,6 +221,7 @@ public class Game extends ApplicationAdapter {
 	private void handleInput() {
 		// Start, stop, restart game on "startGame"
 		if (gameState == GameState.READY && Binding.getInstance().isActionJustPressed("startGame")) startGame();
+		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame")) resetGame();
 		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")) resetGame();
 
 		// Close game on "closeGame"
@@ -332,25 +333,31 @@ public class Game extends ApplicationAdapter {
 
 
 		// Draw gold count
-		mainFont.getData().setScale(0.5f);
-		float currentHeight = 0f;
-		float spacing = 10f;
+		mainFont.getData().setScale(0.4f);
 
+		float currentHeight = 0f;
+		float spacing = 20f;
 		String goldText = "Gold: " + currentGold;
 		currentUITextGlyph.setText(mainFont, goldText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, goldText, spacing, currentHeight);
-
-		String xpText = "XP: " + ((float)Math.round(currentXP * 100f) / 100f);
+		String xpText = "XP: " + ((float)Math.round(currentXP * 100f) / 100f) + " / " + xpPerLevel;
 		currentUITextGlyph.setText(mainFont, xpText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, xpText, spacing, currentHeight);
-		mainFont.draw(UIBatch, "/ " + xpPerLevel, spacing * 14.5f, currentHeight);
-
 		String levelText = "Level " + currentLevel;
 		currentUITextGlyph.setText(mainFont, levelText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, levelText, spacing, currentHeight);
+
+		currentHeight = Gdx.graphics.getHeight() - spacing;
+		String[] helpText = new String[] { "'Tab': reset", "WASD: movement", "LMB / RMB: Shoot" };
+		for (String s : helpText) {
+			currentUITextGlyph.setText(mainFont, s);
+			mainFont.draw(UIBatch, s, spacing, currentHeight);
+			currentHeight -= currentUITextGlyph.height + spacing;
+		}
+
 		mainFont.getData().setScale(1f);
 
 		// Draw batch

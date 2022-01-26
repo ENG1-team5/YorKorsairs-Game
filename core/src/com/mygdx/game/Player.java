@@ -35,6 +35,7 @@ public class Player implements IHittable {
 
     private final float shipWidth = Game.PPT * 1.65f;
     private final float maxSpeed = Game.PPT * 1.5f; // Units / Second
+    private final float maxSpeedScale = Game.PPT * 0.2f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float friction = 0.985f;
     private final float idleSpeed = Game.PPT * 0.4f;
@@ -43,6 +44,7 @@ public class Player implements IHittable {
     private final float swayAcceleration = 100f;
     private final float maxHealth = 100;
     private final float shotTimerMax = 0.55f;
+    private final float shotTimerMaxScale = -0.1f;
     private final float particleTimerMax = 0.4f;
 
     private Game game;
@@ -116,7 +118,7 @@ public class Player implements IHittable {
             Vector2 newPos = new Vector2(pos.x, pos.y + shipWidth * 0.1f);
             Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
             game.addProjectile(projectile);
-            shotTimer = shotTimerMax;
+            shotTimer = getShotTimerMax();
             shotTurn = (shotTurn + 1) % 2;
         }
 
@@ -129,7 +131,7 @@ public class Player implements IHittable {
         // Accelerate velocity in inputDir and limit to maxSpeed
         vel.x += inputDir.x * acceleration * Gdx.graphics.getDeltaTime();
         vel.y += inputDir.y * acceleration * Gdx.graphics.getDeltaTime();
-        if (vel.len2() > (maxSpeed * maxSpeed)) vel = vel.setLength(maxSpeed);
+        if (vel.len2() > (getMaxSpeed() * getMaxSpeed())) vel = vel.setLength(getMaxSpeed());
 
         // Move ship with velocity
         float diffX = vel.x * Gdx.graphics.getDeltaTime();
@@ -198,7 +200,7 @@ public class Player implements IHittable {
         if (vel.len2() < (idleSpeed * idleSpeed)) {
             float time = (System.currentTimeMillis() - Game.startTime) / 100f;
             target = (-idleSwayMag + idleSwayMag * 2.0f * (float)Math.sin(time * idleSwayFreq)) * (2f * (float)Math.PI);
-        } else target = -vel.x / maxSpeed * 0.5f * (2 * (float)Math.PI);
+        } else target = -vel.x / getMaxSpeed() * 0.5f * (2 * (float)Math.PI);
         shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
 
         // Update health bar sprites
@@ -245,6 +247,10 @@ public class Player implements IHittable {
 
 
     public Vector2 getPosition() { return pos; }
+
+    private float getMaxSpeed() { return maxSpeed + (game.currentLevel - 1) * maxSpeedScale; }
+
+    private float getShotTimerMax() { return shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale; }
 
 
     @Override

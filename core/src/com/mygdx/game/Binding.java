@@ -26,10 +26,10 @@ public class Binding implements InputProcessor {
         put("moveDown", Arrays.asList(Input.Keys.S, Input.Keys.DOWN));
         put("startGame", Arrays.asList(Input.Keys.SPACE));
         put("closeGame", Arrays.asList(Input.Keys.ESCAPE));
+        put("resetGame", Arrays.asList(Input.Keys.TAB));
     }};
     private static HashMap<String, List<Integer>> buttonBindings = new HashMap<String, List<Integer>>() {{
         put("shoot", Arrays.asList(Input.Buttons.LEFT, Input.Buttons.RIGHT));
-        put("startGame", Arrays.asList(Input.Buttons.LEFT));
     }};
     private static Binding inst;
     private float scrollAmount;

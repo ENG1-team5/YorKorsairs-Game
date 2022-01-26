@@ -32,6 +32,7 @@ public abstract class Objective {
 
     public void renderUI(SpriteBatch batch) {
         // Draw requirement text to screen
+        Game.mainFont.getData().setScale(0.8f);
         float time = (System.currentTimeMillis() - Game.startTime) / 100f;
         Game.mainFont.getData().setScale(0.99f + 0.02f * (float)Math.sin(time / 4f));
         currentTextGlyph.setText(Game.mainFont, getRequirementText());

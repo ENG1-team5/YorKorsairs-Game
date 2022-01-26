@@ -166,9 +166,9 @@ public class College implements IHittable {
         healthbarFillSprite.draw(batch);
 
         // Render name text
-        Game.mainFont.getData().setScale(0.2f / 16f * Game.PPT);
+        Game.mainFont.getData().setScale(0.16f * Game.PPT / 16f);
         currentTextGlyph.setText(Game.mainFont, name);
-        Game.mainFont.draw(batch, name, pos.x - currentTextGlyph.width * 0.5f, pos.y - currentTextGlyph.height);
+        Game.mainFont.draw(batch, name, pos.x - currentTextGlyph.width * 0.5f, pos.y - currentTextGlyph.height * 1.4f);
         Game.mainFont.getData().setScale(1f);
     }
 
