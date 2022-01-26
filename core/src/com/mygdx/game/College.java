@@ -84,19 +84,19 @@ public class College implements IHittable {
         healthbarBackSprite.setOrigin(backWidth * 0.5f, backHeight * 0.5f);
         healthbarBackSprite.setPosition(
                 pos.x - healthbarBackSprite.getOriginX(),
-                pos.y - healthbarBackSprite.getOriginY() - healthbarBackSprite.getHeight());
+                pos.y - healthbarBackSprite.getOriginY());
         healthbarFillSprite = new Sprite(healthbarFillTexture);
         healthbarFillSprite.setSize(fillWidth, fillHeight);
         healthbarFillSprite.setOrigin(fillWidth * 0.5f, fillHeight * 0.5f);
         healthbarFillSprite.setPosition(
                 pos.x - healthbarFillSprite.getOriginX(),
-                pos.y - healthbarFillSprite.getOriginY() - healthbarBackSprite.getHeight());
+                pos.y - healthbarFillSprite.getOriginY());
     }
 
 
     public void update() {
         // Run update functions
-        if (game.getRunning()) updateAI();
+        updateAI();
         updateParticles();
         updateSprite();
     }
@@ -106,20 +106,22 @@ public class College implements IHittable {
         if (health == 0f) return;
 
         // Get direction to player
-        if (!isFriendly) {
-            Player player = game.getPlayer();
-            Vector2 newPos = new Vector2(pos);
-            newPos.y += collegeSprite.getHeight() * 0.92f;
-            Vector2 dir = new Vector2(player.getPosition()).sub(newPos);
+        if (game.getRunning()) {
+            if (!isFriendly) {
+                Player player = game.getPlayer();
+                Vector2 newPos = new Vector2(pos);
+                newPos.y += collegeSprite.getHeight() * 0.92f;
+                Vector2 dir = new Vector2(player.getPosition()).sub(newPos);
 
-            // Check whether player in range
-            if (dir.len2() < (shootRange * shootRange)) {
+                // Check whether player in range
+                if (dir.len2() < (shootRange * shootRange)) {
 
-                // Create projectile towards player
-                if (shotTimer == 0.0f) {
-                    Projectile projectile = new Projectile(game, this, newPos, dir.nor(), false);
-                    game.addProjectile(projectile);
-                    shotTimer = shotTimerMax;
+                    // Create projectile towards player
+                    if (shotTimer == 0.0f) {
+                        Projectile projectile = new Projectile(game, this, newPos, dir.nor(), false);
+                        game.addProjectile(projectile);
+                        shotTimer = shotTimerMax;
+                    }
                 }
             }
         }
@@ -134,7 +136,7 @@ public class College implements IHittable {
         if (smokeTimer == 0.0f) {
             Particle particle = new Particle(
                     "rock",
-                    new Vector2(pos),
+                    new Vector2(pos).add(new Vector2(0f, collegeSprite.getHeight() * 0.5f)),
                     Game.PPT * 0.1f,
                     0f,
                     new Vector2(0, Game.PPT * ((float)Math.random() * 0.1f + 0.3f)).rotateDeg((float)Math.random() * 10f - 5f),
@@ -166,9 +168,14 @@ public class College implements IHittable {
         healthbarFillSprite.draw(batch);
 
         // Render name text
+        Game.mainFont.getData().setScale(0.8f);
         Game.mainFont.getData().setScale(0.16f * Game.PPT / 16f);
         currentTextGlyph.setText(Game.mainFont, name);
-        Game.mainFont.draw(batch, name, pos.x - currentTextGlyph.width * 0.5f, pos.y - currentTextGlyph.height * 1.4f);
+        Game.mainFont.draw(batch, name, pos.x - currentTextGlyph.width * 0.5f, pos.y - currentTextGlyph.height);
+        if (getFriendly()) {
+            currentTextGlyph.setText(Game.mainFont, "(home)");
+            Game.mainFont.draw(batch, "(home)", pos.x - currentTextGlyph.width * 0.5f, pos.y - currentTextGlyph.height * 2.4f);
+        }
         Game.mainFont.getData().setScale(1f);
     }
 
@@ -214,7 +221,7 @@ public class College implements IHittable {
     public Rectangle getCollisionRect() {
         return new Rectangle(
             pos.x - collegeSprite.getOriginX(),
-            pos.y - collegeSprite.getOriginY(),
+            pos.y - collegeSprite.getOriginY() + collegeSprite.getHeight() * 0.2f,
             collegeSprite.getWidth(), collegeSprite.getHeight() * 0.5f
         );
     }

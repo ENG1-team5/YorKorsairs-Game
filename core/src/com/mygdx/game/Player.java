@@ -20,28 +20,31 @@ public class Player implements IHittable {
 
     // Declare static, config, variables
     private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
-    private static final Texture idleShot0Texture = new Texture(Gdx.files.internal("./ships/shipShot0.png"));
-    private static final Texture idleShot1Texture = new Texture(Gdx.files.internal("./ships/shipShot1.png"));
-    // private static final Texture idleShot2Texture = new Texture(Gdx.files.internal("./ships/shipShot2.png"));
-    // private static final Texture idleShot3Texture = new Texture(Gdx.files.internal("./ships/shipShot3.png"));
+    private static final Texture[] idleShotTextures = new Texture[] {
+            new Texture(Gdx.files.internal("./ships/shipShot0.png")),
+            new Texture(Gdx.files.internal("./ships/shipShot1.png")),
+            new Texture(Gdx.files.internal("./ships/shipShot2.png")),
+            new Texture(Gdx.files.internal("./ships/shipShot3.png")) };
     private static final Texture movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
-    private static final Texture movingShot0Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot0.png"));
-    private static final Texture movingShot1Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot1.png"));
-    // private static final Texture movingShot2Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot2.png"));
-    // private static final Texture movingShot3Texture = new Texture(Gdx.files.internal("./ships/shipMovingShot3.png"));
+    private static final Texture[] movingShotTextures = new Texture[] {
+            new Texture(Gdx.files.internal("./ships/shipMovingShot0.png")),
+            new Texture(Gdx.files.internal("./ships/shipMovingShot1.png")),
+            new Texture(Gdx.files.internal("./ships/shipMovingShot2.png")),
+            new Texture(Gdx.files.internal("./ships/shipMovingShot3.png")) };
     private static final Texture deadTexture = new Texture(Gdx.files.internal("./ships/shipDead.png"));
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
-    private final float shipWidth = Game.PPT * 1.65f;
-    private final float maxSpeed = Game.PPT * 1.5f; // Units / Second
+    private final float shipWidth = Game.PPT * 1.4f;
+    private final int shotCount = 4;
+    private final float maxSpeed = Game.PPT * 1.25f; // Units / Second
     private final float maxSpeedScale = Game.PPT * 0.2f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float friction = 0.985f;
-    private final float idleSpeed = Game.PPT * 0.4f;
+    private final float idleSpeed = Game.PPT * 0.55f;
     private final float idleSwayMag = 0.16f;
     private final float idleSwayFreq = 0.2f;
-    private final float swayAcceleration = 100f;
+    private final float swayAcceleration = 20f;
     private final float maxHealth = 100;
     private final float shotTimerMax = 0.55f;
     private final float shotTimerMaxScale = -0.1f;
@@ -119,7 +122,7 @@ public class Player implements IHittable {
             Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
             game.addProjectile(projectile);
             shotTimer = getShotTimerMax();
-            shotTurn = (shotTurn + 1) % 2;
+            shotTurn = (shotTurn + 1) % shotCount;
         }
 
         // Update shot timer
@@ -173,17 +176,11 @@ public class Player implements IHittable {
         if (health > 0.0f) {
             if (vel.len2() < (idleSpeed * idleSpeed)) {
                 if (shotTimer > (shotTimerMax * 0.5f)) {
-                    if (shotTurn == 0) targetTexture = idleShot0Texture;
-                    else targetTexture = idleShot1Texture;
-                    // else if (shotTurn == 2) targetTexture = idleShot2Texture;
-                    // else targetTexture = idleShot3Texture;
+                    targetTexture = idleShotTextures[shotTurn];
                 } else targetTexture = idleTexture;
             } else {
                 if (shotTimer > (shotTimerMax * 0.5f)) {
-                    if (shotTurn == 0) targetTexture = movingShot0Texture;
-                    else targetTexture = movingShot1Texture;
-                    // else if (shotTurn == 2) targetTexture = movingShot2Texture;
-                    // else targetTexture = movingShot3Texture;
+                    targetTexture = movingShotTextures[shotTurn];
                 } else targetTexture = movingTexture;
             }
         } else targetTexture = deadTexture;

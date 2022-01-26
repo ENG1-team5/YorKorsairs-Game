@@ -35,12 +35,13 @@ public class Game extends ApplicationAdapter {
 	//  - Assigned random college
 
 	// Declare config, variables
-	public static final float PPT = 16; // Pixel Per Tile - Used to standardize scaling
+	public static final float PPT = 128; // Pixel Per Tile - Used to standardize scaling
 	public static final long startTime = System.currentTimeMillis();
 	public static BitmapFont mainFont;
 	private final float ZoomFriction = 0.86f;
-	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.025f };
-	private final float initialZoom = PPT * 0.017f;
+	private final float[] ZoomLim = { PPT * 0.005f, PPT * 0.022f };
+	private final float initialZoom = PPT * 0.0135f;
+	private final float zoomSpeed = PPT * 0.0075f;
 	private final int xpPerLevel = 50;
 	private final float xpGain = 0.5f;
 
@@ -145,7 +146,7 @@ public class Game extends ApplicationAdapter {
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Constantine", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 22f, PPT * 24.5f), false));
-		colleges.add(new College("Langwith", this, new Vector2(PPT * 35f, PPT * 24.5f), false));
+		colleges.add(new College("Langwith", this, new Vector2(PPT * 33f, PPT * 23.5f), false));
 		hittables.add(player);
 		for (College college : colleges) hittables.add(college);
 		objective = Objective.getRandomObjective(this);
@@ -231,14 +232,13 @@ public class Game extends ApplicationAdapter {
 	private void updateCamera() {
 		// Follow player with camera
 		Vector2 position = player.getPosition();
-		float diffX = position.x - camera.position.x;
-		float diffY = position.y - camera.position.y;
+		float diffX = (float)Math.round(position.x * 100f) / 100f - camera.position.x;
+		float diffY = (float)Math.round(position.y * 100f) / 100f - camera.position.y;
 		camera.translate(diffX, diffY);
 
 		// Zoom camera based on input
 		if (gameState == GameState.RUNNING) {
-			float ZoomAcceleration = 0.5f;
-			zoomVel += Binding.getInstance().getScrollAmount() * ZoomAcceleration * Gdx.graphics.getDeltaTime();
+			zoomVel += Binding.getInstance().getScrollAmount() * zoomSpeed * Gdx.graphics.getDeltaTime();
 			zoomVel *= ZoomFriction;
 			camera.zoom += zoomVel;
 			camera.zoom = Math.max(Math.min(camera.zoom, ZoomLim[1]), ZoomLim[0]);
@@ -270,7 +270,7 @@ public class Game extends ApplicationAdapter {
 		update();
 
 		// Clear then run render functions
-		ScreenUtils.clear(169/255f, 208/255f, 137/255f, 1f);
+		// ScreenUtils.clear(169/255f, 208/255f, 137/255f, 1f);
 		renderGame();
 		renderUI();
 	}
