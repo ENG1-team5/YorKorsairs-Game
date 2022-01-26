@@ -13,11 +13,6 @@ import java.util.List;
 
 public class Binding implements InputProcessor {
 
-    // TODO:
-    //  - Potentially move settings into some config file that allows easy access for people?
-    //      This is probably worth asking stakeholder about
-
-
     // Declare variables
     private static HashMap<String, List<Integer>> keyBindings = new HashMap<String, List<Integer>>() {{
         put("moveLeft", Arrays.asList(Input.Keys.A, Input.Keys.LEFT));

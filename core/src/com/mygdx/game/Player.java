@@ -18,8 +18,6 @@ public class Player implements IHittable {
     // TODO:
     //  - It is VERY inefficient to use entirely different files for each frame
     //  - Need to change to using a spritesheet and TextureRegions
-    // TODO:
-    //  - Increase stats as you level up
 
     // Declare static, config, variables
     private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
@@ -38,7 +36,7 @@ public class Player implements IHittable {
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
-    private final float shipWidth = Game.PPT * 1.4f;
+    public final float shipWidth = Game.PPT * 1.4f;
     private final int shotCount = 4;
     private final float maxSpeed = Game.PPT * 1.25f; // Units / Second
     private final float maxSpeedScale = Game.PPT * 0.5f;
@@ -56,6 +54,7 @@ public class Player implements IHittable {
     private final float shotTimerMax = 0.55f;
     private final float shotTimerMaxScale = -0.1f;
     private final float particleTimerMax = 0.4f;
+    private final float smokeTimerMax = 0.1f;
     private final float combatTimerMax = 2.0f;
 
     private Game game;
@@ -70,8 +69,11 @@ public class Player implements IHittable {
     private float health;
     private float shotTimer;
     private int shotTurn;
+    private boolean toShoot;
+    private boolean hasShot;
     private float particleTimer;
     private float combatTimer;
+    private float smokeTimer;
     private boolean atHome;
 
 
@@ -84,7 +86,11 @@ public class Player implements IHittable {
         health = 100;
         shotTimer = 0.0f;
         shotTurn = 0;
+        toShoot = false;
+        hasShot = false;
         particleTimer = 0.0f;
+        combatTimer = 0.0f;
+        smokeTimer = 0.0f;
         atHome = false;
 
         // Initialize ship sprite
@@ -114,8 +120,8 @@ public class Player implements IHittable {
         if (game.getRunning()) {
             handleInput();
             updateMovement();
-            updateLogic();
         }
+        updateLogic();
         updateSprite();
     }
 
@@ -129,18 +135,7 @@ public class Player implements IHittable {
         if (Binding.getInstance().isActionPressed("moveUp")) inputDir.y++;
 
         // Shoot on "shoot"
-        if (Binding.getInstance().isActionPressed("shoot") && shotTimer == 0.0f) {
-            Vector2 dir = game.getWorldMousePos().sub(pos);
-            Vector2 newPos = new Vector2(pos.x, pos.y + shipWidth * 0.1f);
-            Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
-            game.addProjectile(projectile);
-            shotTimer = getShotTimerMax();
-            shotTurn = (shotTurn + 1) % shotCount;
-            combatTimer = combatTimerMax;
-        }
-
-        // Update shot timer
-        shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0);
+        if (Binding.getInstance().isActionPressed("shoot") && shotTimer == 0.0f) { toShoot = true; hasShot = true; }
     }
 
 
@@ -209,42 +204,69 @@ public class Player implements IHittable {
     }
 
     private void updateLogic() {
-        // Create particles if moving
-        if (vel.len2() > (idleSpeed * idleSpeed)) {
-            particleTimer = Math.max(particleTimer - Gdx.graphics.getDeltaTime(), 0f);
-            if (particleTimer == 0.0f) {
-                float pSizeStart = 0.0f;
-                float pSizeEnd = ((float)Math.random() * 0.3f + 0.6f) * (vel.len2() / (maxSpeed * maxSpeed)) * shipWidth;
+        // Smoke if below half health
+        if (health < (maxHealth * 0.5f)) {
+            smokeTimer = Math.max(smokeTimer - Gdx.graphics.getDeltaTime(), 0f);
+            if (smokeTimer == 0.0f) {
+                float pSize = 0.2f * shipWidth;
                 float pTime = (float)Math.random() * 0.5f + 2.0f;
-                Particle particle = new Particle("splash", new Vector2(pos), pSizeStart, pSizeEnd, 0.0f, pTime);
+                Vector2 vel = (new Vector2(0, Game.PPT * (float)Math.random() * 0.3f + 1f)).rotateDeg((float)Math.random() * 10f - 5f);
+                Vector2 pPos = new Vector2(pos.x, pos.y + shipWidth * 0.15f);
+                Particle particle = new Particle("rock", pPos, pSize, vel, pTime);
                 game.addParticle(particle);
-                particleTimer = particleTimerMax;
-            }
-
-        // Reset particle timer if not moving
-        } else particleTimer = 0.0f;
-
-
-        // Update combat timer
-        combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
-
-
-        // Regen health passively
-        if (combatTimer == 0f) health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
-
-        // Regen faster if at home
-        ArrayList<College> colleges = game.getColleges();
-        atHome = false;
-        for (College c : colleges) {
-            if (c.getFriendly()) {
-                Vector2 dir = new Vector2(c.getPosition()).sub(pos);
-                if (dir.len2() < (regenRange * regenRange)) atHome = true;
+                smokeTimer = smokeTimerMax;
             }
         }
-        if (atHome) health += homeHealthRegen * Gdx.graphics.getDeltaTime();
 
-        // Limit to max
-        health = Math.min(health, maxHealth);
+        if (game.getRunning()) {
+            // Create particles if moving
+            if (vel.len2() > (idleSpeed * idleSpeed)) {
+                particleTimer = Math.max(particleTimer - Gdx.graphics.getDeltaTime(), 0f);
+                if (particleTimer == 0.0f) {
+                    float pSizeStart = 0.0f;
+                    float pSizeEnd = ((float)Math.random() * 0.3f + 0.6f) * (vel.len2() / (getMaxSpeed() * getMaxSpeed())) * shipWidth;
+                    float pTime = (float)Math.random() * 0.5f + 2.0f;
+                    Particle particle = new Particle("splash", new Vector2(pos), pSizeStart, pSizeEnd, 0.0f, pTime);
+                    game.addParticle(particle);
+                    particleTimer = particleTimerMax;
+                }
+
+                // Reset particle timer if not moving
+            } else particleTimer = 0.0f;
+
+            // Shoot if needed
+            if (toShoot) {
+                Vector2 dir = game.getWorldMousePos().sub(pos);
+                Vector2 newPos = new Vector2(pos.x, pos.y + shipWidth * 0.1f);
+                Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
+                game.addProjectile(projectile);
+                shotTimer = getShotTimerMax();
+                shotTurn = (shotTurn + 1) % shotCount;
+                combatTimer = combatTimerMax;
+                toShoot = false;
+            }
+
+            // Update timers
+            shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0);
+            combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
+
+            // Regen health passively
+            if (combatTimer == 0f) health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
+
+            // Regen faster if at home
+            ArrayList<College> colleges = game.getColleges();
+            atHome = false;
+            for (College c : colleges) {
+                if (c.getFriendly()) {
+                    Vector2 dir = new Vector2(c.getPosition()).sub(pos);
+                    if (dir.len2() < (regenRange * regenRange)) atHome = true;
+                }
+            }
+            if (atHome) health += homeHealthRegen * Gdx.graphics.getDeltaTime();
+
+            // Limit to max
+            health = Math.min(health, maxHealth);
+        }
     }
 
 
@@ -255,7 +277,7 @@ public class Player implements IHittable {
         healthbarFillSprite.draw(batch);
 
         // Render health regen for at home or passive
-        if (atHome) {
+        if (atHome && health < maxHealth) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "++");
             Game.mainFont.draw(batch, "++",
@@ -299,6 +321,10 @@ public class Player implements IHittable {
 
 
     public Vector2 getPosition() { return pos; }
+
+    public boolean getIsMoving() { return inputDir.len2() > 0f; }
+
+    public boolean getHasShot() { return hasShot; }
 
     private float getMaxSpeed() { return maxSpeed + (game.currentLevel - 1) * maxSpeedScale; }
 

@@ -29,8 +29,6 @@ import com.badlogic.gdx.maps.MapObjects;
 public class Game extends ApplicationAdapter {
 
 	// TODO:
-	//  - Tutorial popups for input
-	// TODO:
 	//  - Random positioning for college start
 	//  - Assigned random college
 
@@ -44,7 +42,8 @@ public class Game extends ApplicationAdapter {
 	private final float zoomSpeed = PPT * 0.0075f;
 	private final float splashWidth = 500f;
 	private final int xpPerLevel = 50;
-	private final float xpGain = 0.5f;
+	private final float xpGain = 0.4f;
+	private final float levelUpTimerMax = 1.5f;
 
 	private OrthographicCamera camera;
 	private OrthographicCamera UICamera;
@@ -67,6 +66,8 @@ public class Game extends ApplicationAdapter {
 	public float currentGold;
 	public int currentLevel;
 	public float currentXP;
+	private int tutorialState = 0;
+	private float levelUpTimer;
 
 	private Objective objective;
 	private Player player;
@@ -138,6 +139,7 @@ public class Game extends ApplicationAdapter {
 		currentGold = 0f;
 		currentLevel = 1;
 		currentXP = 0;
+		levelUpTimer = 0f;
 
 		// Initialize objects
 		colleges = new ArrayList<>();
@@ -274,7 +276,13 @@ public class Game extends ApplicationAdapter {
 			if (currentXP > xpPerLevel) {
 				currentXP = currentXP % xpPerLevel;
 				currentLevel++;
+				levelUpTimer = levelUpTimerMax;
 			}
+			levelUpTimer = (float)Math.max(levelUpTimer - Gdx.graphics.getDeltaTime(), 0f);
+
+			// Tutorial checks
+			if (tutorialState == 0 && player.getIsMoving()) tutorialState = 1;
+			if (tutorialState == 1 && player.getHasShot()) tutorialState = 2;
 		}
 	}
 
@@ -304,6 +312,30 @@ public class Game extends ApplicationAdapter {
 		for (Enemy enemy : enemies) enemy.render(gameBatch);
 		player.render(gameBatch);
 		for (Projectile projectile : projectiles) projectile.render(gameBatch);
+
+		// Render tutorial
+		if (gameState == GameState.RUNNING) {
+
+			// Movement tutorial
+			if (tutorialState == 0) {
+				mainFont.getData().setScale(0.55f);
+				Vector2 playerPos = player.getPosition();
+				currentUITextGlyph.setText(mainFont, "Use 'WASD' to move.");
+				float px = playerPos.x - currentUITextGlyph.width * 0.5f;
+				float py = playerPos.y - player.shipWidth * 0.35f;
+				mainFont.draw(gameBatch, "Use 'WASD' to move.", px, py);
+
+			// Shoot tutorial
+			} else if (tutorialState == 1) {
+				mainFont.getData().setScale(0.55f);
+				College closestCollege = colleges.get(1);
+				Vector2 collegePos = closestCollege.getPosition();
+				currentUITextGlyph.setText(mainFont, "Use LMB / RMB to shoot.");
+				float px = collegePos.x - currentUITextGlyph.width * 0.5f;
+				float py = collegePos.y - closestCollege.collegeWidth * 0.75f;
+				mainFont.draw(gameBatch, "Use LMB / RMB to shoot.", px, py);
+			}
+		}
 
 		// Draw batch
 		gameBatch.end();
@@ -344,12 +376,11 @@ public class Game extends ApplicationAdapter {
 		}
 
 		// Draw objective UI
-		objective.renderUI(UIBatch);
+		if (gameState == GameState.RUNNING) objective.renderUI(UIBatch);
 
-
-		// Draw gold count
 		mainFont.getData().setScale(0.4f);
 
+		// Draw Info UI
 		float currentHeight = 0f;
 		float spacing = 20f;
 		String goldText = "Gold: " + currentGold;
@@ -365,12 +396,20 @@ public class Game extends ApplicationAdapter {
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, levelText, spacing, currentHeight);
 
+		// Draw help UI
 		currentHeight = Gdx.graphics.getHeight() - spacing;
 		String[] helpText = new String[] { "'Tab': reset", "WASD: movement", "LMB / RMB: Shoot" };
 		for (String s : helpText) {
 			currentUITextGlyph.setText(mainFont, s);
 			mainFont.draw(UIBatch, s, spacing, currentHeight);
 			currentHeight -= currentUITextGlyph.height + spacing;
+		}
+
+		// Draw level up popup
+		if (levelUpTimer > 0f) {
+			mainFont.getData().setScale(1f);
+			currentUITextGlyph.setText(mainFont, "Level " + currentLevel + "!");
+			mainFont.draw(UIBatch, "Level " + currentLevel + "!", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
 
 		mainFont.getData().setScale(1f);

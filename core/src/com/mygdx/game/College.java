@@ -17,19 +17,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class College implements IHittable {
 
-    // TODO:
-    //  - Add collegeName to constructor
-    //  - Get image of college based on college name
-    //  - Might not need to cache textures as there should only be 1 of each
-    // TODO:
-    //  - isAlive() function on college for use by the Game class
-
-
     // Declare config, variables
     private static ArrayList<String> implemented = new ArrayList<String>() {{ add("goodricke"); add("constantine"); add("langwith"); }};
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
-    private final float collegeWidth = Game.PPT * 2.5f;
+    public final float collegeWidth = Game.PPT * 2.5f;
     private final float shotTimerMax = 0.8f;
     private final float smokeTimerMax = 0.1f;
     private final float shootRange = Game.PPT * 6.5f;

@@ -10,7 +10,7 @@ public class DestroyCollegeObjective extends Objective {
 
     // Declare variables
     private ArrayList<College> colleges;
-    private College nextCollege;
+    public College nextCollege;
     private int collegesRequired;
     private int killableColleges;
 
