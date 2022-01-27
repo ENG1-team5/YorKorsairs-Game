@@ -18,7 +18,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class College implements IHittable {
 
     // Declare config, variables
-    private static ArrayList<String> implemented = new ArrayList<String>() {{ add("goodricke"); add("constantine"); add("langwith"); add("annelister"); add("evilgoodricke"); }};
+    private static ArrayList<String> implemented = new ArrayList<String>() {{ add("goodricke"); add("constantine"); add("langwith"); add("annelister"); add("vanbrugh"); add("evilgoodricke"); }};
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
     public final float collegeWidth = Game.PPT * 2.5f;
