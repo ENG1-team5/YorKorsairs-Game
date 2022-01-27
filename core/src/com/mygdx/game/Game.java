@@ -149,15 +149,15 @@ public class Game extends ApplicationAdapter {
 		enemies = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
-		colleges.add(new College("Constantine", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
-		colleges.add(new College("Goodricke", this, new Vector2(PPT * 22f, PPT * 24.5f), false));
-		colleges.add(new College("Langwith", this, new Vector2(PPT * 34f, PPT * 21.5f), false));
-		colleges.add(new College("James", this, new Vector2(PPT * 26f, PPT * 29.5f), false));
-		colleges.add(new College("Alcuin", this, new Vector2(PPT * 39f, PPT * 13f), false));
-		colleges.add(new College("Anne-Lister", this, new Vector2(PPT * 57f, PPT * 10.5f), false));
-		colleges.add(new College("Derwent", this, new Vector2(PPT * 48f, PPT * 24.5f), false));
+		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
+		colleges.add(new College("Constantine", this, new Vector2(PPT * 22f, PPT * 24.5f), false));
+		colleges.add(new College("AnneLister", this, new Vector2(PPT * 57f, PPT * 10.5f), false));
+		colleges.add(new College("Langwith", this, new Vector2(PPT * 48f, PPT * 24.5f), false));
 		colleges.add(new College("Vanbrugh", this, new Vector2(PPT * 62f, PPT * 26.5f), false));
-		colleges.add(new College("Halifax", this, new Vector2(PPT * 34f, PPT * 38f), false));
+		colleges.add(new College("EvilGoodricke", this, new Vector2(PPT * 34f, PPT * 39f), false));
+//		colleges.add(new College("Derwent", this, new Vector2(PPT * 34f, PPT * 21.5f), false));
+//		colleges.add(new College("James", this, new Vector2(PPT * 26f, PPT * 29.5f), false));
+//		colleges.add(new College("Alcuin", this, new Vector2(PPT * 39f, PPT * 13f), false));
 		hittables.add(player);
 		for (College college : colleges) hittables.add(college);
 		enemies.add(new Enemy(this, new Vector2(PPT * 33f, PPT * 36f)));
@@ -427,8 +427,11 @@ public class Game extends ApplicationAdapter {
 		startSprite.getTexture().dispose();
 		winSprite.getTexture().dispose();
 		lostSprite.getTexture().dispose();
-		player.dispose();
+
 		for (College college : colleges) college.dispose();
+
+		College.staticDispose();
+		player.staticDispose();
 		Projectile.staticDispose();
 		Particle.staticDispose();
 		Enemy.staticDispose();

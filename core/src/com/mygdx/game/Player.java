@@ -296,10 +296,12 @@ public class Player implements IHittable {
     }
 
 
-    public void dispose() {
+    public static void staticDispose() {
         // Dispose of all ship textures
-        movingTexture.dispose();
         idleTexture.dispose();
+        for (Texture t : idleShotTextures) t.dispose();
+        movingTexture.dispose();
+        for (Texture t : movingShotTextures) t.dispose();
         deadTexture.dispose();
         healthbarBackTexture.dispose();
         healthbarFillTexture.dispose();
