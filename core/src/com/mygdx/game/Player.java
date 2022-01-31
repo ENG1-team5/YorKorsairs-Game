@@ -1,7 +1,6 @@
 
 package com.mygdx.game;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
@@ -12,12 +11,7 @@ import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
 
-
 public class Player implements IHittable {
-
-    // TODO:
-    //  - It is VERY inefficient to use entirely different files for each frame
-    //  - Need to change to using a spritesheet and TextureRegions
 
     // Declare static, config, variables
     private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
@@ -94,14 +88,14 @@ public class Player implements IHittable {
         atHome = false;
 
         // Initialize ship sprite
-        float ratio = (float)idleTexture.getHeight() / (float)idleTexture.getWidth();
+        float ratio = (float) idleTexture.getHeight() / (float) idleTexture.getWidth();
         shipSprite = new Sprite(idleTexture);
         shipSprite.setSize(shipWidth, shipWidth * ratio);
         shipSprite.setOrigin(shipSprite.getWidth() * 0.5f, 0);
-        shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y- shipSprite.getOriginY());
+        shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y - shipSprite.getOriginY());
 
         // Initialize health bar sprites
-        float backRatio = (float)healthbarBackTexture.getHeight() / healthbarBackTexture.getWidth();
+        float backRatio = (float) healthbarBackTexture.getHeight() / healthbarBackTexture.getWidth();
         float backWidth = shipWidth * 0.8f;
         float backHeight = backWidth * backRatio;
         float pixelSize = backHeight / 12f;
@@ -116,6 +110,9 @@ public class Player implements IHittable {
     }
 
 
+    /**
+     * Updates position, velocity, input and sprite
+     */
     public void update() {
         if (game.getRunning()) {
             handleInput();
@@ -125,29 +122,41 @@ public class Player implements IHittable {
         updateSprite();
     }
 
-
+    /**
+     * detects input and keeps track
+     */
     private void handleInput() {
         // Calculate input direction
         inputDir = new Vector2(0, 0);
-        if (Binding.getInstance().isActionPressed("moveLeft")) inputDir.x--;
-        if (Binding.getInstance().isActionPressed("moveRight")) inputDir.x++;
-        if (Binding.getInstance().isActionPressed("moveDown")) inputDir.y--;
-        if (Binding.getInstance().isActionPressed("moveUp")) inputDir.y++;
+        if (Binding.getInstance().isActionPressed("moveLeft"))
+            inputDir.x--;
+        if (Binding.getInstance().isActionPressed("moveRight"))
+            inputDir.x++;
+        if (Binding.getInstance().isActionPressed("moveDown"))
+            inputDir.y--;
+        if (Binding.getInstance().isActionPressed("moveUp"))
+            inputDir.y++;
 
         // Shoot on "shoot"
-        if (Binding.getInstance().isActionPressed("shoot") && shotTimer == 0.0f) { toShoot = true; hasShot = true; }
+        if (Binding.getInstance().isActionPressed("shoot") && shotTimer == 0.0f) {
+            toShoot = true;
+            hasShot = true;
+        }
     }
 
-
+    /**
+     * uses input to move and detect collision
+     */
     private void updateMovement() {
         // Accelerate velocity in inputDir and limit to maxSpeed
         vel.x += inputDir.x * getAcceleration() * Gdx.graphics.getDeltaTime();
         vel.y += inputDir.y * getAcceleration() * Gdx.graphics.getDeltaTime();
-        if (vel.len2() > (getMaxSpeed() * getMaxSpeed())) vel = vel.setLength(getMaxSpeed());
+        if (vel.len2() > (getMaxSpeed() * getMaxSpeed()))
+            vel = vel.setLength(getMaxSpeed());
 
         // Move ship with velocity
         float diffX = vel.x * Gdx.graphics.getDeltaTime();
-        float diffY =  vel.y * Gdx.graphics.getDeltaTime();
+        float diffY = vel.y * Gdx.graphics.getDeltaTime();
         pos.x += diffX;
         pos.y += diffY;
         vel.x *= friction;
@@ -163,6 +172,9 @@ public class Player implements IHittable {
         }
     }
 
+    /**
+     * updates sprite image and health bar display
+     */
     private void updateSprite() {
         // Update sprite based on whether moving
         Texture targetTexture;
@@ -170,18 +182,23 @@ public class Player implements IHittable {
             if (vel.len2() < (idleSpeed * idleSpeed)) {
                 if (shotTimer > (shotTimerMax * 0.5f)) {
                     targetTexture = idleShotTextures[shotTurn];
-                } else targetTexture = idleTexture;
+                } else
+                    targetTexture = idleTexture;
             } else {
                 if (shotTimer > (shotTimerMax * 0.5f)) {
                     targetTexture = movingShotTextures[shotTurn];
-                } else targetTexture = movingTexture;
+                } else
+                    targetTexture = movingTexture;
             }
-        } else targetTexture = deadTexture;
-        if (shipSprite.getTexture() != targetTexture) shipSprite.setTexture(targetTexture);
+        } else
+            targetTexture = deadTexture;
+        if (shipSprite.getTexture() != targetTexture)
+            shipSprite.setTexture(targetTexture);
 
         // Update the ship sprite position and flip
         if (!shipSprite.isFlipX() && (vel.x < 0)
-            || shipSprite.isFlipX() && (vel.x > 0)) shipSprite.flip(true, false);
+                || shipSprite.isFlipX() && (vel.x > 0))
+            shipSprite.flip(true, false);
         shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y - shipSprite.getOriginY());
 
         // Handle swaying
@@ -189,8 +206,10 @@ public class Player implements IHittable {
         float target;
         if (vel.len2() < (idleSpeed * idleSpeed)) {
             float time = (System.currentTimeMillis() - Game.startTime) / 100f;
-            target = (-idleSwayMag + idleSwayMag * 2.0f * (float)Math.sin(time * idleSwayFreq)) * (2f * (float)Math.PI);
-        } else target = -vel.x / getMaxSpeed() * 0.5f * (2 * (float)Math.PI);
+            target = (-idleSwayMag + idleSwayMag * 2.0f * (float) Math.sin(time * idleSwayFreq))
+                    * (2f * (float) Math.PI);
+        } else
+            target = -vel.x / getMaxSpeed() * 0.5f * (2 * (float) Math.PI);
         shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
 
         // Update health bar sprites
@@ -203,14 +222,18 @@ public class Player implements IHittable {
         healthbarFillSprite.setScale(health / maxHealth, 1.0f);
     }
 
+    /**
+     * updates health regen, shoot if needed, and timers
+     */
     private void updateLogic() {
         // Smoke if below half health
         if (health < (maxHealth * 0.5f)) {
             smokeTimer = Math.max(smokeTimer - Gdx.graphics.getDeltaTime(), 0f);
             if (smokeTimer == 0.0f) {
                 float pSize = 0.2f * shipWidth;
-                float pTime = (float)Math.random() * 0.5f + 2.0f;
-                Vector2 vel = (new Vector2(0, Game.PPT * (float)Math.random() * 0.3f + 1f)).rotateDeg((float)Math.random() * 10f - 5f);
+                float pTime = (float) Math.random() * 0.5f + 2.0f;
+                Vector2 vel = (new Vector2(0, Game.PPT * (float) Math.random() * 0.3f + 1f))
+                        .rotateDeg((float) Math.random() * 10f - 5f);
                 Vector2 pPos = new Vector2(pos.x, pos.y + shipWidth * 0.15f);
                 Particle particle = new Particle("rock", pPos, pSize, vel, pTime);
                 game.addParticle(particle);
@@ -224,15 +247,17 @@ public class Player implements IHittable {
                 particleTimer = Math.max(particleTimer - Gdx.graphics.getDeltaTime(), 0f);
                 if (particleTimer == 0.0f) {
                     float pSizeStart = 0.0f;
-                    float pSizeEnd = ((float)Math.random() * 0.3f + 0.6f) * (vel.len2() / (getMaxSpeed() * getMaxSpeed())) * shipWidth;
-                    float pTime = (float)Math.random() * 0.5f + 2.0f;
+                    float pSizeEnd = ((float) Math.random() * 0.3f + 0.6f)
+                            * (vel.len2() / (getMaxSpeed() * getMaxSpeed())) * shipWidth;
+                    float pTime = (float) Math.random() * 0.5f + 2.0f;
                     Particle particle = new Particle("splash", new Vector2(pos), pSizeStart, pSizeEnd, 0.0f, pTime);
                     game.addParticle(particle);
                     particleTimer = particleTimerMax;
                 }
 
                 // Reset particle timer if not moving
-            } else particleTimer = 0.0f;
+            } else
+                particleTimer = 0.0f;
 
             // Shoot if needed
             if (toShoot) {
@@ -251,7 +276,8 @@ public class Player implements IHittable {
             combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
 
             // Regen health passively
-            if (combatTimer == 0f) health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
+            if (combatTimer == 0f)
+                health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
 
             // Regen faster if at home
             ArrayList<College> colleges = game.getColleges();
@@ -259,10 +285,12 @@ public class Player implements IHittable {
             for (College c : colleges) {
                 if (c.getFriendly()) {
                     Vector2 dir = new Vector2(c.getPosition()).sub(pos);
-                    if (dir.len2() < (regenRange * regenRange)) atHome = true;
+                    if (dir.len2() < (regenRange * regenRange))
+                        atHome = true;
                 }
             }
-            if (atHome) health += homeHealthRegen * Gdx.graphics.getDeltaTime();
+            if (atHome)
+                health += homeHealthRegen * Gdx.graphics.getDeltaTime();
 
             // Limit to max
             health = Math.min(health, maxHealth);
@@ -270,6 +298,10 @@ public class Player implements IHittable {
     }
 
 
+    /**
+     * renders in main ship sprite and health bar
+     * @param batch graphical output to be rendered to
+     */
     public void render(SpriteBatch batch) {
         // Draw ship
         shipSprite.draw(batch);
@@ -295,21 +327,27 @@ public class Player implements IHittable {
         }
     }
 
-
+    /**
+     * Deletes player sprites to conserve processor if dead
+     */
     public static void staticDispose() {
-        // Dispose of all ship textures
         idleTexture.dispose();
-        for (Texture t : idleShotTextures) t.dispose();
+        for (Texture t : idleShotTextures)
+            t.dispose();
         movingTexture.dispose();
-        for (Texture t : movingShotTextures) t.dispose();
+        for (Texture t : movingShotTextures)
+            t.dispose();
         deadTexture.dispose();
         healthbarBackTexture.dispose();
         healthbarFillTexture.dispose();
     }
 
-
+    /**
+     * destroy the player object, checking health is 0
+     */
     private void destroy() {
-        if (health != 0) return;
+        if (health != 0)
+            return;
 
         // Add particles
         for (int i = 0; i < Math.random() * 3f + 4f; i++) {
@@ -322,36 +360,84 @@ public class Player implements IHittable {
     }
 
 
-    public Vector2 getPosition() { return pos; }
-
-    public boolean getIsMoving() { return inputDir.len2() > 0f; }
-
-    public boolean getHasShot() { return hasShot; }
-
-    private float getMaxSpeed() { return maxSpeed + (game.currentLevel - 1) * maxSpeedScale; }
-
-    private float getAcceleration() { return acceleration + (game.currentLevel - 1) * accelerationScale; }
-
-    private float getShotTimerMax() { return shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale; }
-
-
-    @Override
-    public Rectangle getCollisionRect() {
-        // Calculate collision rectangle
-        return new Rectangle(
-            pos.x - shipWidth * 0.4f, pos.y,
-            shipWidth * 0.8f, shipWidth * 0.2f
-        );
+    /**
+     * Getter for pos
+     * @return pos
+     */
+    public Vector2 getPosition() {
+        return pos;
     }
 
+    /**
+     * Check if player is moving
+     * @return boolean
+     */
+    public boolean getIsMoving() {
+        return inputDir.len2() > 0f;
+    }
+
+    /**
+     * Check if player has shot at all (used in tutorial)
+     * @return boolean
+     */
+    public boolean getHasShot() {
+        return hasShot;
+    }
+
+
+    /**
+     * @return maxSpeed scaled based on player level
+     */
+    private float getMaxSpeed() {
+        return maxSpeed + (game.currentLevel - 1) * maxSpeedScale;
+    }
+
+    /**
+     * @return acceleration scaled based on player level
+     */
+    private float getAcceleration() {
+        return acceleration + (game.currentLevel - 1) * accelerationScale;
+    }
+
+    /**
+     * @return shotTimerMax scaled based on player level
+     */
+    private float getShotTimerMax() {
+        return shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale;
+    }
+
+
+    /**
+     * player receives certain amount of damage
+     * @param damage amount of damage taken
+     * @return boolean true if successful
+     */
     @Override
     public boolean damage(float damage) {
-        health = (float)Math.max(health - damage, 0.0f);
+        health = (float) Math.max(health - damage, 0.0f);
         combatTimer = combatTimerMax;
-        if (health == 0f) destroy();
+        if (health == 0f)
+            destroy();
         return true;
     }
 
+    /**
+     * Calculates and returns collision rectangle
+     * @return Rectangle
+     */
     @Override
-    public boolean getFriendly() { return true; }
+    public Rectangle getCollisionRect() {
+        return new Rectangle(
+                pos.x - shipWidth * 0.4f, pos.y,
+                shipWidth * 0.8f, shipWidth * 0.2f);
+    }
+
+    /**
+     * return if player is friendly
+     * @return boolean
+     */
+    @Override
+    public boolean getFriendly() {
+        return true;
+    }
 }

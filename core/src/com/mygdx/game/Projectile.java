@@ -1,7 +1,6 @@
 
 package com.mygdx.game;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -9,7 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 
 public class Projectile {
 
@@ -29,7 +27,6 @@ public class Projectile {
     private float currentTime;
     private boolean toRemove;
 
-
     Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_) {
         // Declare variables
         game = game_;
@@ -48,7 +45,9 @@ public class Projectile {
         sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
     }
 
-
+    /**
+     * updates velocity, position, sprite, collision and timer
+     */
     public void update() {
         // Update position with velocity
         pos.x += vel.x * speed * Gdx.graphics.getDeltaTime();
@@ -59,7 +58,8 @@ public class Projectile {
 
         // Update timer
         currentTime += Gdx.graphics.getDeltaTime();
-        if (currentTime > timeMax) toRemove = true;
+        if (currentTime > timeMax)
+            toRemove = true;
 
         // Check if hit anything
         Rectangle rect = getCollisionRect();
@@ -79,37 +79,47 @@ public class Projectile {
         }
 
         // Rotate sprite in correct direction
-        float angle = MathUtils.radiansToDegrees * (float)Math.atan2(vel.y, vel.x);
+        float angle = MathUtils.radiansToDegrees * (float) Math.atan2(vel.y, vel.x);
         sprite.setRotation(angle);
     }
 
 
+    /**
+     * renders projectile sprite to output batch
+     * @param batch graphical output to be rendered to
+     */
     public void render(SpriteBatch batch) {
-        // Draw sprite
         sprite.draw(batch);
     }
 
 
+    /**
+     * Dispose static textures
+     */
     public static void staticDispose() {
-        // Dispose static textures
         texture.dispose();
     }
 
 
+    /**
+     * Deletes projectile to conserve processor if dead
+     * @return boolean
+     */
     public boolean shouldRemove() {
-        // Return whether it should be removed
         return toRemove;
     }
 
     public void beenRemoved() { }
 
 
+    /**
+     * Calculates and returns collision rectangle
+     * @return Rectangle
+     */
     public Rectangle getCollisionRect() {
-        // Calculate collision rectangle
         return new Rectangle(
-            pos.x - width * 0.5f,
-            pos.y - width * 0.5f,
-            width, width
-        );
+                pos.x - width * 0.5f,
+                pos.y - width * 0.5f,
+                width, width);
     }
 }

@@ -1,7 +1,6 @@
 
 package com.mygdx.game;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -42,23 +41,26 @@ public class Enemy {
     }
 
 
-
+    /**
+     * updates enemy movement, swaying and collision
+     */
     public void update() {
         // Calculate input movement direction
         if (Math.random() < Gdx.graphics.getDeltaTime() * 1f) {
-            inputDir.x = (float)Math.random() * 2f - 1f;
-            inputDir.y = (float)Math.random() * 2f - 1f;
+            inputDir.x = (float) Math.random() * 2f - 1f;
+            inputDir.y = (float) Math.random() * 2f - 1f;
             inputDir = inputDir.nor();
         }
 
         // Update velocity
         vel.x += inputDir.x * acceleration * Gdx.graphics.getDeltaTime();
         vel.y += inputDir.y * acceleration * Gdx.graphics.getDeltaTime();
-        if (vel.len2() > (maxSpeed * maxSpeed)) vel = vel.setLength(maxSpeed);
+        if (vel.len2() > (maxSpeed * maxSpeed))
+            vel = vel.setLength(maxSpeed);
 
         // Update movement
         float diffX = vel.x * Gdx.graphics.getDeltaTime();
-        float diffY =  vel.y * Gdx.graphics.getDeltaTime();
+        float diffY = vel.y * Gdx.graphics.getDeltaTime();
         pos.x += diffX;
         pos.y += diffY;
 
@@ -74,36 +76,43 @@ public class Enemy {
         // Handle swaying
         float current = shipSprite.getRotation();
         float target;
-        target = -vel.x / maxSpeed * 0.5f * (2 * (float)Math.PI);
+        target = -vel.x / maxSpeed * 0.5f * (2 * (float) Math.PI);
         shipSprite.rotate((target - current) * swayAcceleration * Gdx.graphics.getDeltaTime());
-
 
         // Update sprite
         shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y - shipSprite.getOriginY());
         if (!shipSprite.isFlipX() && (vel.x < 0)
-                || shipSprite.isFlipX() && (vel.x > 0)) shipSprite.flip(true, false);
+                || shipSprite.isFlipX() && (vel.x > 0))
+            shipSprite.flip(true, false);
         shipSprite.setPosition(pos.x - shipSprite.getOriginX(), pos.y - shipSprite.getOriginY());
 
     }
 
-
+    /**
+     * Renders sprite to screen
+     * @param batch graphical output to be rendered to
+     */
     public void render(SpriteBatch batch) {
-        // Render sprite to screen
         shipSprite.draw(batch);
     }
 
 
+    /**
+     * Deletes enemy sprites to conserve processor if dead
+     */
     public static void staticDispose() {
-        // Dispose of textures
         shipTexture.dispose();
     }
 
 
+    /**
+     * Calculates and returns collision rectangle
+     * @return Rectangle
+     */
     public Rectangle getCollisionRect() {
         // Calculate collision rectangle
         return new Rectangle(
-            pos.x - shipWidth * 0.4f, pos.y,
-            shipWidth * 0.8f, shipWidth * 0.2f
-        );
+                pos.x - shipWidth * 0.4f, pos.y,
+                shipWidth * 0.8f, shipWidth * 0.2f);
     }
 }

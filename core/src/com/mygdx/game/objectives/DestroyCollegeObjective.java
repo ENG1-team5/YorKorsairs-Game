@@ -33,6 +33,10 @@ public class DestroyCollegeObjective extends Objective {
 
 
     @Override
+    /**
+     * return contextual text required for objective
+     * @return string
+     */
     protected String getRequirementText() {
         // Return requirement text
         killableColleges = 0;
@@ -46,6 +50,10 @@ public class DestroyCollegeObjective extends Objective {
 
 
     @Override
+    /**
+     * returns if amount of enemy colleges destroyed is enough
+     * @return boolean
+     */
     public boolean checkComplete(Game game) {
         return killableColleges == 0;
     }

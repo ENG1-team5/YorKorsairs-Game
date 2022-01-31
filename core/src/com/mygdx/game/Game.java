@@ -25,12 +25,8 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
 
-
 public class Game extends ApplicationAdapter {
 
-	// TODO:
-	//  - Random positioning for college start
-	//  - Assigned random college
 
 	// Declare config, variables
 	public static final float PPT = 128; // Pixel Per Tile - Used to standardize scaling
@@ -60,7 +56,11 @@ public class Game extends ApplicationAdapter {
 
 	private float zoomVel;
 	private Vector3 worldMousePos;
-	private enum GameState { READY, RUNNING, FINISHED };
+
+	private enum GameState {
+		READY, RUNNING, FINISHED
+	};
+
 	private GameState gameState;
 	private boolean hasWon;
 	public float currentGold;
@@ -78,14 +78,19 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<Enemy> enemies;
 
 
+	/**
+	 * Creates an instance of the game class, which implements 3 setup functions
+	 */
 	@Override
 	public void create() {
-		// Run setup functions
 		setupScene();
 		setupAssets();
 		resetGame();
 	}
 
+	/**
+	 * Initialises the camera object, and the SpriteBatch, which is the graphics target for the sprite renders
+	 */
 	private void setupScene() {
 		// Setup scene input / output
 		camera = new OrthographicCamera();
@@ -97,6 +102,11 @@ public class Game extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(Binding.getInstance());
 	}
 
+	/**
+	 * Creates the map, as well as initialising the starting sprites onto it by defining their perimeters
+	 * Loads in the splash sprites for when the game is either won, started or lost
+	 * Creates text font for UI
+	 */
 	private void setupAssets() {
 		// Setup tiled map
 		tiledMap = new TmxMapLoader().load("./tiles/map.tmx");
@@ -106,23 +116,23 @@ public class Game extends ApplicationAdapter {
 
 		// Load splash textures
 		startSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/startSplash.png")));
-		startSprite.setSize(splashWidth, splashWidth * (float)startSprite.getHeight() / startSprite.getWidth());
+		startSprite.setSize(splashWidth, splashWidth * (float) startSprite.getHeight() / startSprite.getWidth());
 		startSprite.setOrigin(startSprite.getWidth() * 0.5f, startSprite.getHeight() * 0.5f);
 		startSprite.setPosition(
-			Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
+				Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
+				Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
 		winSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/winSplash.png")));
-		winSprite.setSize(splashWidth, splashWidth * (float)winSprite.getHeight() / winSprite.getWidth());
+		winSprite.setSize(splashWidth, splashWidth * (float) winSprite.getHeight() / winSprite.getWidth());
 		winSprite.setOrigin(startSprite.getWidth() * 0.5f, winSprite.getHeight() * 0.5f);
 		winSprite.setPosition(
-			Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
+				Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
+				Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
 		lostSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/lostSplash.png")));
-		lostSprite.setSize(splashWidth, splashWidth * (float)lostSprite.getHeight() / lostSprite.getWidth());
+		lostSprite.setSize(splashWidth, splashWidth * (float) lostSprite.getHeight() / lostSprite.getWidth());
 		lostSprite.setOrigin(lostSprite.getWidth() * 0.5f, lostSprite.getHeight() * 0.5f);
 		lostSprite.setPosition(
-			Gdx.graphics.getWidth() * 0.5f - lostSprite.getWidth() * 0.5f,
-			Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f);
+				Gdx.graphics.getWidth() * 0.5f - lostSprite.getWidth() * 0.5f,
+				Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f);
 
 		// Setup font
 		mainFont = new BitmapFont(Gdx.files.internal("./fonts/Pixellari.fnt"));
@@ -130,6 +140,9 @@ public class Game extends ApplicationAdapter {
 	}
 
 
+	/**
+	 * Reset game state back to start
+	 */
 	public void resetGame() {
 		// Reset main variables
 		camera.zoom = initialZoom;
@@ -155,43 +168,60 @@ public class Game extends ApplicationAdapter {
 		colleges.add(new College("Langwith", this, new Vector2(PPT * 48f, PPT * 24.5f), false));
 		colleges.add(new College("Vanbrugh", this, new Vector2(PPT * 62f, PPT * 26.5f), false));
 		colleges.add(new College("EvilGoodricke", this, new Vector2(PPT * 34f, PPT * 39f), false));
-//		colleges.add(new College("Derwent", this, new Vector2(PPT * 34f, PPT * 21.5f), false));
-//		colleges.add(new College("James", this, new Vector2(PPT * 26f, PPT * 29.5f), false));
-//		colleges.add(new College("Alcuin", this, new Vector2(PPT * 39f, PPT * 13f), false));
+		// colleges.add(new College("Derwent", this, new Vector2(PPT * 34f, PPT *
+		// 21.5f), false));
+		// colleges.add(new College("James", this, new Vector2(PPT * 26f, PPT * 29.5f),
+		// false));
+		// colleges.add(new College("Alcuin", this, new Vector2(PPT * 39f, PPT * 13f),
+		// false));
 		hittables.add(player);
-		for (College college : colleges) hittables.add(college);
+		for (College college : colleges)
+			hittables.add(college);
 		enemies.add(new Enemy(this, new Vector2(PPT * 33f, PPT * 36f)));
 		enemies.add(new Enemy(this, new Vector2(PPT * 26f, PPT * 35f)));
 		enemies.add(new Enemy(this, new Vector2(PPT * 40f, PPT * 25f)));
 		objective = Objective.getRandomObjective(this);
 	}
 
+	/**
+	 * Starts game running
+	 */
 	public void startGame() {
-		// Start game running
 		gameState = GameState.RUNNING;
 	}
 
+	/**
+	 * Stops game from running and win
+	 */
 	public void winGame() {
-		// Stop game from running and win
 		hasWon = true;
 		gameState = GameState.FINISHED;
 	}
 
+	/**
+	 * Stops game from running and set to lost
+	 */
 	public void loseGame() {
-		// Stop game from running and lose
 		hasWon = false;
 		gameState = GameState.FINISHED;
 	}
 
+	/**
+	 * Close game window
+	 */
 	public void closeGame() {
-		// Close game window
 		Gdx.app.exit();
 	}
 
 
+	/**
+	 * Resizes camera and moves to maintain centre based on player movement
+	 * 
+	 * @param width new window width
+	 * @param height new window height
+	 */
 	@Override
 	public void resize(int width, int height) {
-		// Resize camera and move to maintain centre
 		Vector3 position = new Vector3(camera.position);
 		camera.setToOrtho(false, width, height);
 		UICamera.setToOrtho(false, width, height);
@@ -200,15 +230,21 @@ public class Game extends ApplicationAdapter {
 	}
 
 
+	/**
+	 * Updates the parameters of the game class
+	 */
 	private void update() {
 		// Run update functions
 		handleInput();
 		updateCamera();
 		updateLogic();
-		for (College college : colleges) college.update();
-		for (Particle particle : particles) particle.update();
+		for (College college : colleges)
+			college.update();
+		for (Particle particle : particles)
+			particle.update();
 		player.update();
-		for (Enemy enemy : enemies) enemy.update();
+		for (Enemy enemy : enemies)
+			enemy.update();
 
 		// Update projectiles, allowing for deletion
 		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
@@ -231,25 +267,36 @@ public class Game extends ApplicationAdapter {
 		}
 
 		// Check if objective is complete
-		if (objective.checkComplete(this)) winGame();
+		if (objective.checkComplete(this))
+			winGame();
 	}
 
+	/**
+	 * Controls the game states based on the inputs
+	 */
 	private void handleInput() {
 		// Start, stop, restart game on "startGame"
-		if (gameState == GameState.READY && Binding.getInstance().isActionJustPressed("startGame")) startGame();
-		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame")) resetGame();
+		if (gameState == GameState.READY && Binding.getInstance().isActionJustPressed("startGame"))
+			startGame();
+		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame"))
+			resetGame();
 		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")
-			|| gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("resetGame")) resetGame();
+				|| gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("resetGame"))
+			resetGame();
 
 		// Close game on "closeGame"
-		if (Binding.getInstance().isActionJustPressed("closeGame")) closeGame();
+		if (Binding.getInstance().isActionJustPressed("closeGame"))
+			closeGame();
 	}
 
+	/**
+	 * Changes camera position based on player's location
+	 */
 	private void updateCamera() {
 		// Follow player with camera
 		Vector2 position = player.getPosition();
-		float diffX = (float)Math.round(position.x * 100f) / 100f - camera.position.x;
-		float diffY = (float)Math.round(position.y * 100f) / 100f - camera.position.y;
+		float diffX = (float) Math.round(position.x * 100f) / 100f - camera.position.x;
+		float diffY = (float) Math.round(position.y * 100f) / 100f - camera.position.y;
 		camera.translate(diffX, diffY);
 
 		// Zoom camera based on input
@@ -269,6 +316,9 @@ public class Game extends ApplicationAdapter {
 		worldMousePos = camera.unproject(mousePos);
 	}
 
+	/**
+	 * Handles the in game statistics related to XP
+	 */
 	private void updateLogic() {
 		// Increase XP and handle levelling up
 		if (gameState == GameState.RUNNING) {
@@ -278,25 +328,33 @@ public class Game extends ApplicationAdapter {
 				currentLevel++;
 				levelUpTimer = levelUpTimerMax;
 			}
-			levelUpTimer = (float)Math.max(levelUpTimer - Gdx.graphics.getDeltaTime(), 0f);
+			levelUpTimer = (float) Math.max(levelUpTimer - Gdx.graphics.getDeltaTime(), 0f);
 
 			// Tutorial checks
-			if (tutorialState == 0 && player.getIsMoving()) tutorialState = 1;
-			if (tutorialState == 1 && player.getHasShot()) tutorialState = 2;
+			if (tutorialState == 0 && player.getIsMoving())
+				tutorialState = 1;
+			if (tutorialState == 1 && player.getHasShot())
+				tutorialState = 2;
 		}
 	}
 
 
+	/**
+	 * renders the game UI
+	 */
 	@Override
 	public void render() {
 		update();
 
 		// Clear then run render functions
-		 ScreenUtils.clear(122/255f, 183/255f, 84/255f, 1f);
+		ScreenUtils.clear(122 / 255f, 183 / 255f, 84 / 255f, 1f);
 		renderGame();
 		renderUI();
 	}
 
+	/**
+	 * renders main objects and displays tutorial
+	 */
 	private void renderGame() {
 		// Setup batch
 		gameBatch.setProjectionMatrix(camera.combined);
@@ -307,11 +365,15 @@ public class Game extends ApplicationAdapter {
 		tiledMapRenderer.render();
 
 		// Render projectiles, colleges, players, particles
-		for (College college : colleges) college.render(gameBatch);
-		for (Particle particle : particles) particle.render(gameBatch);
-		for (Enemy enemy : enemies) enemy.render(gameBatch);
+		for (College college : colleges)
+			college.render(gameBatch);
+		for (Particle particle : particles)
+			particle.render(gameBatch);
+		for (Enemy enemy : enemies)
+			enemy.render(gameBatch);
 		player.render(gameBatch);
-		for (Projectile projectile : projectiles) projectile.render(gameBatch);
+		for (Projectile projectile : projectiles)
+			projectile.render(gameBatch);
 
 		// Render tutorial
 		if (gameState == GameState.RUNNING) {
@@ -341,6 +403,9 @@ public class Game extends ApplicationAdapter {
 		gameBatch.end();
 	}
 
+	/**
+	 * renders UI into UIBatch on top of game
+	 */
 	private void renderUI() {
 		// Setup batch
 		UIBatch.setProjectionMatrix(UICamera.combined);
@@ -349,7 +414,7 @@ public class Game extends ApplicationAdapter {
 		// Draw start splash
 		float time = (System.currentTimeMillis() - startTime) / 100f;
 		if (gameState == GameState.READY) {
-			startSprite.setScale(0.95f + 0.1f * (float)Math.sin(time / 2f));
+			startSprite.setScale(0.95f + 0.1f * (float) Math.sin(time / 2f));
 			startSprite.setPosition(
 					Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
 					Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
@@ -359,24 +424,25 @@ public class Game extends ApplicationAdapter {
 
 			// Draw win splash
 			if (hasWon) {
-				winSprite.setScale(0.95f + 0.1f * (float)Math.sin(time / 2f));
+				winSprite.setScale(0.95f + 0.1f * (float) Math.sin(time / 2f));
 				winSprite.setPosition(
-					Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
-					Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
+						Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
+						Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
 				winSprite.draw(UIBatch);
 
-			// Draw lost splash
+				// Draw lost splash
 			} else {
-				lostSprite.setScale(0.95f + 0.1f * (float)Math.sin(time / 2f));
+				lostSprite.setScale(0.95f + 0.1f * (float) Math.sin(time / 2f));
 				lostSprite.setPosition(
-					Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
-					Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
+						Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
+						Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
 				lostSprite.draw(UIBatch);
 			}
 		}
 
 		// Draw objective UI
-		if (gameState == GameState.RUNNING) objective.renderUI(UIBatch);
+		if (gameState == GameState.RUNNING)
+			objective.renderUI(UIBatch);
 
 		mainFont.getData().setScale(0.4f);
 
@@ -387,7 +453,7 @@ public class Game extends ApplicationAdapter {
 		currentUITextGlyph.setText(mainFont, goldText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, goldText, spacing, currentHeight);
-		String xpText = "XP: " + ((float)Math.round(currentXP * 100f) / 100f) + " / " + xpPerLevel;
+		String xpText = "XP: " + ((float) Math.round(currentXP * 100f) / 100f) + " / " + xpPerLevel;
 		currentUITextGlyph.setText(mainFont, xpText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, xpText, spacing, currentHeight);
@@ -419,16 +485,19 @@ public class Game extends ApplicationAdapter {
 	}
 
 
+	/**
+	 * Deletes old instances of sprites in order to be more efficient
+	 */
 	@Override
 	public void dispose() {
-		// Run dispatch functions on player / colleges
 		mainFont.dispose();
 		tiledMap.dispose();
 		startSprite.getTexture().dispose();
 		winSprite.getTexture().dispose();
 		lostSprite.getTexture().dispose();
 
-		for (College college : colleges) college.dispose();
+		for (College college : colleges)
+			college.dispose();
 
 		College.staticDispose();
 		player.staticDispose();
@@ -438,25 +507,39 @@ public class Game extends ApplicationAdapter {
 	}
 
 
+	/**
+	 * Add instance of projectile
+	 * @param projectile projectile to be added
+	 */
 	public void addProjectile(Projectile projectile) {
-		// Add projectile
 		projectiles.add(projectile);
 	}
 
+	/**
+	 * Add instance of particle
+	 * @param particle particle to be added
+	 */
 	public void addParticle(Particle particle) {
-		// Add particle
 		particles.add(particle);
 	}
 
+	/**
+	 * Adds specified resources
+	 * @param gold amount to be added
+	 * @param xp amount to be added
+	 */
 	public void addResources(float gold, float xp) {
-		// Gain the specified resources
 		currentGold += gold;
 		currentXP += xp;
 	}
 
 
+	/**
+	 * Checks whether a rectangle object overlap any collision objects
+	 * @param rect rect to check against
+	 * @return boolean
+	 */
 	public boolean checkCollision(Rectangle rect) {
-		// Check whether rect overlaps any collision objects
 		for (RectangleMapObject rectObj : collisionObjects.getByType(RectangleMapObject.class)) {
 			if (Intersector.overlaps(rectObj.getRectangle(), rect)) {
 				return true;
@@ -466,13 +549,21 @@ public class Game extends ApplicationAdapter {
 		return false;
 	}
 
+	/**
+	 * Checks whether rect overlaps the player collision rect
+	 * @param rect Rect to check against
+	 * @return boolean
+	 */
 	public boolean checkHitPlayer(Rectangle rect) {
-		// Check whether rect overlaps the player collision rect
 		return Intersector.overlaps(player.getCollisionRect(), rect);
 	}
 
+	/**
+	 * Checks collision against each hittable
+	 * @param rect Rect to check against
+	 * @return IHittable
+	 */
 	public IHittable checkHitHittable(Rectangle rect) {
-		// Loop over and check collision against each hittable
 		for (IHittable hittable : hittables) {
 			Rectangle hittableRect = hittable.getCollisionRect();
 			if (Intersector.overlaps(rect, hittableRect)) {
@@ -483,23 +574,35 @@ public class Game extends ApplicationAdapter {
 	}
 
 
+	/**
+	 * @return Player
+	 */
 	public Player getPlayer() {
 		// Return player
 		return player;
 	}
 
+	/**
+	 * @return boolean
+	 */
 	public boolean getRunning() {
 		// Getter for isRunning
 		return gameState == GameState.RUNNING;
 	}
 
+	/**
+	 * Getter for world mouse pos
+	 * @return Vector2
+	 */
 	public Vector2 getWorldMousePos() {
-		// Getter for world mouse pos
 		return new Vector2(worldMousePos.x, worldMousePos.y);
 	}
 
+	/**
+	 * Return list of colleges
+	 * @return ArrayList
+	 */
 	public ArrayList<College> getColleges() {
-		// Return colleges
 		return colleges;
 	}
 }

@@ -14,12 +14,19 @@ public class AttainGoldObjective extends Objective {
 
 
     @Override
+    /**
+     * return contextual text required for objective
+     */
     protected String getRequirementText() {
         // Return requirement text
         return "Get " + Math.max(goldRequired - game.currentGold, 0) + " more gold!";
     }
 
-
+    /**
+     * returns whether reached enough gold
+     * @param game
+     * @return boolean
+     */
     @Override
     public boolean checkComplete(Game game) {
         return game.currentGold >= goldRequired;
