@@ -16,7 +16,7 @@ Website Link: https://aj141299.github.io/YorKorsairs/
 
 1. Pull this repository using:
 
-    `git pull https://github.com/ENG1-team5/yorkPirates.git`
+    `git pull https://github.com/ENG1-team5/YorKorsairs-Game.git`
 
 2. Create a new branch
 
