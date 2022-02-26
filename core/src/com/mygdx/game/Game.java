@@ -168,6 +168,9 @@ public class Game extends ApplicationAdapter {
 		colleges.add(new College("Langwith", this, new Vector2(PPT * 48f, PPT * 24.5f), false));
 		colleges.add(new College("Vanbrugh", this, new Vector2(PPT * 62f, PPT * 26.5f), false));
 		colleges.add(new College("EvilGoodricke", this, new Vector2(PPT * 34f, PPT * 39f), false));
+		enemies.add(new Enemy(this, new Vector2(PPT * 33f, PPT * 36f)));
+		enemies.add(new Enemy(this, new Vector2(PPT * 26f, PPT * 35f)));
+		enemies.add(new Enemy(this, new Vector2(PPT * 40f, PPT * 25f)));
 		// colleges.add(new College("Derwent", this, new Vector2(PPT * 34f, PPT *
 		// 21.5f), false));
 		// colleges.add(new College("James", this, new Vector2(PPT * 26f, PPT * 29.5f),
@@ -177,9 +180,9 @@ public class Game extends ApplicationAdapter {
 		hittables.add(player);
 		for (College college : colleges)
 			hittables.add(college);
-		enemies.add(new Enemy(this, new Vector2(PPT * 33f, PPT * 36f)));
-		enemies.add(new Enemy(this, new Vector2(PPT * 26f, PPT * 35f)));
-		enemies.add(new Enemy(this, new Vector2(PPT * 40f, PPT * 25f)));
+		for (Enemy enemy : enemies){
+			hittables.add(enemy);
+		}
 		objective = Objective.getRandomObjective(this);
 	}
 
@@ -243,8 +246,13 @@ public class Game extends ApplicationAdapter {
 		for (Particle particle : particles)
 			particle.update();
 		player.update();
-		for (Enemy enemy : enemies)
-			enemy.update();
+		for (Iterator<Enemy> eItr = enemies.iterator(); eItr.hasNext();){
+			Enemy e = eItr.next();
+			e.update();
+			if (e.shouldRemove()){
+				eItr.remove();
+			}
+		}
 
 		// Update projectiles, allowing for deletion
 		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
@@ -265,6 +273,8 @@ public class Game extends ApplicationAdapter {
 				p.beenRemoved();
 			}
 		}
+
+		
 
 		// Check if objective is complete
 		if (objective.checkComplete(this))
@@ -500,7 +510,7 @@ public class Game extends ApplicationAdapter {
 			college.dispose();
 
 		College.staticDispose();
-		player.staticDispose();
+		Player.staticDispose();
 		Projectile.staticDispose();
 		Particle.staticDispose();
 		Enemy.staticDispose();
@@ -546,9 +556,19 @@ public class Game extends ApplicationAdapter {
 
 			}
 		}
+		for (Enemy enemy : enemies) {
+			Rectangle enemyRect = enemy.getCollisionRect();
+			if (Intersector.overlaps(enemyRect,rect) && !rect.equals(enemyRect)){
+				return true;
+			}
+		}
+		Rectangle playerRect = player.getCollisionRect();
+		if (Intersector.overlaps(playerRect,rect) && !rect.equals(playerRect)){
+			return true;
+		}
 		return false;
+		
 	}
-
 	/**
 	 * Checks whether rect overlaps the player collision rect
 	 * @param rect Rect to check against
