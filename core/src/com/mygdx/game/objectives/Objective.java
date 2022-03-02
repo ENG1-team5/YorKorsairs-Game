@@ -4,8 +4,6 @@ package com.mygdx.game.objectives;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
