@@ -45,6 +45,7 @@ public class Projectile {
         sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
     }
     
+    // Identical to above but with custom speed and damage
     Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_, float damage_, float speed_) {
         // Declare variables
         game = game_;

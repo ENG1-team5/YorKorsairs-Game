@@ -101,9 +101,6 @@ public class Player implements IHittable {
         atHome = false;
 
         buffs = new ArrayList<Buff>();
-        ArrayMap<String, Float> b = new ArrayMap<String, Float>();
-        b.put("topSpeed", 100f);
-        buffs.add(new Buff(b));
 
         // Initialize ship sprite
         float ratio = (float) idleTexture.getHeight() / (float) idleTexture.getWidth();
@@ -511,5 +508,9 @@ public class Player implements IHittable {
     @Override
     public boolean getFriendly() {
         return true;
+    }
+
+    public void addBuff(Buff buff) {
+        buffs.add(buff);
     }
 }

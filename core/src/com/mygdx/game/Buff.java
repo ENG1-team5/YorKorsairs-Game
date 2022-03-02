@@ -14,9 +14,12 @@ public class Buff {
      * @param stats The buffed stats, name: value
      * @param duration The length of the buff
      */
-    public Buff(ArrayMap<String, Float> stats, float duration) {
+    public Buff(String stat, float amount, float duration) {
         if (duration <= 0) { throw new IllegalArgumentException("time must be greater than 0"); }
         this.time = duration;
+        
+        ArrayMap<String, Float> stats = new ArrayMap<String, Float>();
+        stats.put(stat, amount);
         this.stats = stats;
     }
 
@@ -24,8 +27,11 @@ public class Buff {
      * Create a new buff objects
      * @param stats The buffed stats, name: value
      */
-    public Buff(ArrayMap<String, Float> stats) {
+    public Buff(String stat, float amount) {
         this.expires = false;
+        
+        ArrayMap<String, Float> stats = new ArrayMap<String, Float>();
+        stats.put(stat, amount);
         this.stats = stats;
     }
 
@@ -36,7 +42,7 @@ public class Buff {
     public Boolean update() {
         if (expires) {
             time -= Gdx.graphics.getDeltaTime();
-            if (time >= 0) {
+            if (time <= 0) {
                 stats = new ArrayMap<String, Float>();
                 return false;
             }

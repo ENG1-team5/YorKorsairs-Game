@@ -76,6 +76,7 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<Particle> particles;
 	private ArrayList<IHittable> hittables;
 	private ArrayList<Enemy> enemies;
+	private ArrayList<Pickup> pickups;
 
 
 	/**
@@ -160,6 +161,7 @@ public class Game extends ApplicationAdapter {
 		particles = new ArrayList<>();
 		hittables = new ArrayList<>();
 		enemies = new ArrayList<>();
+		pickups = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
@@ -183,6 +185,7 @@ public class Game extends ApplicationAdapter {
 		for (Enemy enemy : enemies){
 			hittables.add(enemy);
 		}
+		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("maxHealth", 100f, 100f)));
 		objective = Objective.getRandomObjective(this);
 	}
 
@@ -274,7 +277,15 @@ public class Game extends ApplicationAdapter {
 			}
 		}
 
-		
+		// Update pickups, allowing for deletion
+		for (Iterator<Pickup> pItr = pickups.iterator(); pItr.hasNext();) {
+			Pickup p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
 
 		// Check if objective is complete
 		if (objective.checkComplete(this))
@@ -379,6 +390,8 @@ public class Game extends ApplicationAdapter {
 			college.render(gameBatch);
 		for (Particle particle : particles)
 			particle.render(gameBatch);
+		for (Pickup pickup : pickups)
+			pickup.render(gameBatch);
 		for (Enemy enemy : enemies)
 			enemy.render(gameBatch);
 		player.render(gameBatch);
