@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ArrayMap;
 
@@ -74,12 +76,34 @@ public class Buff {
         return true;
     }
 
+    /**
+     * alias for stats.get(name, 0f);
+     * @param name
+     * @return
+     */
     private Float getStat(String name) {
         return stats.get(name, 0f);
     }
 
+    /**
+     * Get the stats buffed by this object
+     * @return List of buff names
+     */
+    public ArrayList<String> getBuffedStats() {
+        ArrayList<String> r = new ArrayList<>();
+
+        for (String n : stats.keys()) {
+            if (getStat(n) != 0f) {
+                r.add(n);
+            }
+        }
+
+        return r;
+    }
+
     // Various getters for convinience
     public float getMaxHealthBuff() { return getStat("maxHealth"); }
+    public float getRegenBuff() { return getStat("regen"); }
     public float getTopSpeedBuff() { return getStat("topSpeed"); }
     public float getAccelerationBuff() { return getStat("acceleration"); }
     public float getDamageBuff() { return getStat("damage"); }

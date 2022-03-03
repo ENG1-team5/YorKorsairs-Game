@@ -49,7 +49,7 @@ public class Player implements IHittable {
 
     private float maxHealth = 100;
     private float passiveHealthRegen = 2.5f;
-    private float homeHealthRegen = 7.5f;
+    private float homeHealthRegen = 5f;
     private final float regenRange = Game.PPT * 5f;
 
     private final int shotCount = 4;
@@ -298,7 +298,7 @@ public class Player implements IHittable {
 
             // Regen health passively
             if (combatTimer == 0f)
-                health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
+                health += getPassiveHealthRegen() * Gdx.graphics.getDeltaTime();
 
             // Regen faster if at home
             ArrayList<College> colleges = game.getColleges();
@@ -311,7 +311,7 @@ public class Player implements IHittable {
                 }
             }
             if (atHome)
-                health += homeHealthRegen * Gdx.graphics.getDeltaTime();
+                health += (getPassiveHealthRegen() + homeHealthRegen) * Gdx.graphics.getDeltaTime();
 
             // Limit to max
             health = Math.min(health, getMaxHealth());
@@ -471,6 +471,16 @@ public class Player implements IHittable {
 
         for (Buff buff : buffs) {
             mh += buff.getMaxHealthBuff();
+        }
+
+        return mh;
+    
+    }
+    private float getPassiveHealthRegen() {
+        float mh = passiveHealthRegen;
+
+        for (Buff buff : buffs) {
+            mh += buff.getRegenBuff();
         }
 
         return mh;
