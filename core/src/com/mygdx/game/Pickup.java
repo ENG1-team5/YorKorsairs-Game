@@ -19,7 +19,7 @@ public class Pickup {
     private static final Texture projectileSpeed = new Texture(Gdx.files.internal("./pickups/dmgspeed.png"));
     private static final Texture regen = new Texture(Gdx.files.internal("./pickups/health1.png"));
     private static final Texture maxHealth = new Texture(Gdx.files.internal("./pickups/health2.png"));
-    private static final Texture speed = new Texture(Gdx.files.internal("./pickups/multi1.png"));
+    private static final Texture speed = new Texture(Gdx.files.internal("./pickups/speed1.png"));
     private static final Texture err = new Texture(Gdx.files.internal("./pickups/err.png"));
 
     // Declare config, variables
@@ -47,21 +47,18 @@ public class Pickup {
         
         // Get the texture from the buff
         if (buffed.size() > 1) {
-            // topSpeed + acceleration is treated as a special case
-            // if both are present the texture will be speed
-            // if only one the texture will be err
-            if ((buffed.contains("topSpeed") && buffed.contains("acceleration")) && buffed.size() == 2 ) {
-                texture = speed;
-            }
-            // Multibuff otherwise
+            // Multibuff
             texture = multi;
-
         } else if (buffed.size() < 1) {
             texture = err;
         } else { //buffed.size() == 1
             switch ( buffed.get(0) ) {
                 case "maxHealth":
                     texture = maxHealth;
+                    break;
+
+                case "speed":
+                    texture = speed;
                     break;
 
                 case "regen":

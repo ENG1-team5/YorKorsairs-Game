@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -184,7 +185,14 @@ public class Game extends ApplicationAdapter {
 		for (Enemy enemy : enemies){
 			hittables.add(enemy);
 		}
-		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("maxHealth", 100f, 100f)));
+
+		pickups.add(new Pickup(this, new Vector2(PPT * 28f, PPT * 17.5f), new Buff("speed", 10f*PPT, 100f)));
+		pickups.add(new Pickup(this, new Vector2(PPT * 28f, PPT * 19f), new Buff("damage", 1000f, 100f)));
+		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("projectileSpeed", 1000f, 100f)));
+		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 19f), new Buff("maxHealth", 1000f, 100f)));
+		pickups.add(new Pickup(this, new Vector2(PPT * 26.5f, PPT * 17.5f), new Buff("fireRate", 1000f, 100f)));
+		pickups.add(new Pickup(this, new Vector2(PPT * 26.5f, PPT * 19f), new Buff("regen", 1000f, 100f)));
+
 		objective = Objective.getRandomObjective(this);
 	}
 

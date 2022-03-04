@@ -24,6 +24,7 @@ public class Buff {
         ArrayMap<String, Float> stats = new ArrayMap<String, Float>();
         stats.put(stat, amount);
         this.stats = stats;
+        checkValid();
     }
 
     /**
@@ -37,6 +38,7 @@ public class Buff {
         ArrayMap<String, Float> stats = new ArrayMap<String, Float>();
         stats.put(stat, amount);
         this.stats = stats;
+        checkValid();
 
     }
     /**
@@ -47,8 +49,8 @@ public class Buff {
     public Buff(ArrayMap<String, Float> stats_, float duration) {
         if (duration <= 0) { throw new IllegalArgumentException("time must be greater than 0"); }
         time = duration;
-        
         stats = stats_;
+        checkValid();
     }
 
     /**
@@ -57,8 +59,17 @@ public class Buff {
      */
     public Buff(ArrayMap<String, Float> stats_) {
         this.expires = false;
-        
         this.stats = stats_;
+        checkValid();
+    }
+
+    /**
+     * Check if buff is valid
+     */
+    private void checkValid() {
+        if (getBuffedStats().size() == 0) {
+            throw new IllegalArgumentException("No valid stats provided");
+        }
     }
 
     /**
@@ -104,8 +115,7 @@ public class Buff {
     // Various getters for convinience
     public float getMaxHealthBuff() { return getStat("maxHealth"); }
     public float getRegenBuff() { return getStat("regen"); }
-    public float getTopSpeedBuff() { return getStat("topSpeed"); }
-    public float getAccelerationBuff() { return getStat("acceleration"); }
+    public float getSpeedBuff() { return getStat("speed"); }
     public float getDamageBuff() { return getStat("damage"); }
     public float getProjectileSpeedBuff() { return getStat("projectileSpeed"); }
     public float getFireRateBuff() { return getStat("fireRate"); }

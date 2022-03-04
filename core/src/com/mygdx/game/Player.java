@@ -201,12 +201,12 @@ public class Player implements IHittable {
         Texture targetTexture;
         if (health > 0.0f) {
             if (vel.len2() < (idleSpeed * idleSpeed)) {
-                if (shotTimer > (shotTimerMax * 0.5f)) {
+                if (shotTimer > (getShotTimerMax() * 0.5f)) {
                     targetTexture = idleShotTextures[shotTurn];
                 } else
                     targetTexture = idleTexture;
             } else {
-                if (shotTimer > (shotTimerMax * 0.5f)) {
+                if (shotTimer > (getShotTimerMax() * 0.5f)) {
                     targetTexture = movingShotTextures[shotTurn];
                 } else
                     targetTexture = movingTexture;
@@ -293,7 +293,7 @@ public class Player implements IHittable {
             }
 
             // Update timers
-            shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0);
+            shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0f);
             combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
 
             // Regen health passively
@@ -413,7 +413,7 @@ public class Player implements IHittable {
         float speed = maxSpeed + (game.currentLevel - 1) * maxSpeedScale;
 
         for (Buff buff : buffs) {
-            speed += buff.getTopSpeedBuff();
+            speed += buff.getSpeedBuff();
         }
         return speed;
     }
@@ -425,7 +425,7 @@ public class Player implements IHittable {
         float acc = acceleration + (game.currentLevel - 1) * accelerationScale;
 
         for (Buff buff : buffs) {
-            acc += buff.getAccelerationBuff();
+            acc += buff.getSpeedBuff() * 3;
         }
         return acc;
     }
@@ -437,10 +437,10 @@ public class Player implements IHittable {
         float st = shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale;
 
         for (Buff buff : buffs) {
-            st += buff.getFireRateBuff();
+            st -= buff.getFireRateBuff();
         }
 
-        return st;
+        return Math.max(st, 0.1f);
     }
 
     private float getDamage() {
