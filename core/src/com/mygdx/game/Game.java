@@ -2,6 +2,8 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
+
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
@@ -19,8 +21,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
@@ -186,12 +191,12 @@ public class Game extends ApplicationAdapter {
 			hittables.add(enemy);
 		}
 
-		pickups.add(new Pickup(this, new Vector2(PPT * 28f, PPT * 17.5f), new Buff("speed", 10f*PPT, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 28f, PPT * 19f), new Buff("damage", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("projectileSpeed", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 19f), new Buff("maxHealth", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 26.5f, PPT * 17.5f), new Buff("fireRate", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 26.5f, PPT * 19f), new Buff("regen", 1000f, 100f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("speed", 2f*PPT, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("damage", 10f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("projectileSpeed", 10f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("fireRate", 1f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("maxHealth", 100f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("regen", 2f, 60f)));
 
 		objective = Objective.getRandomObjective(this);
 	}
@@ -645,4 +650,40 @@ public class Game extends ApplicationAdapter {
 	public ArrayList<College> getColleges() {
 		return colleges;
 	}
+
+	// Store water tiles for future use
+	private ArrayList<Vector2> waterTiles = null;
+
+	// Random instance used in getRandomOverWater()
+	public Random random = new Random();
+	/**
+	 * returns a random position that is over water, i.e. reachable by the player
+	 * selected positions are removed from possible positions
+	 * the final position is offset by a random amount
+	 * @return the position as a Vector2
+	 */
+	public Vector2 getRandomOverWater() {
+		
+		if (waterTiles == null) {
+			waterTiles = new ArrayList<>();
+			TiledMapTileLayer terrain = (TiledMapTileLayer) tiledMap.getLayers().get("Terrain");
+			for (int x = 0; x < terrain.getWidth(); x++) {
+				for (int y = 0; y < terrain.getHeight(); y++) {
+					Cell cell = terrain.getCell(x, y);
+
+					int id = cell.getTile().getId();
+					if (id == 19 || id == 20) {
+						waterTiles.add(new Vector2(x, y));
+					}
+				}
+			}
+		}
+
+		int ind = random.nextInt(waterTiles.size());
+		Vector2 pos = waterTiles.get(ind);
+		waterTiles.remove(ind);
+
+		return new Vector2((float)(pos.x + random.nextDouble()) * PPT, (float)(pos.y + random.nextDouble()) * PPT);
+	}
+
 }
