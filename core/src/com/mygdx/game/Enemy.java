@@ -24,6 +24,7 @@ public class Enemy implements IHittable{
     private final float idleSwayFreq = 0.2f;
     private final float swayAcceleration = 20f;
     private final float shootRange = Game.PPT * 6.5f;
+    private final float followRange = Game.PPT * 8f;
     private final float shotTimerMax = 3f;
     private final float smokeTimerMax = 0.1f;
 
@@ -77,12 +78,25 @@ public class Enemy implements IHittable{
      * updates enemy movement, swaying and collision
      */
     public void update() {
+
+        Player player = game.getPlayer();
+        Vector2 dir = new Vector2(player.getPosition()).sub(pos);
         // Calculate input movement direction
-        if (Math.random() < Gdx.graphics.getDeltaTime() * 1f) {
-            inputDir.x = (float) Math.random() * 2f - 1f;
-            inputDir.y = (float) Math.random() * 2f - 1f;
-            inputDir = inputDir.nor();
+        // If in range, move towards player
+        if (dir.len2() < (followRange * followRange)){
+            inputDir.x = player.pos.x - pos.x;
+            inputDir.y = player.pos.y - pos.y;
         }
+        else{
+        // else move randomly
+            if (Math.random() < Gdx.graphics.getDeltaTime() * 1f) {
+                inputDir.x = (float) Math.random() * 2f - 1f;
+                inputDir.y = (float) Math.random() * 2f - 1f;
+            }
+        }
+        inputDir = inputDir.nor();
+        
+        
 
         // Update velocity
         vel.x += inputDir.x * acceleration * Gdx.graphics.getDeltaTime();
@@ -127,11 +141,7 @@ public class Enemy implements IHittable{
             pos.y - healthbarFillSprite.getOriginY() - healthbarBackSprite.getHeight());
         healthbarFillSprite.setScale(health / maxHealth, 1.0f);
 
-        //Check if player in range and shoot at them
-        Player player = game.getPlayer();
-        Vector2 dir = new Vector2(player.getPosition()).sub(pos);
-
-        // Check whether player in range
+        // Check whether player in range and shoot at them
         if (dir.len2() < (shootRange * shootRange)) {
             if (shotTimer == 0.0f) {
                 Vector2 projPos = new Vector2(pos.x, pos.y + shipWidth * 0.1f);
@@ -202,6 +212,12 @@ public class Enemy implements IHittable{
         for (int i = 0; i < Math.random() * 3f + 4f; i++) {
             Particle particle = new Particle("wood", new Vector2(pos), Game.PPT * 0.1f, Game.PPT * 0.5f, 0.7f);
             game.addParticle(particle);
+        }
+
+        if (!getFriendly()) {
+            game.addResources(
+                    10 + (int) Math.floor((float) Math.random() * 10),
+                    5 + (int) Math.floor((float) Math.random() * 5));
         }
 
         toRemove = true;
