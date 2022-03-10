@@ -41,15 +41,12 @@ public class Player implements IHittable {
     private final float idleSwayMag = 0.16f;
     private final float idleSwayFreq = 0.2f;
     private final float swayAcceleration = 20f;
-    private final float maxHealth = 100;
-    private final float passiveHealthRegen = 2.5f;
-    private final float homeHealthRegen = 7.5f;
     private final float regenRange = Game.PPT * 5f;
     private final float shotTimerMax = 0.55f;
     private final float shotTimerMaxScale = -0.1f;
+    private final float combatTimerMax = 2.0f;
     private final float particleTimerMax = 0.4f;
     private final float smokeTimerMax = 0.1f;
-    private final float combatTimerMax = 2.0f;
 
     private Game game;
     private Sprite shipSprite;
@@ -60,6 +57,7 @@ public class Player implements IHittable {
     public Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
+    private float maxHealth = 100;
     private float health;
     private float shotTimer;
     private int shotTurn;
@@ -69,6 +67,9 @@ public class Player implements IHittable {
     private float combatTimer;
     private float smokeTimer;
     private boolean atHome;
+    
+    private float passiveHealthRegen = 2.5f;
+    private float homeHealthRegen = passiveHealthRegen * 3;
 
 
     Player(Game game_, Vector2 pos_) {
@@ -309,7 +310,7 @@ public class Player implements IHittable {
         healthbarFillSprite.draw(batch);
 
         // Render health regen for at home or passive
-        if (atHome && health < maxHealth) {
+        if (atHome && health < maxHealth && passiveHealthRegen != 0f) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "++");
             Game.mainFont.draw(batch, "++",
@@ -317,7 +318,7 @@ public class Player implements IHittable {
                     healthbarBackSprite.getY() + healthbarBackSprite.getHeight());
             Game.mainFont.getData().setScale(1f);
 
-        } else if (combatTimer == 0f && health < maxHealth) {
+        } else if (combatTimer == 0f && health < maxHealth && passiveHealthRegen != 0f) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "+");
             Game.mainFont.draw(batch, "+",
@@ -439,5 +440,23 @@ public class Player implements IHittable {
     @Override
     public boolean getFriendly() {
         return true;
+    }
+
+    public float getMaxHealth(){
+        return maxHealth;
+    }
+
+    public void setHealth(float value){
+        maxHealth = value;
+        health = value;
+    }
+
+    public float getHealthRegen(){
+        return passiveHealthRegen;
+    }
+
+    public void setHealthRegen(float value){
+        passiveHealthRegen = value;
+        homeHealthRegen = passiveHealthRegen * 3;
     }
 }
