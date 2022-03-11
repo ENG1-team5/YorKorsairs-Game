@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -512,7 +513,28 @@ public class Game extends ApplicationAdapter {
 			currentUITextGlyph.setText(mainFont, "Level " + currentLevel + "!");
 			mainFont.draw(UIBatch, "Level " + currentLevel + "!", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
+		mainFont.getData().setScale(1f);
 
+		// Draw buff icons
+		float buff_width = 40f;
+		float buff_x = Gdx.graphics.getWidth() - 30f;
+		float buff_y = Gdx.graphics.getHeight() - 30f;
+		
+		mainFont.getData().setScale(.3f);
+
+		for (Buff buff : player.getBuffs()) {
+			if (buff.time < 1) {
+				continue;
+			}
+			Sprite buff_sprite = new Sprite(buff.getTexture());
+			buff_sprite.setSize(50f, 50f);
+			buff_sprite.setCenter(buff_x, buff_y);
+			UIBatch.draw(buff_sprite, buff_sprite.getX(), buff_sprite.getY());
+
+			mainFont.draw(UIBatch, String.valueOf((int) buff.time), buff_x - 30f, buff_y + 15f);
+
+			buff_x -= buff_width;
+		}
 		mainFont.getData().setScale(1f);
 
 		// Draw batch

@@ -13,14 +13,6 @@ public class Pickup {
 
     // Define textures
     private Texture texture;
-    private static final Texture multi = new Texture(Gdx.files.internal("./pickups/multi1.png"));
-    private static final Texture damage = new Texture(Gdx.files.internal("./pickups/dmg1.png"));
-    private static final Texture fireRate = new Texture(Gdx.files.internal("./pickups/speed2.png"));
-    private static final Texture projectileSpeed = new Texture(Gdx.files.internal("./pickups/dmgspeed.png"));
-    private static final Texture regen = new Texture(Gdx.files.internal("./pickups/health1.png"));
-    private static final Texture maxHealth = new Texture(Gdx.files.internal("./pickups/health2.png"));
-    private static final Texture speed = new Texture(Gdx.files.internal("./pickups/speed1.png"));
-    private static final Texture err = new Texture(Gdx.files.internal("./pickups/err.png"));
 
     // Declare config, variables
     private final float width = Game.PPT * .5f;
@@ -42,47 +34,8 @@ public class Pickup {
         pos = pos_;
         startPos = pos_;
         toRemove = false;
-
-        ArrayList<String> buffed = buff.getBuffedStats();
         
-        // Get the texture from the buff
-        if (buffed.size() > 1) {
-            // Multibuff
-            texture = multi;
-        } else if (buffed.size() < 1) {
-            texture = err;
-        } else { //buffed.size() == 1
-            switch ( buffed.get(0) ) {
-                case "maxHealth":
-                    texture = maxHealth;
-                    break;
-
-                case "speed":
-                    texture = speed;
-                    break;
-
-                case "regen":
-                    texture = regen;
-                    break;
-                
-                case "damage":
-                    texture = damage;
-                    break;
-                    
-                case "projectileSpeed":
-                    texture = projectileSpeed;
-                    break;
-                    
-                case "fireRate":
-                    texture = fireRate;
-                    break;
-            
-                default:
-                    texture = err;
-                    break;
-            }
-        }
-
+        texture = buff.getTexture();
         sprite = new Sprite(texture);
     
         sprite.setPosition(pos_.x, pos_.y);
@@ -130,20 +83,6 @@ public class Pickup {
                 pos.x - width * 0.5f,
                 pos.y - width * 0.5f,
                 width, width);
-    }
-
-    /**
-     * Dispose static textures
-     */
-    public static void staticDispose() {
-        multi.dispose();
-        damage.dispose();
-        fireRate.dispose();
-        projectileSpeed.dispose();
-        regen.dispose();
-        maxHealth.dispose();
-        speed.dispose();
-        err.dispose();
     }
 
     /**
