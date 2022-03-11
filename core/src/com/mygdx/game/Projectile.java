@@ -15,8 +15,8 @@ public class Projectile {
     private static final Texture texture = new Texture(Gdx.files.internal("./projectiles/cannonball.png"));
     private final float width = Game.PPT * 0.22f;
     private final float timeMax = 3f;
-    private final float speed = Game.PPT * 3f;
-    private final float damage = 15f;
+    private float speed = Game.PPT * 3f;
+    private float damage = 15f;
 
     private Game game;
     IHittable source;
@@ -37,6 +37,28 @@ public class Projectile {
         isFriendly = isFriendly_;
         currentTime = 0.0f;
         toRemove = false;
+
+        // Setup sprite
+        sprite.setPosition(pos.x, pos.y);
+        sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
+        sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
+        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+    }
+    
+    // Identical to above but with custom speed and damage
+    Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_, float damage_, float speed_) {
+        // Declare variables
+        game = game_;
+        source = source_;
+        sprite = new Sprite(texture);
+        pos = pos_;
+        vel = vel_.nor();
+        isFriendly = isFriendly_;
+        currentTime = 0.0f;
+        toRemove = false;
+
+        damage = damage_;
+        speed = speed_;
 
         // Setup sprite
         sprite.setPosition(pos.x, pos.y);
