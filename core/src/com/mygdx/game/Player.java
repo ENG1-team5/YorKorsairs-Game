@@ -48,7 +48,6 @@ public class Player implements IHittable {
 
     private float maxHealth = 100;
     private float passiveHealthRegen = 2.5f;
-    private float homeHealthRegen = 5f;
     private final float regenRange = Game.PPT * 5f;
 
     private final int shotCount = 4;
@@ -72,7 +71,6 @@ public class Player implements IHittable {
     public Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
-    private float maxHealth = 100;
     private float health;
     private float shotTimer;
     private int shotTurn;
@@ -82,8 +80,7 @@ public class Player implements IHittable {
     private float combatTimer;
     private float smokeTimer;
     private boolean atHome;
-    
-    private float passiveHealthRegen = 2.5f;
+
     private float homeHealthRegen = passiveHealthRegen * 3;
 
 
@@ -468,7 +465,7 @@ public class Player implements IHittable {
     /**
      * @return maxHealth based on buffs
      */
-    private float getMaxHealth() {
+    public float getMaxHealth() {
         float mh = maxHealth;
 
         for (Buff buff : buffs) {
