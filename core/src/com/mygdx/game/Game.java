@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -55,11 +54,6 @@ public class Game extends ApplicationAdapter {
 	private TiledMapRenderer tiledMapRenderer;
 	private MapObjects collisionObjects;
 	private GlyphLayout currentUITextGlyph = new GlyphLayout();
-
-	private String[] difficultyStrings = {"   Easy ->","<- Normal ->","<- Hard ->","<- Impossible   "};
-	private float[] difficultyModifiers = {0.5f,1.0f,1.25f,1.5f};
-	private String[] difficultyDescriptors = {"Weakens enemys, Strenghtens player \n      Bullets are easier to dodge ","Intended Difficulty","Strengthens enemys, Weakens player \n      Bullets are harder to dodge ", "Unfair enemies and colleges \n    No health regeneration"};
-	private int difficultySelection = 1;
 
 	private Sprite startSprite;
 	private Sprite winSprite;
@@ -151,37 +145,6 @@ public class Game extends ApplicationAdapter {
 		mainFont.setColor(0f, 0f, 0f, 1f);
 	}
 
-	private void setDifficulty(){
-		//Takes raw difficulty selection text as displayed on screen
-		String difficulty = difficultyStrings[difficultySelection];
-		//Removes charecters <-> and spaces from the string
-		difficulty = difficulty.replaceAll("[-<> ]",""); 
-		//Gets appropriate percentage change to apply to attributes based on difficulty string
-		float difficultyMod = difficultyModifiers[difficultySelection];
-
-		// In the case where difficulty is Normal, nothing changes
-		// Otherwise, apply a modification based on difficulty to health 
-		if(!difficulty.equals("Normal")){
-			
-			// Alter all enemies health and shooting speed based on difficultyMod
-			for (Enemy e : enemies){
-				e.setHealth(e.getMaxHealth()*difficultyMod);
-				e.setShotTimerMax(e.getShotTimerMax()*1/difficultyMod);
-			}
-			for (College c : colleges){
-				c.setHealth(c.getMaxHealth()*difficultyMod);
-				c.setShotTimerMax(c.getShotTimerMax()*1/difficultyMod);
-			}
-
-			//Changing health to 1/difficultyMod increases or decreases player health inverse to the changes made to enemy health
-			player.setHealth(player.getMaxHealth()*1/difficultyMod);
-		}
-
-		if(difficulty.equals("Impossible")){
-			// For impossible mode, health regen is disabled
-			player.setHealthRegen(0f);
-		}
-	}
 
 	/**
 	 * Reset game state back to start
@@ -346,18 +309,8 @@ public class Game extends ApplicationAdapter {
 	 */
 	private void handleInput() {
 		// Start, stop, restart game on "startGame"
-		if (gameState == GameState.READY){
-			if(Binding.getInstance().isActionJustPressed("difficultyIncrease")){
-				increaseDifficulty();
-			}
-			if(Binding.getInstance().isActionJustPressed("difficultyDecrease")){
-				decreaseDifficulty();
-			}
-			if(Binding.getInstance().isActionJustPressed("startGame")){
-				setDifficulty();
-				startGame();
-			}
-		}			
+		if (gameState == GameState.READY && Binding.getInstance().isActionJustPressed("startGame"))
+			startGame();
 		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame"))
 			resetGame();
 		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")
@@ -365,9 +318,8 @@ public class Game extends ApplicationAdapter {
 			resetGame();
 
 		// Close game on "closeGame"
-		if (Binding.getInstance().isActionJustPressed("closeGame")){
+		if (Binding.getInstance().isActionJustPressed("closeGame"))
 			closeGame();
-		}
 	}
 
 	/**
@@ -502,25 +454,6 @@ public class Game extends ApplicationAdapter {
 					Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
 					Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
 			startSprite.draw(UIBatch);
-
-			mainFont.getData().setScale(0.60f);
-			String text = "Use arrow keys to adjust difficulty";
-			currentUITextGlyph.setText(mainFont, text);
-			float px = (UICamera.viewportWidth/2) - currentUITextGlyph.width * 0.5f;
-			float py = (UICamera.viewportHeight/4) - currentUITextGlyph.height;
-			mainFont.draw(UIBatch, text, px, py);
-
-			currentUITextGlyph.setText(mainFont, difficultyDescriptors[difficultySelection]);
-			px = (UICamera.viewportWidth/2) - currentUITextGlyph.width * 0.5f;
-			mainFont.draw(UIBatch, difficultyDescriptors[difficultySelection], px, py - 80);
-
-			mainFont.getData().setScale(0.60f + 0.02f * (float) Math.sin(time / 2f));
-			currentUITextGlyph.setText(mainFont, difficultyStrings[difficultySelection]);
-			px = (UICamera.viewportWidth/2) - currentUITextGlyph.width * 0.5f;
-			mainFont.draw(UIBatch, difficultyStrings[difficultySelection], px, py - 40);
-
-			
-
 
 		} else if (gameState == GameState.FINISHED) {
 
@@ -685,17 +618,6 @@ public class Game extends ApplicationAdapter {
 		return null;
 	}
 
-	public void increaseDifficulty(){
-		if (difficultySelection + 1 < difficultyStrings.length){
-			difficultySelection += 1;
-		}
-	}
-
-	public void decreaseDifficulty(){
-		if (difficultySelection - 1 >= 0){
-			difficultySelection -= 1;
-		}
-	}
 
 	/**
 	 * @return Player

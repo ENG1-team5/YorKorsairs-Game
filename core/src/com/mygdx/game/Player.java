@@ -57,9 +57,9 @@ public class Player implements IHittable {
     private float shotDamage = 15f;
     private float shotSpeed = Game.PPT * 3f;
 
-    private final float combatTimerMax = 2.0f;
     private final float particleTimerMax = 0.4f;
     private final float smokeTimerMax = 0.1f;
+    private final float combatTimerMax = 2.0f;
 
     private List<Buff> buffs;
 
@@ -72,7 +72,6 @@ public class Player implements IHittable {
     public Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
-    private float maxHealth = 100;
     private float health;
     private float shotTimer;
     private int shotTurn;
@@ -82,9 +81,6 @@ public class Player implements IHittable {
     private float combatTimer;
     private float smokeTimer;
     private boolean atHome;
-    
-    private float passiveHealthRegen = 2.5f;
-    private float homeHealthRegen = passiveHealthRegen * 3;
 
 
     Player(Game game_, Vector2 pos_) {
@@ -333,14 +329,15 @@ public class Player implements IHittable {
         healthbarFillSprite.draw(batch);
 
         // Render health regen for at home or passive
-        if (atHome && health < getMaxHealth() && passiveHealthRegen != 0f) {
+        if (atHome && health < getMaxHealth()) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "++");
             Game.mainFont.draw(batch, "++",
                     healthbarBackSprite.getX() + healthbarBackSprite.getWidth() + 10f,
                     healthbarBackSprite.getY() + healthbarBackSprite.getHeight());
             Game.mainFont.getData().setScale(1f);
-        } else if (combatTimer == 0f && health < getMaxHealth() && passiveHealthRegen != 0f) {
+
+        } else if (combatTimer == 0f && health < getMaxHealth()) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "+");
             Game.mainFont.draw(batch, "+",
@@ -522,20 +519,6 @@ public class Player implements IHittable {
         return true;
     }
 
-    public void setHealth(float value){
-        maxHealth = value;
-        health = value;
-    }
-
-    public float getHealthRegen(){
-        return passiveHealthRegen;
-    }
-
-    public void setHealthRegen(float value){
-        passiveHealthRegen = value;
-        homeHealthRegen = passiveHealthRegen * 3;
-    }
-  
     public void addBuff(Buff buff) {
         buffs.add(buff);
     }
