@@ -26,10 +26,9 @@ public class College implements IHittable {
     private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
     public final float collegeWidth = Game.PPT * 2.5f;
-    private final float shotTimerMax = 0.8f;
     private final float smokeTimerMax = 0.1f;
     private final float shootRange = Game.PPT * 6.5f;
-    private final float maxHealth = 300f;
+    
 
     private String name;
     private Game game;
@@ -42,8 +41,10 @@ public class College implements IHittable {
     private GlyphLayout currentTextGlyph = new GlyphLayout();
 
     private Vector2 pos;
+    private float maxHealth = 300f;
     private float health;
     private boolean isFriendly;
+    private float shotTimerMax = 0.8f;
     private float shotTimer;
     private float smokeTimer;
 
@@ -302,5 +303,22 @@ public class College implements IHittable {
     @Override
     public boolean getFriendly() {
         return isFriendly;
+    }
+    
+    public float getMaxHealth(){
+        return maxHealth;
+    }
+
+    public void setHealth(float value){
+        maxHealth = value;
+        health = value;
+    }
+
+    public float getShotTimerMax(){
+        return shotTimerMax;
+    }
+
+    public void setShotTimerMax(float value){
+        shotTimerMax = value;
     }
 }
