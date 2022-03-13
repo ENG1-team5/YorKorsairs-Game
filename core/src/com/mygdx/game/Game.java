@@ -3,11 +3,14 @@ package com.mygdx.game;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Random;
+
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -19,8 +22,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
@@ -81,6 +87,7 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<Particle> particles;
 	private ArrayList<IHittable> hittables;
 	private ArrayList<Enemy> enemies;
+	private ArrayList<Pickup> pickups;
 
 
 	/**
@@ -196,6 +203,7 @@ public class Game extends ApplicationAdapter {
 		particles = new ArrayList<>();
 		hittables = new ArrayList<>();
 		enemies = new ArrayList<>();
+		pickups = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
@@ -219,6 +227,14 @@ public class Game extends ApplicationAdapter {
 		for (Enemy enemy : enemies){
 			hittables.add(enemy);
 		}
+
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("speed", 2f*PPT, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("damage", 10f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("projectileSpeed", 10f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("fireRate", 1f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("maxHealth", 100f, 60f)));
+		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("regen", 2f, 60f)));
+
 		objective = Objective.getRandomObjective(this);
 	}
 
@@ -310,7 +326,15 @@ public class Game extends ApplicationAdapter {
 			}
 		}
 
-		
+		// Update pickups, allowing for deletion
+		for (Iterator<Pickup> pItr = pickups.iterator(); pItr.hasNext();) {
+			Pickup p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
 
 		// Check if objective is complete
 		if (objective.checkComplete(this))
@@ -426,6 +450,8 @@ public class Game extends ApplicationAdapter {
 			college.render(gameBatch);
 		for (Particle particle : particles)
 			particle.render(gameBatch);
+		for (Pickup pickup : pickups)
+			pickup.render(gameBatch);
 		for (Enemy enemy : enemies)
 			enemy.render(gameBatch);
 		player.render(gameBatch);
@@ -702,4 +728,40 @@ public class Game extends ApplicationAdapter {
 	public ArrayList<College> getColleges() {
 		return colleges;
 	}
+
+	// Store water tiles for future use
+	private ArrayList<Vector2> waterTiles = null;
+
+	// Random instance used in getRandomOverWater()
+	public Random random = new Random();
+	/**
+	 * returns a random position that is over water, i.e. reachable by the player
+	 * selected positions are removed from possible positions
+	 * the final position is offset by a random amount
+	 * @return the position as a Vector2
+	 */
+	public Vector2 getRandomOverWater() {
+		
+		if (waterTiles == null) {
+			waterTiles = new ArrayList<>();
+			TiledMapTileLayer terrain = (TiledMapTileLayer) tiledMap.getLayers().get("Terrain");
+			for (int x = 0; x < terrain.getWidth(); x++) {
+				for (int y = 0; y < terrain.getHeight(); y++) {
+					Cell cell = terrain.getCell(x, y);
+
+					int id = cell.getTile().getId();
+					if (id == 19 || id == 20) {
+						waterTiles.add(new Vector2(x, y));
+					}
+				}
+			}
+		}
+
+		int ind = random.nextInt(waterTiles.size());
+		Vector2 pos = waterTiles.get(ind);
+		waterTiles.remove(ind);
+
+		return new Vector2((float)(pos.x + random.nextDouble()) * PPT, (float)(pos.y + random.nextDouble()) * PPT);
+	}
+
 }

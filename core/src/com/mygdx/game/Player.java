@@ -5,11 +5,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Player implements IHittable {
 
@@ -31,22 +35,33 @@ public class Player implements IHittable {
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
     public final float shipWidth = Game.PPT * 1.4f;
-    private final int shotCount = 4;
     private final float maxSpeed = Game.PPT * 4f; // Units / Second originally 1f
     private final float maxSpeedScale = Game.PPT * 0.5f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float accelerationScale = Game.PPT * 1f;
     private final float friction = 0.985f;
+
     private final float idleSpeed = Game.PPT * 0.55f;
     private final float idleSwayMag = 0.16f;
     private final float idleSwayFreq = 0.2f;
     private final float swayAcceleration = 20f;
+
+    private float maxHealth = 100;
+    private float passiveHealthRegen = 2.5f;
+    private float homeHealthRegen = 5f;
     private final float regenRange = Game.PPT * 5f;
-    private final float shotTimerMax = 0.55f;
-    private final float shotTimerMaxScale = -0.1f;
+
+    private final int shotCount = 4;
+    private float shotTimerMax = 0.55f;
+    private float shotTimerMaxScale = -0.1f;
+    private float shotDamage = 15f;
+    private float shotSpeed = Game.PPT * 3f;
+
     private final float combatTimerMax = 2.0f;
     private final float particleTimerMax = 0.4f;
     private final float smokeTimerMax = 0.1f;
+
+    private List<Buff> buffs;
 
     private Game game;
     private Sprite shipSprite;
@@ -88,6 +103,8 @@ public class Player implements IHittable {
         smokeTimer = 0.0f;
         atHome = false;
 
+        buffs = new ArrayList<Buff>();
+
         // Initialize ship sprite
         float ratio = (float) idleTexture.getHeight() / (float) idleTexture.getWidth();
         shipSprite = new Sprite(idleTexture);
@@ -121,6 +138,12 @@ public class Player implements IHittable {
         }
         updateLogic();
         updateSprite();
+
+        // Update buffs
+        // todo: buffs nullify themself but it may be worth cleaning them up
+        for (Buff buff : buffs) {
+            buff.update();
+        }
     }
 
     /**
@@ -181,12 +204,12 @@ public class Player implements IHittable {
         Texture targetTexture;
         if (health > 0.0f) {
             if (vel.len2() < (idleSpeed * idleSpeed)) {
-                if (shotTimer > (shotTimerMax * 0.5f)) {
+                if (shotTimer > (getShotTimerMax() * 0.5f)) {
                     targetTexture = idleShotTextures[shotTurn];
                 } else
                     targetTexture = idleTexture;
             } else {
-                if (shotTimer > (shotTimerMax * 0.5f)) {
+                if (shotTimer > (getShotTimerMax() * 0.5f)) {
                     targetTexture = movingShotTextures[shotTurn];
                 } else
                     targetTexture = movingTexture;
@@ -220,7 +243,7 @@ public class Player implements IHittable {
         healthbarFillSprite.setPosition(
                 pos.x - healthbarFillSprite.getOriginX(),
                 pos.y - healthbarFillSprite.getOriginY() - healthbarBackSprite.getHeight());
-        healthbarFillSprite.setScale(health / maxHealth, 1.0f);
+        healthbarFillSprite.setScale(health / getMaxHealth(), 1.0f);
     }
 
     /**
@@ -228,7 +251,7 @@ public class Player implements IHittable {
      */
     private void updateLogic() {
         // Smoke if below half health
-        if (health < (maxHealth * 0.5f)) {
+        if (health < (getMaxHealth() * 0.5f)) {
             smokeTimer = Math.max(smokeTimer - Gdx.graphics.getDeltaTime(), 0f);
             if (smokeTimer == 0.0f) {
                 float pSize = 0.2f * shipWidth;
@@ -264,7 +287,7 @@ public class Player implements IHittable {
             if (toShoot) {
                 Vector2 dir = game.getWorldMousePos().sub(pos);
                 Vector2 newPos = new Vector2(pos.x, pos.y + shipWidth * 0.1f);
-                Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true);
+                Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true, getDamage(), getProjectileSpeed());
                 game.addProjectile(projectile);
                 shotTimer = getShotTimerMax();
                 shotTurn = (shotTurn + 1) % shotCount;
@@ -273,12 +296,12 @@ public class Player implements IHittable {
             }
 
             // Update timers
-            shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0);
+            shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0f);
             combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
 
             // Regen health passively
             if (combatTimer == 0f)
-                health += passiveHealthRegen * Gdx.graphics.getDeltaTime();
+                health += getPassiveHealthRegen() * Gdx.graphics.getDeltaTime();
 
             // Regen faster if at home
             ArrayList<College> colleges = game.getColleges();
@@ -291,10 +314,10 @@ public class Player implements IHittable {
                 }
             }
             if (atHome)
-                health += homeHealthRegen * Gdx.graphics.getDeltaTime();
+                health += (getPassiveHealthRegen() + homeHealthRegen) * Gdx.graphics.getDeltaTime();
 
             // Limit to max
-            health = Math.min(health, maxHealth);
+            health = Math.min(health, getMaxHealth());
         }
     }
 
@@ -310,15 +333,14 @@ public class Player implements IHittable {
         healthbarFillSprite.draw(batch);
 
         // Render health regen for at home or passive
-        if (atHome && health < maxHealth && passiveHealthRegen != 0f) {
+        if (atHome && health < getMaxHealth() && passiveHealthRegen != 0f) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "++");
             Game.mainFont.draw(batch, "++",
                     healthbarBackSprite.getX() + healthbarBackSprite.getWidth() + 10f,
                     healthbarBackSprite.getY() + healthbarBackSprite.getHeight());
             Game.mainFont.getData().setScale(1f);
-
-        } else if (combatTimer == 0f && health < maxHealth && passiveHealthRegen != 0f) {
+        } else if (combatTimer == 0f && health < getMaxHealth() && passiveHealthRegen != 0f) {
             Game.mainFont.getData().setScale(0.55f * Game.PPT / 128f);
             currentTextGlyph.setText(Game.mainFont, "+");
             Game.mainFont.draw(batch, "+",
@@ -387,26 +409,84 @@ public class Player implements IHittable {
 
 
     /**
-     * @return maxSpeed scaled based on player level
+     * @return maxSpeed scaled based on player level and buffs
      */
     private float getMaxSpeed() {
-        return maxSpeed + (game.currentLevel - 1) * maxSpeedScale;
+        float speed = maxSpeed + (game.currentLevel - 1) * maxSpeedScale;
+
+        for (Buff buff : buffs) {
+            speed += buff.getSpeedBuff();
+        }
+        return speed;
     }
 
     /**
-     * @return acceleration scaled based on player level
+     * @return acceleration scaled based on player level and buffs
      */
     private float getAcceleration() {
-        return acceleration + (game.currentLevel - 1) * accelerationScale;
+        float acc = acceleration + (game.currentLevel - 1) * accelerationScale;
+
+        for (Buff buff : buffs) {
+            acc += buff.getSpeedBuff() * 3;
+        }
+        return acc;
     }
 
     /**
-     * @return shotTimerMax scaled based on player level
+     * @return shotTimerMax scaled based on player level and buffs
      */
     private float getShotTimerMax() {
-        return shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale;
+        float st = shotTimerMax + (game.currentLevel - 1) * shotTimerMaxScale;
+
+        for (Buff buff : buffs) {
+            st -= buff.getFireRateBuff();
+        }
+
+        return Math.max(st, 0.1f);
     }
 
+    private float getDamage() {
+        float dmg = shotDamage;
+
+        for (Buff buff : buffs) {
+            dmg += buff.getDamageBuff();
+        }
+
+        return dmg;
+    }
+    
+    private float getProjectileSpeed() {
+        float projspeed = shotSpeed;
+
+        for (Buff buff : buffs) {
+            projspeed += buff.getProjectileSpeedBuff();
+        }
+
+        return projspeed;
+    }
+
+    /**
+     * @return maxHealth based on buffs
+     */
+    private float getMaxHealth() {
+        float mh = maxHealth;
+
+        for (Buff buff : buffs) {
+            mh += buff.getMaxHealthBuff();
+        }
+
+        return mh;
+    
+    }
+    private float getPassiveHealthRegen() {
+        float mh = passiveHealthRegen;
+
+        for (Buff buff : buffs) {
+            mh += buff.getRegenBuff();
+        }
+
+        return mh;
+    }
 
     /**
      * player receives certain amount of damage
@@ -442,10 +522,6 @@ public class Player implements IHittable {
         return true;
     }
 
-    public float getMaxHealth(){
-        return maxHealth;
-    }
-
     public void setHealth(float value){
         maxHealth = value;
         health = value;
@@ -458,5 +534,9 @@ public class Player implements IHittable {
     public void setHealthRegen(float value){
         passiveHealthRegen = value;
         homeHealthRegen = passiveHealthRegen * 3;
+    }
+  
+    public void addBuff(Buff buff) {
+        buffs.add(buff);
     }
 }
