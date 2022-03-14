@@ -74,15 +74,18 @@ public class Player implements IHittable {
     private Vector2 vel;
     private Vector2 inputDir;
     private float health;
+
     private float shotTimer;
     private int shotTurn;
     private boolean toShoot;
     private boolean hasShot;
+
     private float particleTimer;
     private float combatTimer;
     private float smokeTimer;
     private boolean atHome;
 
+    protected boolean toInteract;
 
     Player(Game game_, Vector2 pos_) {
         // Initialize variables
@@ -162,6 +165,12 @@ public class Player implements IHittable {
         if (Binding.getInstance().isActionPressed("shoot") && shotTimer == 0.0f) {
             toShoot = true;
             hasShot = true;
+        }
+
+        if (Binding.getInstance().isActionPressed("interact")) {
+            toInteract = true;
+        } else {
+            toInteract = false;
         }
     }
 
@@ -291,6 +300,14 @@ public class Player implements IHittable {
                 shotTurn = (shotTurn + 1) % shotCount;
                 combatTimer = combatTimerMax;
                 toShoot = false;
+            }
+
+            // Interact if needed
+            if (toInteract) {
+                IInteractable inter = game.checkForInteractables(getCollisionRect());
+                if (inter != null) {
+                    inter.onInteraction();
+                }
             }
 
             // Update timers
@@ -528,4 +545,5 @@ public class Player implements IHittable {
     public List<Buff> getBuffs() {
         return buffs;
     }
+
 }

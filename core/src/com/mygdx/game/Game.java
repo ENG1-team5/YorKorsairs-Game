@@ -80,9 +80,10 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<College> colleges;
 	private ArrayList<Projectile> projectiles;
 	private ArrayList<Particle> particles;
-	private ArrayList<IHittable> hittables;
 	private ArrayList<Enemy> enemies;
 	private ArrayList<Pickup> pickups;
+	private ArrayList<IHittable> hittables;
+	private ArrayList<Upgrade> upgrades;
 
 
 	/**
@@ -165,9 +166,10 @@ public class Game extends ApplicationAdapter {
 		colleges = new ArrayList<>();
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
-		hittables = new ArrayList<>();
 		enemies = new ArrayList<>();
 		pickups = new ArrayList<>();
+		hittables = new ArrayList<>();
+		upgrades = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
@@ -198,6 +200,8 @@ public class Game extends ApplicationAdapter {
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("fireRate", 1f, 60f)));
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("maxHealth", 100f, 60f)));
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("regen", 2f, 60f)));
+
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 25f, PPT * 20f), new Buff("speed", 5f*PPT), 10));
 
 		objective = Objective.getRandomObjective(this);
 	}
@@ -297,6 +301,16 @@ public class Game extends ApplicationAdapter {
 			if (p.shouldRemove()) {
 				pItr.remove();
 				p.beenRemoved();
+			}
+		}
+
+		// Update upgrades, allowing for deletion
+		for (Iterator<Upgrade> pItr = upgrades.iterator(); pItr.hasNext();) {
+			Upgrade u = pItr.next();
+			u.update();
+			if (u.shouldRemove()) {
+				pItr.remove();
+				u.beenRemoved();
 			}
 		}
 
@@ -410,6 +424,8 @@ public class Game extends ApplicationAdapter {
 		player.render(gameBatch);
 		for (Projectile projectile : projectiles)
 			projectile.render(gameBatch);
+		for (Upgrade upgrade : upgrades)
+			upgrade.render(gameBatch);
 
 		// Render tutorial
 		if (gameState == GameState.RUNNING) {
@@ -616,6 +632,7 @@ public class Game extends ApplicationAdapter {
 		return false;
 		
 	}
+
 	/**
 	 * Checks whether rect overlaps the player collision rect
 	 * @param rect Rect to check against
@@ -640,6 +657,14 @@ public class Game extends ApplicationAdapter {
 		return null;
 	}
 
+	public IInteractable checkForInteractables(Rectangle rect) {
+		for (IInteractable interactable : upgrades) {
+			if (Intersector.overlaps(rect, interactable.getInteractRange())) {
+				return interactable;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * @return Player
@@ -707,5 +732,19 @@ public class Game extends ApplicationAdapter {
 
 		return new Vector2((float)(pos.x + random.nextDouble()) * PPT, (float)(pos.y + random.nextDouble()) * PPT);
 	}
+
+	/**
+     * attempts to charge the player a certain amount of gold
+     * will only subtract money if the player can afford it
+     * @param amount transaction value
+     * @return true if the transaction was successful
+     */
+    public boolean chargePlayer(float amount) {
+        if (currentGold - amount >= 0) {
+			currentGold -= amount;
+			return true;
+		}
+		return false;
+    }
 
 }

@@ -123,6 +123,10 @@ public class Buff {
         return r;
     }
 
+    public String describeBuffedStats() {
+        return String.join(", ", getBuffedStats());
+    }
+
     /**
      * Get the icon of the buff
      * @return the icon as a Texture

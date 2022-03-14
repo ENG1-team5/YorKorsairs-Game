@@ -18,6 +18,7 @@ public class Binding implements InputProcessor {
             put("moveUp", Arrays.asList(Input.Keys.W, Input.Keys.UP));
             put("moveRight", Arrays.asList(Input.Keys.D, Input.Keys.RIGHT));
             put("moveDown", Arrays.asList(Input.Keys.S, Input.Keys.DOWN));
+            put("interact", Arrays.asList(Input.Keys.E));
             put("startGame", Arrays.asList(Input.Keys.SPACE));
             put("closeGame", Arrays.asList(Input.Keys.ESCAPE));
             put("resetGame", Arrays.asList(Input.Keys.TAB));
