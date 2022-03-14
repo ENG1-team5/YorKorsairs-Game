@@ -204,6 +204,12 @@ public class Enemy implements IHittable{
             game.addParticle(particle);
         }
 
+        // Give player some cash and xp
+        game.addResources(
+            20 + (int) Math.floor((float) Math.random() * 15),
+            5 + (int) Math.floor((float) Math.random() * 10)
+        );
+
         toRemove = true;
     }
 
