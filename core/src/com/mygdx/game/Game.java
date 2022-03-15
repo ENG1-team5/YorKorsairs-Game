@@ -201,7 +201,12 @@ public class Game extends ApplicationAdapter {
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("maxHealth", 100f, 60f)));
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("regen", 2f, 60f)));
 
-		upgrades.add(new Upgrade(this, new Vector2(PPT * 25f, PPT * 20f), new Buff("speed", 5f*PPT), 10));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 17f, PPT * 14f), new Buff("speed", 1f*PPT), 25));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 13f, PPT * 14f), new Buff("damage", 10f), 50));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 09f, PPT * 14f), new Buff("projectileSpeed", 5f*PPT), 25));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 07f, PPT * 16f), new Buff("regen", 1f), 25));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 13f, PPT * 18f), new Buff("fireRate", 0.5f), 50));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 09f, PPT * 18f), new Buff("maxHealth", 25), 50));
 
 		objective = Objective.getRandomObjective(this);
 	}
