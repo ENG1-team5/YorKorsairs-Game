@@ -35,8 +35,7 @@ public class Player implements IHittable {
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
     public final float shipWidth = Game.PPT * 1.4f;
-
-    private final float maxSpeed = Game.PPT * 1.25f; // Units / Second
+    private final float maxSpeed = Game.PPT * 4f; // Units / Second originally 1f
     private final float maxSpeedScale = Game.PPT * 0.5f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float accelerationScale = Game.PPT * 1f;
@@ -70,7 +69,7 @@ public class Player implements IHittable {
     private Sprite healthbarFillSprite;
     private GlyphLayout currentTextGlyph = new GlyphLayout();
 
-    private Vector2 pos;
+    public Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
     private float health;
