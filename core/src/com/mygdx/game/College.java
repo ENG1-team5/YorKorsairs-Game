@@ -29,8 +29,7 @@ public class College implements IHittable {
     private final float smokeTimerMax = 0.1f;
     private final float shootRange = Game.PPT * 6.5f;
     
-
-    private String name;
+    public String name;
     private Game game;
     private Texture collegeTexture;
     private Texture collegeShotTexture;
@@ -40,10 +39,10 @@ public class College implements IHittable {
     private Sprite healthbarFillSprite;
     private GlyphLayout currentTextGlyph = new GlyphLayout();
 
-    private Vector2 pos;
+    public Vector2 pos;
     private float maxHealth = 300f;
-    private float health;
-    private boolean isFriendly;
+    public float health;
+    public boolean isFriendly;
     private float shotTimerMax = 0.8f;
     private float shotTimer;
     private float smokeTimer;
@@ -310,8 +309,12 @@ public class College implements IHittable {
     }
 
     public void setHealth(float value){
+        // If at maxHealth, raise it to new maxHealth
+        if (health == maxHealth){
+            health = value;
+        }
         maxHealth = value;
-        health = value;
+        
     }
 
     public float getShotTimerMax(){

@@ -29,9 +29,9 @@ public class Pickup {
     private final float bounceFreq = 0.5f;
 
     private Game game;
-    private Buff buff;
+    public Buff buff;
     private Sprite sprite;
-    private Vector2 pos;
+    public Vector2 pos;
     private Vector2 startPos;
     private boolean toRemove;
 

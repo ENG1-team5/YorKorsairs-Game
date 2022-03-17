@@ -9,7 +9,7 @@ public class Buff {
     
     private Boolean expires = true;
     public float time;
-    private ArrayMap<String, Float> stats;
+    public ArrayMap<String, Float> stats;
 
     /**
      * Create a new buff object with specified buff and duration

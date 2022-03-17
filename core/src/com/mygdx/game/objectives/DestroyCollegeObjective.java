@@ -15,7 +15,7 @@ public class DestroyCollegeObjective extends Objective {
     private int killableColleges;
 
 
-    DestroyCollegeObjective(Game game_) {
+    public DestroyCollegeObjective(Game game_) {
         super(game_);
 
         // Initialize variables

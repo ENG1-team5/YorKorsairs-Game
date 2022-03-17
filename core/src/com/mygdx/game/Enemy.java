@@ -32,11 +32,11 @@ public class Enemy implements IHittable{
     private Sprite healthbarFillSprite;
     
     private float maxHealth = 45;
-    private float health;
+    public float health;
 
     private boolean toRemove;
 
-    private Vector2 pos;
+    public Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
 
@@ -257,8 +257,12 @@ public class Enemy implements IHittable{
     }
 
     public void setHealth(float value){
+        // If they are at max health, change it to the new max health
+        if (maxHealth == health){
+            health = value;
+        }
         maxHealth = value;
-        health = value;
+        
     }
 
     public float getShotTimerMax(){

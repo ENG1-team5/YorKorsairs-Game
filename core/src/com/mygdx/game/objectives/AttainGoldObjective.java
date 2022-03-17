@@ -10,7 +10,7 @@ public class AttainGoldObjective extends Objective {
     private static int goldRequired = 300;
 
 
-    AttainGoldObjective(Game game_) { super(game_); }
+    public AttainGoldObjective(Game game_) { super(game_); }
 
 
     @Override
