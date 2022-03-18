@@ -20,6 +20,8 @@ public class Binding implements InputProcessor {
             put("moveDown", Arrays.asList(Input.Keys.S, Input.Keys.DOWN));
             put("interact", Arrays.asList(Input.Keys.E));
             put("startGame", Arrays.asList(Input.Keys.SPACE));
+            put("difficultyIncrease",Arrays.asList(Input.Keys.RIGHT));
+            put("difficultyDecrease",Arrays.asList(Input.Keys.LEFT));
             put("closeGame", Arrays.asList(Input.Keys.ESCAPE));
             put("resetGame", Arrays.asList(Input.Keys.TAB));
         }

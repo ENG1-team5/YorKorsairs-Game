@@ -17,7 +17,6 @@ public class Enemy implements IHittable{
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
     private final float shipWidth = Game.PPT * 1.4f;
-    private final float maxHealth = 45;
     private final float maxSpeed = Game.PPT * 1f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float idleSwayMag = 0.16f;
@@ -25,21 +24,23 @@ public class Enemy implements IHittable{
     private final float swayAcceleration = 20f;
     private final float shootRange = Game.PPT * 6.5f;
     private final float followRange = Game.PPT * 8f;
-    private final float shotTimerMax = 3f;
     private final float smokeTimerMax = 0.1f;
 
     private Game game;
     private Sprite shipSprite;
     private Sprite healthbarBackSprite;
     private Sprite healthbarFillSprite;
-
+    
+    private float maxHealth = 45;
     private float health;
+
     private boolean toRemove;
 
     private Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
 
+    private float shotTimerMax = 3f;
     private float shotTimer = shotTimerMax;
     private float smokeTimer = smokeTimerMax;
     
@@ -248,5 +249,23 @@ public class Enemy implements IHittable{
 
     public boolean shouldRemove() {
         return toRemove;
+    }
+
+
+    public float getMaxHealth(){
+        return maxHealth;
+    }
+
+    public void setHealth(float value){
+        maxHealth = value;
+        health = value;
+    }
+
+    public float getShotTimerMax(){
+        return shotTimerMax;
+    }
+
+    public void setShotTimerMax(float value){
+        shotTimerMax = value;
     }
 }
