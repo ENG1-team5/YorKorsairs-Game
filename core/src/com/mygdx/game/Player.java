@@ -72,17 +72,20 @@ public class Player implements IHittable {
     private Vector2 vel;
     private Vector2 inputDir;
     private float health;
+
     private float shotTimer;
     private int shotTurn;
     private boolean toShoot;
     private boolean hasShot;
+
     private float particleTimer;
     private float combatTimer;
     private float smokeTimer;
     private boolean atHome;
 
-    private float homeHealthRegen = passiveHealthRegen * 3;
+    protected boolean toInteract;
 
+    private float homeHealthRegen = passiveHealthRegen * 3;
 
     Player(Game game_, Vector2 pos_) {
         // Initialize variables
@@ -163,6 +166,12 @@ public class Player implements IHittable {
             toShoot = true;
             hasShot = true;
         }
+
+        if (Binding.getInstance().isActionPressed("interact")) {
+            toInteract = true;
+        } else {
+            toInteract = false;
+        }
     }
 
     /**
@@ -240,7 +249,8 @@ public class Player implements IHittable {
         healthbarFillSprite.setPosition(
                 pos.x - healthbarFillSprite.getOriginX(),
                 pos.y - healthbarFillSprite.getOriginY() - healthbarBackSprite.getHeight());
-        healthbarFillSprite.setScale(health / getMaxHealth(), 1.0f);
+        healthbarBackSprite.setScale(getMaxHealth() / 100f, 1.0f);
+        healthbarFillSprite.setScale(health / 100f, 1.0f);
     }
 
     /**
@@ -290,6 +300,14 @@ public class Player implements IHittable {
                 shotTurn = (shotTurn + 1) % shotCount;
                 combatTimer = combatTimerMax;
                 toShoot = false;
+            }
+
+            // Interact if needed
+            if (toInteract) {
+                IInteractable inter = game.checkForInteractables(getCollisionRect());
+                if (inter != null) {
+                    inter.onInteraction();
+                }
             }
 
             // Update timers
@@ -536,4 +554,9 @@ public class Player implements IHittable {
     public void addBuff(Buff buff) {
         buffs.add(buff);
     }
+
+    public List<Buff> getBuffs() {
+        return buffs;
+    }
+
 }

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -85,9 +86,10 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<College> colleges;
 	private ArrayList<Projectile> projectiles;
 	private ArrayList<Particle> particles;
-	private ArrayList<IHittable> hittables;
 	private ArrayList<Enemy> enemies;
 	private ArrayList<Pickup> pickups;
+	private ArrayList<IHittable> hittables;
+	private ArrayList<Upgrade> upgrades;
 
 
 	/**
@@ -201,9 +203,10 @@ public class Game extends ApplicationAdapter {
 		colleges = new ArrayList<>();
 		projectiles = new ArrayList<>();
 		particles = new ArrayList<>();
-		hittables = new ArrayList<>();
 		enemies = new ArrayList<>();
 		pickups = new ArrayList<>();
+		hittables = new ArrayList<>();
+		upgrades = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
@@ -234,6 +237,13 @@ public class Game extends ApplicationAdapter {
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("fireRate", 1f, 60f)));
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("maxHealth", 100f, 60f)));
 		pickups.add(new Pickup(this, getRandomOverWater(), new Buff("regen", 2f, 60f)));
+
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 17f, PPT * 14f), new Buff("speed", 1f*PPT), 25));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 13f, PPT * 14f), new Buff("damage", 10f), 50));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 09f, PPT * 14f), new Buff("projectileSpeed", 5f*PPT), 25));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 07f, PPT * 16f), new Buff("regen", 1f), 25));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 13f, PPT * 18f), new Buff("fireRate", 0.5f), 50));
+		upgrades.add(new Upgrade(this, new Vector2(PPT * 09f, PPT * 18f), new Buff("maxHealth", 25), 50));
 
 		objective = Objective.getRandomObjective(this);
 	}
@@ -333,6 +343,16 @@ public class Game extends ApplicationAdapter {
 			if (p.shouldRemove()) {
 				pItr.remove();
 				p.beenRemoved();
+			}
+		}
+
+		// Update upgrades, allowing for deletion
+		for (Iterator<Upgrade> pItr = upgrades.iterator(); pItr.hasNext();) {
+			Upgrade u = pItr.next();
+			u.update();
+			if (u.shouldRemove()) {
+				pItr.remove();
+				u.beenRemoved();
 			}
 		}
 
@@ -457,6 +477,8 @@ public class Game extends ApplicationAdapter {
 		player.render(gameBatch);
 		for (Projectile projectile : projectiles)
 			projectile.render(gameBatch);
+		for (Upgrade upgrade : upgrades)
+			upgrade.render(gameBatch);
 
 		// Render tutorial
 		if (gameState == GameState.RUNNING) {
@@ -579,7 +601,28 @@ public class Game extends ApplicationAdapter {
 			currentUITextGlyph.setText(mainFont, "Level " + currentLevel + "!");
 			mainFont.draw(UIBatch, "Level " + currentLevel + "!", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
+		mainFont.getData().setScale(1f);
 
+		// Draw buff icons
+		float buff_width = 40f;
+		float buff_x = Gdx.graphics.getWidth() - 30f;
+		float buff_y = Gdx.graphics.getHeight() - 30f;
+		
+		mainFont.getData().setScale(.3f);
+
+		for (Buff buff : player.getBuffs()) {
+			if (buff.time < 1) {
+				continue;
+			}
+			Sprite buff_sprite = new Sprite(buff.getTexture());
+			buff_sprite.setSize(50f, 50f);
+			buff_sprite.setCenter(buff_x, buff_y);
+			UIBatch.draw(buff_sprite, buff_sprite.getX(), buff_sprite.getY());
+
+			mainFont.draw(UIBatch, String.valueOf((int) buff.time), buff_x - 30f, buff_y + 15f);
+
+			buff_x -= buff_width;
+		}
 		mainFont.getData().setScale(1f);
 
 		// Draw batch
@@ -661,6 +704,7 @@ public class Game extends ApplicationAdapter {
 		return false;
 		
 	}
+
 	/**
 	 * Checks whether rect overlaps the player collision rect
 	 * @param rect Rect to check against
@@ -684,6 +728,14 @@ public class Game extends ApplicationAdapter {
 		}
 		return null;
 	}
+
+	public IInteractable checkForInteractables(Rectangle rect) {
+		for (IInteractable interactable : upgrades) {
+			if (Intersector.overlaps(rect, interactable.getInteractRange())) {
+				return interactable;
+			}
+		}
+		return null;
 
 	public void increaseDifficulty(){
 		if (difficultySelection + 1 < difficultyStrings.length){
@@ -750,7 +802,7 @@ public class Game extends ApplicationAdapter {
 					Cell cell = terrain.getCell(x, y);
 
 					int id = cell.getTile().getId();
-					if (id == 19 || id == 20) {
+					if (id == 20) {
 						waterTiles.add(new Vector2(x, y));
 					}
 				}
@@ -763,5 +815,19 @@ public class Game extends ApplicationAdapter {
 
 		return new Vector2((float)(pos.x + random.nextDouble()) * PPT, (float)(pos.y + random.nextDouble()) * PPT);
 	}
+
+	/**
+     * attempts to charge the player a certain amount of gold
+     * will only subtract money if the player can afford it
+     * @param amount transaction value
+     * @return true if the transaction was successful
+     */
+    public boolean chargePlayer(float amount) {
+        if (currentGold - amount >= 0) {
+			currentGold -= amount;
+			return true;
+		}
+		return false;
+    }
 
 }

@@ -10,4 +10,8 @@ public interface IInteractable {
      */
     public abstract Rectangle getInteractRange();
 
+    /**
+     * Executed when the player interacts with the building
+     */
+    public abstract void onInteraction();
 }
