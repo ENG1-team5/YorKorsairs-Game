@@ -736,6 +736,7 @@ public class Game extends ApplicationAdapter {
 			}
 		}
 		return null;
+	}
 
 	public void increaseDifficulty(){
 		if (difficultySelection + 1 < difficultyStrings.length){
