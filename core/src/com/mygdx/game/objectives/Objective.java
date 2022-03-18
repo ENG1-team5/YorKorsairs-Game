@@ -28,7 +28,7 @@ public abstract class Objective {
         float r = (float)Math.random();
         float numChoices = 2f;
         if (r < 1f / numChoices) return new DestroyCollegeObjective(game_);
-        else return new AttainGoldObjective(game_);
+        else return new GetLevel5Objective(game_);
     }
 
 

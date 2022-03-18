@@ -724,7 +724,7 @@ public class Game extends ApplicationAdapter {
 					Cell cell = terrain.getCell(x, y);
 
 					int id = cell.getTile().getId();
-					if (id == 19 || id == 20) {
+					if (id == 20) {
 						waterTiles.add(new Vector2(x, y));
 					}
 				}
