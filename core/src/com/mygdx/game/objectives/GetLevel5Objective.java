@@ -7,7 +7,7 @@ import com.mygdx.game.Game;
 public class GetLevel5Objective extends Objective {
 
     // Declare config, variables
-    private static int levelRequired = 300;
+    private static int levelRequired = 5;
 
 
     public GetLevel5Objective(Game game_) { super(game_); }
