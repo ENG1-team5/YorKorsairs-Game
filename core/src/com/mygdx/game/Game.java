@@ -744,7 +744,8 @@ public class Game extends ApplicationAdapter {
 				text = "     No save file detected! \n  Save and quit at any point \n        by pressing 'Esc'";
 			}
 			currentUITextGlyph.setText(mainFont, text);
-			mainFont.draw(UIBatch, text, 20, ((UICamera.viewportHeight/5)*3));
+			//Places the saving tooltip 5/7ths of the way up the screen, this puts it out of the way of the shop area
+			mainFont.draw(UIBatch, text, 20, ((UICamera.viewportHeight/7)*5)); 
 		}
 		
 
