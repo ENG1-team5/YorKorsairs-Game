@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Upgrade extends Collectable implements IInteractable {
 
-    private float cost;
+    public float cost;
 
     Upgrade(Game game_, Vector2 pos_, Buff buff_, float cost_) {
         super(game_, pos_, buff_);

@@ -277,7 +277,7 @@ public class Game extends ApplicationAdapter {
 		gameAttributes.put("currentLevel",currentLevel);
 		gameAttributes.put("difficultySelection",difficultySelection);
 		if (objective instanceof GetLevel5Objective){
-			gameAttributes.put("objective","AG");
+			gameAttributes.put("objective","L5");
 		}
 		else {
 			gameAttributes.put("objective","DC");
@@ -293,13 +293,16 @@ public class Game extends ApplicationAdapter {
 
 		JSONArray buffArr = new JSONArray();
 		for (Buff buff : player.getBuffs()){
+			
 			HashMap<String, Object> buffObject = new HashMap<String,Object>();
 			// Only takes the first stat, alterations may need to be made for full serialisation of all stats
 			// At present, >1 stats are not used on a single buff object
-			buffObject.put("stat", buff.stats.getKeyAt(0));
-			buffObject.put("amount",buff.stats.get(buff.stats.getKeyAt(0)));
-			buffObject.put("duration",buff.time);
-			buffArr.add(new JSONObject(buffObject));
+			if(!buff.stats.isEmpty()){
+				buffObject.put("stat", buff.stats.getKeyAt(0));
+				buffObject.put("amount",buff.stats.get(buff.stats.getKeyAt(0)));
+				buffObject.put("duration",buff.time);
+				buffArr.add(new JSONObject(buffObject));
+			}
 		}
 		playerObject.put("buffs",buffArr);
 		gameObjects.put("player",playerObject);
@@ -338,6 +341,18 @@ public class Game extends ApplicationAdapter {
 		}
 		gameObjects.put("pickups",pickupArray);
 
+		JSONArray upgradeArray = new JSONArray();
+		for (Upgrade u : upgrades){
+			HashMap<String,Object> upgradeObject = new HashMap<String,Object>();
+			upgradeObject.put("posX",u.pos.x);
+			upgradeObject.put("posY",u.pos.y);
+			upgradeObject.put("buffStat",u.buff.stats.getKeyAt(0));
+			upgradeObject.put("buffAmount",u.buff.stats.get(u.buff.stats.getKeyAt(0)));
+			upgradeObject.put("cost",u.cost);
+			upgradeArray.add(new JSONObject(upgradeObject));
+		}
+		gameObjects.put("upgrades",upgradeArray);
+
 		//Combine all subObjects, i.e. gameAttributes and gameObjects into one object for writing out
 		HashMap<String, Object> mainMap = new HashMap<String, Object>();
 		mainMap.put("gameObjects",new JSONObject(gameObjects));
@@ -372,7 +387,7 @@ public class Game extends ApplicationAdapter {
 			currentGold = ((Double)gameAttributes.get("currentGold")).floatValue();
 			currentLevel = ((Long)gameAttributes.get("currentLevel")).intValue();
 			difficultySelection = ((Long)gameAttributes.get("difficultySelection")).intValue();
-			if (((String)gameAttributes.get("objective")).equals("AG")){
+			if (((String)gameAttributes.get("objective")).equals("L5")){
 				objective = new GetLevel5Objective(this);
 			}
 			else{	
@@ -384,6 +399,7 @@ public class Game extends ApplicationAdapter {
 			hittables = new ArrayList<>();
 			enemies = new ArrayList<>();
 			pickups = new ArrayList<>();
+			upgrades = new ArrayList<>();
 
 			//Rebuilding player state
 			JSONObject playerObj = (JSONObject) gameObjects.get("player");
@@ -395,7 +411,13 @@ public class Game extends ApplicationAdapter {
 			JSONArray buffList = (JSONArray) playerObj.get("buffs");
 			for (Object b : buffList){
 				JSONObject bObj = (JSONObject) b;
-				Buff buff = new Buff((String)bObj.get("stat"), ((Double)bObj.get("amount")).floatValue() ,  ((Double)bObj.get("duration")).floatValue());
+				Buff buff;
+				if(((Double)bObj.get("duration")).floatValue() == 0.0){
+					buff = new Buff((String)bObj.get("stat"), ((Double)bObj.get("amount")).floatValue());
+				}
+				else{
+					buff = new Buff((String)bObj.get("stat"), ((Double)bObj.get("amount")).floatValue() ,  ((Double)bObj.get("duration")).floatValue());
+				}
 				player.addBuff(buff);
 			}
 
@@ -424,6 +446,14 @@ public class Game extends ApplicationAdapter {
 				Buff pBuff = new Buff((String)pObj.get("buffStat"), ((Double)pObj.get("buffAmount")).floatValue() ,  ((Double)pObj.get("buffDuration")).floatValue());
 				Pickup pickup = new Pickup(this, new Vector2(((Double)pObj.get("posX")).floatValue(), ((Double)pObj.get("posY")).floatValue()), pBuff);
 				pickups.add(pickup);
+			}
+
+			JSONArray upgradeList = (JSONArray) gameObjects.get("upgrades");
+			for (Object u : upgradeList){
+				JSONObject uObj = (JSONObject) u;
+				Buff uBuff = new Buff((String)uObj.get("buffStat"), ((Double)uObj.get("buffAmount")).floatValue());
+				Upgrade upgrade = new Upgrade(this, new Vector2(((Double)uObj.get("posX")).floatValue(), ((Double)uObj.get("posY")).floatValue()), uBuff, ((Double)uObj.get("cost")).floatValue());
+				upgrades.add(upgrade);
 			}
 
 			setDifficulty();
