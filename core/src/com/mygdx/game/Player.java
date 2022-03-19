@@ -71,8 +71,7 @@ public class Player implements IHittable {
     public Vector2 pos;
     private Vector2 vel;
     private Vector2 inputDir;
-    private float health;
-
+    public float health;
     private float shotTimer;
     private int shotTurn;
     private boolean toShoot;
@@ -538,8 +537,11 @@ public class Player implements IHittable {
     }
 
     public void setHealth(float value){
+        // If at maxHealth, raise it to new maxHealth
+        if (health == maxHealth){
+            health = value;
+        }
         maxHealth = value;
-        health = value;
     }
 
     public float getHealthRegen(){

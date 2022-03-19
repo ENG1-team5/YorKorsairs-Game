@@ -10,7 +10,7 @@ public class GetLevel5Objective extends Objective {
     private static int levelRequired = 300;
 
 
-    GetLevel5Objective(Game game_) { super(game_); }
+    public GetLevel5Objective(Game game_) { super(game_); }
 
 
     @Override

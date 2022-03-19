@@ -1,12 +1,28 @@
 package com.mygdx.game;
 
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 
+import javax.swing.text.DefaultStyledDocument.ElementSpec;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import java.io.File;
+
+import org.json.simple.parser.JSONParser;
+
+
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.mygdx.game.objectives.DestroyCollegeObjective;
+import com.mygdx.game.objectives.GetLevel5Objective;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -23,7 +39,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -33,7 +48,6 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
 
 public class Game extends ApplicationAdapter {
-
 
 	// Declare config, variables
 	public static final float PPT = 128; // Pixel Per Tile - Used to standardize scaling
@@ -75,6 +89,7 @@ public class Game extends ApplicationAdapter {
 
 	private GameState gameState;
 	private boolean hasWon;
+	private boolean saveExists;
 	public float currentGold;
 	public int currentLevel;
 	public float currentXP;
@@ -189,6 +204,7 @@ public class Game extends ApplicationAdapter {
 	 * Reset game state back to start
 	 */
 	public void resetGame() {
+
 		// Reset main variables
 		camera.zoom = initialZoom;
 		zoomVel = 0.0f;
@@ -246,6 +262,177 @@ public class Game extends ApplicationAdapter {
 		upgrades.add(new Upgrade(this, new Vector2(PPT * 09f, PPT * 18f), new Buff("maxHealth", 25), 50));
 
 		objective = Objective.getRandomObjective(this);
+
+	}
+
+	/**
+	 * Saves current game state to JSON
+	 */
+	public void saveGame(){
+		
+		// Non object game variables stored here
+		HashMap<String, Object> gameAttributes = new HashMap<String, Object>();
+		gameAttributes.put("currentXP", currentXP);
+		gameAttributes.put("currentGold",currentGold);
+		gameAttributes.put("currentLevel",currentLevel);
+		gameAttributes.put("difficultySelection",difficultySelection);
+		if (objective instanceof GetLevel5Objective){
+			gameAttributes.put("objective","AG");
+		}
+		else {
+			gameAttributes.put("objective","DC");
+		}
+
+		//Object holding arrays for each type of object that needs rebuilding upon restoring a save
+		HashMap<String, Object> gameObjects = new HashMap<String,Object>();
+		HashMap<String, Object> playerObject = new HashMap<String,Object>();
+
+		playerObject.put("posX",player.pos.x);
+		playerObject.put("posY",player.pos.y);
+		playerObject.put("health",player.health);
+
+		JSONArray buffArr = new JSONArray();
+		for (Buff buff : player.getBuffs()){
+			HashMap<String, Object> buffObject = new HashMap<String,Object>();
+			// Only takes the first stat, alterations may need to be made for full serialisation of all stats
+			// At present, >1 stats are not used on a single buff object
+			buffObject.put("stat", buff.stats.getKeyAt(0));
+			buffObject.put("amount",buff.stats.get(buff.stats.getKeyAt(0)));
+			buffObject.put("duration",buff.time);
+			buffArr.add(new JSONObject(buffObject));
+		}
+		playerObject.put("buffs",buffArr);
+		gameObjects.put("player",playerObject);
+		
+		JSONArray enemyArray = new JSONArray();
+		for (Enemy e : enemies){
+			HashMap<String, Object> enemyObject = new HashMap<String,Object>();
+			enemyObject.put("posX",e.pos.x);
+			enemyObject.put("posY",e.pos.y);
+			enemyObject.put("health",e.health);
+			enemyArray.add(new JSONObject(enemyObject));
+		}
+		gameObjects.put("enemies",enemyArray);
+
+		JSONArray collegeArray = new JSONArray();
+		for (College c : colleges){
+			HashMap<String, Object> collegeObject = new HashMap<String,Object>();
+			collegeObject.put("name",c.name);
+			collegeObject.put("posX",c.pos.x);
+			collegeObject.put("posY",c.pos.y);
+			collegeObject.put("health",c.health);
+			collegeObject.put("isFriendly",c.isFriendly);
+			collegeArray.add(new JSONObject(collegeObject));
+		}
+		gameObjects.put("colleges",collegeArray);
+
+		JSONArray pickupArray = new JSONArray();
+		for (Pickup p : pickups){
+			HashMap<String, Object> pickupObject = new HashMap<String,Object>();
+			pickupObject.put("posX",p.pos.x);
+			pickupObject.put("posY",p.pos.y);
+			pickupObject.put("buffStat", p.buff.stats.getKeyAt(0));
+			pickupObject.put("buffAmount",p.buff.stats.get(p.buff.stats.getKeyAt(0)));
+			pickupObject.put("buffDuration",p.buff.time);
+			pickupArray.add(new JSONObject(pickupObject));
+		}
+		gameObjects.put("pickups",pickupArray);
+
+		//Combine all subObjects, i.e. gameAttributes and gameObjects into one object for writing out
+		HashMap<String, Object> mainMap = new HashMap<String, Object>();
+		mainMap.put("gameObjects",new JSONObject(gameObjects));
+		mainMap.put("gameAttributes",new JSONObject(gameAttributes));
+
+		JSONObject mainObject = new JSONObject(mainMap);
+
+		try (FileWriter file = new FileWriter("save.txt")){
+			file.write(mainObject.toString());
+			file.flush();
+			file.close();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Loads game state from JSON file
+	 * Functionally a variation of resetGame(), with loaded in values from JSON
+	 */
+	public void loadGame(){
+		
+		try (FileReader reader = new FileReader("save.txt")){
+			JSONParser jsonParser = new JSONParser();
+			Object obj = jsonParser.parse(reader);
+			JSONObject JSONfile = (JSONObject) obj;
+			JSONObject gameAttributes = (JSONObject) JSONfile.get("gameAttributes");
+			JSONObject gameObjects = (JSONObject) JSONfile.get("gameObjects");
+
+			gameState = GameState.RUNNING; //As we are loading in, we immediately start the game
+			currentXP =  ((Double)gameAttributes.get("currentXP")).floatValue();
+			currentGold = ((Double)gameAttributes.get("currentGold")).floatValue();
+			currentLevel = ((Long)gameAttributes.get("currentLevel")).intValue();
+			difficultySelection = ((Long)gameAttributes.get("difficultySelection")).intValue();
+			if (((String)gameAttributes.get("objective")).equals("AG")){
+				objective = new GetLevel5Objective(this);
+			}
+			else{	
+				objective = new DestroyCollegeObjective(this);
+			}
+
+			// Initialize objects
+			colleges = new ArrayList<>();
+			hittables = new ArrayList<>();
+			enemies = new ArrayList<>();
+			pickups = new ArrayList<>();
+
+			//Rebuilding player state
+			JSONObject playerObj = (JSONObject) gameObjects.get("player");
+			player = new Player (this, new Vector2(((Double)playerObj.get("posX")).floatValue(),((Double)playerObj.get("posY")).floatValue()));
+			player.health = ((Double)playerObj.get("health")).floatValue();
+			hittables.add(player);
+
+			//Rebuilding buff state
+			JSONArray buffList = (JSONArray) playerObj.get("buffs");
+			for (Object b : buffList){
+				JSONObject bObj = (JSONObject) b;
+				Buff buff = new Buff((String)bObj.get("stat"), ((Double)bObj.get("amount")).floatValue() ,  ((Double)bObj.get("duration")).floatValue());
+				player.addBuff(buff);
+			}
+
+			//Rebuilding enemys
+			JSONArray enemiesList = (JSONArray) gameObjects.get("enemies");
+			for (Object e : enemiesList){
+				JSONObject eObj = (JSONObject) e;
+				Enemy enemy = new Enemy (this, new Vector2(((Double)eObj.get("posX")).floatValue(),((Double)eObj.get("posY")).floatValue()));
+				enemy.health = ((Double)eObj.get("health")).floatValue();
+				enemies.add(enemy);
+				hittables.add(enemy);
+			}
+
+			JSONArray collegesList = (JSONArray) gameObjects.get("colleges");
+			for (Object c : collegesList){
+				JSONObject cObj = (JSONObject) c;
+				College college = new College ((String)cObj.get("name"),this,new Vector2(((Double)cObj.get("posX")).floatValue(),((Double)cObj.get("posY")).floatValue()),(Boolean)cObj.get("isFriendly"));
+				college.health = ((Double)cObj.get("health")).floatValue();
+				colleges.add(college);
+				hittables.add(college);
+			}
+			
+			JSONArray pickupList = (JSONArray) gameObjects.get("pickups");
+			for (Object p : pickupList){
+				JSONObject pObj = (JSONObject) p;
+				Buff pBuff = new Buff((String)pObj.get("buffStat"), ((Double)pObj.get("buffAmount")).floatValue() ,  ((Double)pObj.get("buffDuration")).floatValue());
+				Pickup pickup = new Pickup(this, new Vector2(((Double)pObj.get("posX")).floatValue(), ((Double)pObj.get("posY")).floatValue()), pBuff);
+				pickups.add(pickup);
+			}
+
+			setDifficulty();
+
+		} catch (Exception e){
+			//If the save file does not exist, call the reset game function
+			e.printStackTrace();
+			System.out.println("Save file does not exist!");
+		}
 	}
 
 	/**
@@ -275,6 +462,7 @@ public class Game extends ApplicationAdapter {
 	 * Close game window
 	 */
 	public void closeGame() {
+		saveGame();
 		Gdx.app.exit();
 	}
 
@@ -367,6 +555,9 @@ public class Game extends ApplicationAdapter {
 	private void handleInput() {
 		// Start, stop, restart game on "startGame"
 		if (gameState == GameState.READY){
+			if(Binding.getInstance().isActionPressed("loadSave") && saveExists){
+				loadGame();
+			}
 			if(Binding.getInstance().isActionJustPressed("difficultyIncrease")){
 				increaseDifficulty();
 			}
@@ -378,12 +569,12 @@ public class Game extends ApplicationAdapter {
 				startGame();
 			}
 		}			
-		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame"))
+		if (gameState == GameState.RUNNING && Binding.getInstance().isActionJustPressed("resetGame")){
 			resetGame();
-		else if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")
+		}else{ if (gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("startGame")
 				|| gameState == GameState.FINISHED && Binding.getInstance().isActionJustPressed("resetGame"))
 			resetGame();
-
+		}
 		// Close game on "closeGame"
 		if (Binding.getInstance().isActionJustPressed("closeGame")){
 			closeGame();
@@ -526,6 +717,7 @@ public class Game extends ApplicationAdapter {
 			startSprite.draw(UIBatch);
 
 			mainFont.getData().setScale(0.60f);
+
 			String text = "Use arrow keys to adjust difficulty";
 			currentUITextGlyph.setText(mainFont, text);
 			float px = (UICamera.viewportWidth/2) - currentUITextGlyph.width * 0.5f;
@@ -536,15 +728,32 @@ public class Game extends ApplicationAdapter {
 			px = (UICamera.viewportWidth/2) - currentUITextGlyph.width * 0.5f;
 			mainFont.draw(UIBatch, difficultyDescriptors[difficultySelection], px, py - 80);
 
-			mainFont.getData().setScale(0.60f + 0.02f * (float) Math.sin(time / 2f));
+			mainFont.getData().setScale(0.60f + 0.01f * (float) Math.sin(time / 2f));
 			currentUITextGlyph.setText(mainFont, difficultyStrings[difficultySelection]);
 			px = (UICamera.viewportWidth/2) - currentUITextGlyph.width * 0.5f;
 			mainFont.draw(UIBatch, difficultyStrings[difficultySelection], px, py - 40);
 
 			
+			File f = new File("save.txt");
+			saveExists = f.exists();
+			if (saveExists){
+				SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+				text = "Press 'Enter' to load \n  recent save from:\n     " + sdf.format(f.lastModified());
+			}
+			else{
+				text = "     No save file detected! \n  Save and quit at any point \n        by pressing 'Esc'";
+			}
+			currentUITextGlyph.setText(mainFont, text);
+			mainFont.draw(UIBatch, text, 20, ((UICamera.viewportHeight/5)*3));
+		}
+		
 
 
-		} else if (gameState == GameState.FINISHED) {
+		else if (gameState == GameState.FINISHED) {
+
+			// If game is won or lost, remove the save file
+			File saveFile = new File("save.txt"); 
+			saveFile.delete();
 
 			// Draw win splash
 			if (hasWon) {
@@ -588,11 +797,14 @@ public class Game extends ApplicationAdapter {
 
 		// Draw help UI
 		currentHeight = Gdx.graphics.getHeight() - spacing;
-		String[] helpText = new String[] { "'Tab': reset", "WASD: movement", "LMB / RMB: Shoot" };
+		// Font is changed to a larger size for "esc save and quit" to stand out to the player, then scale is reduced to normal
+		mainFont.getData().setScale(0.60f);
+		String[] helpText = new String[] { "'Esc' : Save and Quit", "'Tab': Reset", "WASD: Movement", "LMB / RMB: Shoot" };
 		for (String s : helpText) {
 			currentUITextGlyph.setText(mainFont, s);
 			mainFont.draw(UIBatch, s, spacing, currentHeight);
 			currentHeight -= currentUITextGlyph.height + spacing;
+			mainFont.getData().setScale(0.4f);
 		}
 
 		// Draw level up popup

@@ -23,6 +23,7 @@ public class Binding implements InputProcessor {
             put("difficultyIncrease",Arrays.asList(Input.Keys.RIGHT));
             put("difficultyDecrease",Arrays.asList(Input.Keys.LEFT));
             put("closeGame", Arrays.asList(Input.Keys.ESCAPE));
+            put("loadSave",Arrays.asList(Input.Keys.ENTER));
             put("resetGame", Arrays.asList(Input.Keys.TAB));
         }
     };
