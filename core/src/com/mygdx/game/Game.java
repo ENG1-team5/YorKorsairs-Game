@@ -1,3 +1,4 @@
+
 package com.mygdx.game;
 
 import java.util.ArrayList;
@@ -7,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.mygdx.game.objectives.Objective;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -44,8 +44,8 @@ public class Game extends ApplicationAdapter {
 	private OrthographicCamera camera;
 	private OrthographicCamera UICamera;
 	private SpriteBatch gameBatch;
-	private SpriteBatch UIBatch;
-	private TiledMap tiledMap;
+	SpriteBatch UIBatch;
+	public TiledMap tiledMap;
 	private TiledMapRenderer tiledMapRenderer;
 	private MapObjects collisionObjects;
 	private GlyphLayout currentUITextGlyph = new GlyphLayout();
@@ -56,6 +56,9 @@ public class Game extends ApplicationAdapter {
 
 	private float zoomVel;
 	private Vector3 worldMousePos;
+
+	public Game() {
+	}
 
 	private enum GameState {
 		READY, RUNNING, FINISHED
@@ -77,6 +80,8 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<IHittable> hittables;
 	private ArrayList<Enemy> enemies;
 	private ArrayList<Pickup> pickups;
+	private ArrayList<Obstacles> obstacles;
+	private ArrayList<Weather> weather;
 
 
 	/**
@@ -138,6 +143,8 @@ public class Game extends ApplicationAdapter {
 		// Setup font
 		mainFont = new BitmapFont(Gdx.files.internal("./fonts/Pixellari.fnt"));
 		mainFont.setColor(0f, 0f, 0f, 1f);
+
+
 	}
 
 
@@ -162,6 +169,8 @@ public class Game extends ApplicationAdapter {
 		hittables = new ArrayList<>();
 		enemies = new ArrayList<>();
 		pickups = new ArrayList<>();
+		obstacles = new ArrayList<>();
+		weather = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
@@ -185,15 +194,16 @@ public class Game extends ApplicationAdapter {
 		for (Enemy enemy : enemies){
 			hittables.add(enemy);
 		}
-
-		pickups.add(new Pickup(this, new Vector2(PPT * 28f, PPT * 17.5f), new Buff("speed", 10f*PPT, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 28f, PPT * 19f), new Buff("damage", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("projectileSpeed", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 19f), new Buff("maxHealth", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 26.5f, PPT * 17.5f), new Buff("fireRate", 1000f, 100f)));
-		pickups.add(new Pickup(this, new Vector2(PPT * 26.5f, PPT * 19f), new Buff("regen", 1000f, 100f)));
+		//pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("maxHealth", 100f, 100f)));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 25.5f, PPT * 17.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.1f, PPT * 17.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.7f, PPT * 17.4f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 27.3f, PPT * 17.4f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 28f, PPT * 18f), "cloudy"));
+		weather.add(new Weather(this, new Vector2(PPT * 28.5f,PPT * 17.9f), "cloudy", 99999f));
 
 		objective = Objective.getRandomObjective(this);
+
 	}
 
 	/**
@@ -293,6 +303,23 @@ public class Game extends ApplicationAdapter {
 				p.beenRemoved();
 			}
 		}
+		for (Iterator<Obstacles> pItr = obstacles.iterator(); pItr.hasNext();) {
+			Obstacles p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
+
+		for (Iterator<Weather> pItr = weather.iterator(); pItr.hasNext();) {
+			Weather p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
 
 		// Check if objective is complete
 		if (objective.checkComplete(this))
@@ -321,6 +348,7 @@ public class Game extends ApplicationAdapter {
 	 * Changes camera position based on player's location
 	 */
 	private void updateCamera() {
+
 		// Follow player with camera
 		Vector2 position = player.getPosition();
 		float diffX = (float) Math.round(position.x * 100f) / 100f - camera.position.x;
@@ -401,6 +429,8 @@ public class Game extends ApplicationAdapter {
 			pickup.render(gameBatch);
 		for (Enemy enemy : enemies)
 			enemy.render(gameBatch);
+		for (Obstacles obstacle : obstacles)
+			obstacle.render(gameBatch);
 		player.render(gameBatch);
 		for (Projectile projectile : projectiles)
 			projectile.render(gameBatch);
@@ -440,6 +470,12 @@ public class Game extends ApplicationAdapter {
 		// Setup batch
 		UIBatch.setProjectionMatrix(UICamera.combined);
 		UIBatch.begin();
+
+		//weather
+
+		for (Weather w : weather){
+			w.render(UIBatch);
+		}
 
 		// Draw start splash
 		float time = (System.currentTimeMillis() - startTime) / 100f;
