@@ -1,79 +1,53 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 public class Weather {
 
-
-    static Texture texture;;
+    static Texture texture;
     String choice;
     Player player;
-    private final float width = Game.PPT * .5f;
     Sprite sprite;
-    SpriteBatch batch;
-    ShapeRenderer shapeRenderer;
+    
     public Float duration;
-
-    public float time;
-    public float screenWidth;
-    public float screenHeight;
     private Game game;
-    public Vector2 pos;
-    private Vector2 startPos;
     private boolean toRemove;
-    private Vector2 vel;
-    private Vector2 inputDir;
 
-    Weather(Game game_, Vector2 pos_, String choice, Float duration ){
+    Weather(Game game_, String choice, Float duration){
         this.choice = choice;
         this.duration= duration;
         game = game_;
         player = game.getPlayer();
-        pos = pos_;
-        startPos=pos_;
-        toRemove=true;
+        toRemove=false;
 
+        // Any texture will get stretched out to fit the size of the screen in render() every frame
         if (choice == "cloudy"){
-            texture = new Texture(Gdx.files.internal("./Weather/badWeather.png"));
-
-
+            texture = new Texture(Gdx.files.internal("./Weather/badWeather.png")); 
         }
 
         sprite = new Sprite(texture);
-        sprite.setPosition(pos.x, pos.y);
-        sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
-        sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
-        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
 
     }
 
-
-
-
-
     public void update() {
-        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
-
-        if (choice == "cloudy" && duration>=0){
-            toRemove = false;
+        duration -= Gdx.graphics.getDeltaTime(); //Reduce time
+        System.out.println(duration);
+        if (duration<=0){ //Sets toRemove to true if weather effect is expired
+            toRemove = true;
         }
+
+        // To make something happen, dependent on weather effect
+        // if (choice == "thunder"){
+        //     // Do something?? eg. damage player
+        // }
     }
 
     public static void staticDispose() {
-        texture.dispose();}
-
+        texture.dispose();
+    }
 
     public boolean shouldRemove() {
         return toRemove;
@@ -82,7 +56,12 @@ public class Weather {
     public void beenRemoved() {
     }
 
-    public void render (SpriteBatch batch) {
-            sprite.draw(batch);
+    public void render (SpriteBatch batch) { //Called in the renderUI method of Game
+
+            // Add any animation effect here, eg. sprite = new Sprite(new Texture (texturePaths[i+1])), to move to the next texture in list of texture filepaths for example
+
+            sprite.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // Sets the object to take up the entire screen
+            sprite.setPosition(0,0); // Sets sprite to 0,0 on the screen
+            sprite.draw(batch); // Draws using the given batch, which is UIBatch in renderUI
     }
 }

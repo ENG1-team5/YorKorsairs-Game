@@ -55,14 +55,6 @@ public class Obstacles {
 
         }
 
-        if(choice == "cloudy"){
-            texture = new Texture(Gdx.files.internal("./Weather/badWeather.png"));
-            //texture = new Texture(Gdx.files.internal("./Weather/badWeather.png"));
-
-
-        }
-
-
         sprite = new Sprite(texture);
 
         sprite.setPosition(pos.x, pos.y);
@@ -74,9 +66,6 @@ public class Obstacles {
 
 
             Rectangle rect = getCollisionRect();
-
-
-
 
             sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
 
@@ -93,10 +82,6 @@ public class Obstacles {
             if (hittableHit instanceof Player && choice == "Seamine"){
                 player.damage(20.0f);
                 toRemove = true;
-            }
-
-            if(choice == "cloudy"){
-
             }
 
             if (hittableHit instanceof Player && choice=="Iceberg") {
