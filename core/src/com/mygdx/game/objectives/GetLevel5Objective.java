@@ -4,13 +4,13 @@ package com.mygdx.game.objectives;
 import com.mygdx.game.Game;
 
 
-public class AttainGoldObjective extends Objective {
+public class GetLevel5Objective extends Objective {
 
     // Declare config, variables
-    private static int goldRequired = 300;
+    private static int levelRequired = 5;
 
 
-    AttainGoldObjective(Game game_) { super(game_); }
+    public GetLevel5Objective(Game game_) { super(game_); }
 
 
     @Override
@@ -19,7 +19,7 @@ public class AttainGoldObjective extends Objective {
      */
     protected String getRequirementText() {
         // Return requirement text
-        return "Get " + Math.max(goldRequired - game.currentGold, 0) + " more gold!";
+        return "Reach Level 5!";
     }
 
     /**
@@ -29,6 +29,6 @@ public class AttainGoldObjective extends Objective {
      */
     @Override
     public boolean checkComplete(Game game) {
-        return game.currentGold >= goldRequired;
+        return game.currentLevel >= levelRequired;
     }
 }

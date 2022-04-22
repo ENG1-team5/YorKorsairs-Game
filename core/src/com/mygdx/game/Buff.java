@@ -3,13 +3,24 @@ package com.mygdx.game;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ArrayMap;
 
 public class Buff {
+
+    // Possible buff icons
+    private static final Texture multi = new Texture(Gdx.files.internal("./pickups/multi1.png"));
+    private static final Texture damage = new Texture(Gdx.files.internal("./pickups/dmg1.png"));
+    private static final Texture fireRate = new Texture(Gdx.files.internal("./pickups/speed2.png"));
+    private static final Texture projectileSpeed = new Texture(Gdx.files.internal("./pickups/dmgspeed.png"));
+    private static final Texture regen = new Texture(Gdx.files.internal("./pickups/health1.png"));
+    private static final Texture maxHealth = new Texture(Gdx.files.internal("./pickups/health2.png"));
+    private static final Texture speed = new Texture(Gdx.files.internal("./pickups/speed1.png"));
+    private static final Texture err = new Texture(Gdx.files.internal("./pickups/err.png"));
     
     private Boolean expires = true;
     public float time;
-    private ArrayMap<String, Float> stats;
+    public ArrayMap<String, Float> stats;
 
     /**
      * Create a new buff object with specified buff and duration
@@ -110,6 +121,62 @@ public class Buff {
         }
 
         return r;
+    }
+
+    public String describeBuffedStats() {
+        return String.join(", ", getBuffedStats());
+    }
+
+    /**
+     * Get the icon of the buff
+     * @return the icon as a Texture
+     */
+    public Texture getTexture() {
+
+        // Get the texture from the buff
+        if (getBuffedStats().size() > 1) {
+            // Multibuff
+            return multi;
+        } else if (getBuffedStats().size() < 1) {
+            return err;
+        } else { //buffed.size() == 1
+            switch ( getBuffedStats().get(0) ) {
+                case "maxHealth":
+                    return maxHealth;
+
+                case "speed":
+                    return speed;
+
+                case "regen":
+                    return regen;
+                
+                case "damage":
+                    return damage;
+                    
+                case "projectileSpeed":
+                    return projectileSpeed;
+                    
+                case "fireRate":
+                    return fireRate;
+                    
+                default:
+                    return err;
+            }
+        }
+    }
+
+    /**
+     * Dispose static textures
+     */
+    public static void staticDispose() {
+        multi.dispose();
+        damage.dispose();
+        fireRate.dispose();
+        projectileSpeed.dispose();
+        regen.dispose();
+        maxHealth.dispose();
+        speed.dispose();
+        err.dispose();
     }
 
     // Various getters for convinience
