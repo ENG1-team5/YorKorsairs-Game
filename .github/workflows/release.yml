@@ -1,5 +1,13 @@
 name: release
 
+on: 
+  workflow_dispatch:
+    inputs:
+      title:
+        description: 'Release Title'     
+        required: true
+        default: 'Release'
+
 jobs:
   release-windows:
     runs-on: windows-latest
@@ -25,8 +33,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
+          title: "${{ github.event.inputs.title }}"
           files: |
             LICENSE.txt
             *.jar
