@@ -53,7 +53,7 @@ public class Game extends ApplicationAdapter {
 	private SpriteBatch UIBatch;
 	private TiledMap tiledMap;
 	private TiledMapRenderer tiledMapRenderer;
-	private MapObjects collisionObjects;
+	public MapObjects collisionObjects;
 	private GlyphLayout currentUITextGlyph = new GlyphLayout();
 
 	private String[] difficultyStrings = {"   Easy ->","<- Normal ->","<- Hard ->","<- Impossible   "};
@@ -81,12 +81,12 @@ public class Game extends ApplicationAdapter {
 	private float levelUpTimer;
 
 	private Objective objective;
-	private Player player;
+	public Player player;
 	private ArrayList<College> colleges;
 	private ArrayList<Projectile> projectiles;
 	private ArrayList<Particle> particles;
 	private ArrayList<IHittable> hittables;
-	private ArrayList<Enemy> enemies;
+	public ArrayList<Enemy> enemies;
 	private ArrayList<Pickup> pickups;
 
 

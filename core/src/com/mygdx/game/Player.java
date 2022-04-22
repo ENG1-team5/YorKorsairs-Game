@@ -18,21 +18,13 @@ import java.util.Map;
 public class Player implements IHittable {
 
     // Declare static, config, variables
-    private static final Texture idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
-    private static final Texture[] idleShotTextures = new Texture[] {
-            new Texture(Gdx.files.internal("./ships/shipShot0.png")),
-            new Texture(Gdx.files.internal("./ships/shipShot1.png")),
-            new Texture(Gdx.files.internal("./ships/shipShot2.png")),
-            new Texture(Gdx.files.internal("./ships/shipShot3.png")) };
-    private static final Texture movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
-    private static final Texture[] movingShotTextures = new Texture[] {
-            new Texture(Gdx.files.internal("./ships/shipMovingShot0.png")),
-            new Texture(Gdx.files.internal("./ships/shipMovingShot1.png")),
-            new Texture(Gdx.files.internal("./ships/shipMovingShot2.png")),
-            new Texture(Gdx.files.internal("./ships/shipMovingShot3.png")) };
-    private static final Texture deadTexture = new Texture(Gdx.files.internal("./ships/shipDead.png"));
-    private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
-    private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
+    private static Texture idleTexture;
+    private static Texture[] idleShotTextures;
+    private static Texture movingTexture;
+    private static Texture[] movingShotTextures;
+    private static Texture deadTexture;
+    private static Texture healthbarBackTexture;
+    private static Texture healthbarFillTexture;
 
     public final float shipWidth = Game.PPT * 1.4f;
     private final float maxSpeed = Game.PPT * 4f; // Units / Second originally 1f
@@ -70,7 +62,7 @@ public class Player implements IHittable {
 
     public Vector2 pos;
     private Vector2 vel;
-    private Vector2 inputDir;
+    public Vector2 inputDir;
     private float health;
     private float shotTimer;
     private int shotTurn;
@@ -83,9 +75,7 @@ public class Player implements IHittable {
 
     private float homeHealthRegen = passiveHealthRegen * 3;
 
-
-    Player(Game game_, Vector2 pos_) {
-        // Initialize variables
+    public Player(Game game_, Vector2 pos_, Boolean Test){
         game = game_;
         pos = pos_;
         vel = new Vector2(Vector2.Zero);
@@ -99,8 +89,32 @@ public class Player implements IHittable {
         combatTimer = 0.0f;
         smokeTimer = 0.0f;
         atHome = false;
-
         buffs = new ArrayList<Buff>();
+    }
+
+    public Player(Game game_, Vector2 pos_){
+        this(game_, pos_, true);
+        initialiseTextures();
+    }
+
+    public void initialiseTextures(){
+        idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
+        idleShotTextures = new Texture[] {
+            new Texture(Gdx.files.internal("./ships/shipShot0.png")),
+            new Texture(Gdx.files.internal("./ships/shipShot1.png")),
+            new Texture(Gdx.files.internal("./ships/shipShot2.png")),
+            new Texture(Gdx.files.internal("./ships/shipShot3.png")) 
+        };
+        movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
+        movingShotTextures = new Texture[] {
+            new Texture(Gdx.files.internal("./ships/shipMovingShot0.png")),
+            new Texture(Gdx.files.internal("./ships/shipMovingShot1.png")),
+            new Texture(Gdx.files.internal("./ships/shipMovingShot2.png")),
+            new Texture(Gdx.files.internal("./ships/shipMovingShot3.png")) 
+        };
+        deadTexture = new Texture(Gdx.files.internal("./ships/shipDead.png"));
+        healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
+        healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
         // Initialize ship sprite
         float ratio = (float) idleTexture.getHeight() / (float) idleTexture.getWidth();
@@ -124,14 +138,13 @@ public class Player implements IHittable {
         healthbarFillSprite.setOrigin(fillWidth * 0.5f, fillHeight * 0.5f);
     }
 
-
     /**
      * Updates position, velocity, input and sprite
      */
     public void update() {
         if (game.getRunning()) {
             handleInput();
-            updateMovement();
+            updateMovement(inputDir);
         }
         updateLogic();
         updateSprite();
@@ -167,17 +180,18 @@ public class Player implements IHittable {
 
     /**
      * uses input to move and detect collision
+     * @param inputDirection
      */
-    private void updateMovement() {
+    public void updateMovement(Vector2 inputDirection) {
         // Accelerate velocity in inputDir and limit to maxSpeed
-        vel.x += inputDir.x * getAcceleration() * Gdx.graphics.getDeltaTime();
-        vel.y += inputDir.y * getAcceleration() * Gdx.graphics.getDeltaTime();
+        vel.x += inputDirection.x * getAcceleration() * 0.015;
+        vel.y += inputDirection.y * getAcceleration() * 0.015;
         if (vel.len2() > (getMaxSpeed() * getMaxSpeed()))
             vel = vel.setLength(getMaxSpeed());
 
         // Move ship with velocity
-        float diffX = vel.x * Gdx.graphics.getDeltaTime();
-        float diffY = vel.y * Gdx.graphics.getDeltaTime();
+        float diffX = vel.x * 0.015f;
+        float diffY = vel.y * 0.015f;
         pos.x += diffX;
         pos.y += diffY;
         vel.x *= friction;
