@@ -199,7 +199,7 @@ public class Game extends ApplicationAdapter {
 		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.1f, PPT * 17.4f), "Iceberg"));
 		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.7f, PPT * 17.4f), "Rock"));
 		obstacles.add(new Obstacles(this, new Vector2(PPT * 27.3f, PPT * 17.4f), "Rock"));
-		weather.add(new Weather(this, "cloudy", 10f)); // Lasts 10 seconds
+		//weather.add(new Weather(this, "rainy", 40f)); // Lasts 10 seconds
 
 		objective = Objective.getRandomObjective(this);
 

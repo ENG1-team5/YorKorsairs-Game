@@ -4,13 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.Animation;
 
 public class Weather {
 
     static Texture texture;
+    private float time;
     String choice;
     Player player;
     Sprite sprite;
+    Integer pathNum = 0;
+    Animation<TextureRegion> animation;
     
     public Float duration;
     private Game game;
@@ -24,8 +29,16 @@ public class Weather {
         toRemove=false;
 
         // Any texture will get stretched out to fit the size of the screen in render() every frame
-        if (choice == "cloudy"){
-            texture = new Texture(Gdx.files.internal("./Weather/badWeather.png")); 
+        if (choice == "cloudy") {
+            texture = new Texture(Gdx.files.internal("./Weather/badWeather0.png"));
+        }
+
+        if (choice == "foggy"){
+            texture = new Texture(Gdx.files.internal("./Weather/fog.png"));
+        }
+
+        if (choice == "rainy"){
+            texture = new Texture(Gdx.files.internal("./Weather/rain0.png"));
         }
 
         sprite = new Sprite(texture);
@@ -33,11 +46,26 @@ public class Weather {
     }
 
     public void update() {
+
+        if()
+
+        time= Math.max(time-Gdx.graphics.getDeltaTime(),0);
+        if (time<= 0.0f && choice == "rainy"){
+
+
+            pathNum = (pathNum+1) % 3;
+            String filepath = "./Weather/rain"+pathNum.toString()+".png";
+            sprite = new Sprite(new Texture (Gdx.files.internal(filepath)));
+
+            time=0.1f;
+        }
         duration -= Gdx.graphics.getDeltaTime(); //Reduce time
         System.out.println(duration);
         if (duration<=0){ //Sets toRemove to true if weather effect is expired
             toRemove = true;
         }
+
+
 
         // To make something happen, dependent on weather effect
         // if (choice == "thunder"){
