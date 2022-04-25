@@ -37,4 +37,4 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           title: "${{ github.event.inputs.title }}"
-          files: ./desktop/build/libs/desktop-1.0.jar
+          files: "./${{ github.event.inputs.title }}.jar"
