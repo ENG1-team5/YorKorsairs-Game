@@ -13,6 +13,7 @@ public class Weather {
     private float time;
     String choice;
     Player player;
+    float alphameter = 255;
     Sprite sprite;
     Integer pathNum = 0;
     Animation<TextureRegion> animation;
@@ -30,35 +31,49 @@ public class Weather {
 
         // Any texture will get stretched out to fit the size of the screen in render() every frame
         if (choice == "cloudy") {
-            texture = new Texture(Gdx.files.internal("./Weather/badWeather0.png"));
+            texture = new Texture(Gdx.files.internal("./Weather/cloudy.png"));
+
+
         }
 
         if (choice == "foggy"){
             texture = new Texture(Gdx.files.internal("./Weather/fog.png"));
+            sprite= new Sprite(texture);
+
         }
 
         if (choice == "rainy"){
             texture = new Texture(Gdx.files.internal("./Weather/rain0.png"));
         }
 
-        sprite = new Sprite(texture);
+        sprite= new Sprite(texture);
 
     }
 
     public void update() {
 
-        if()
+
+
+        if (time<= 0.0f && choice == "foggy"){
+            if (alphameter>5){
+                alphameter -=1;
+                sprite.setAlpha(alphameter);
+            }
+
+        }
+
+
 
         time= Math.max(time-Gdx.graphics.getDeltaTime(),0);
+
         if (time<= 0.0f && choice == "rainy"){
-
-
-            pathNum = (pathNum+1) % 3;
+            pathNum = (pathNum+1) % 3; // alternate between frames
             String filepath = "./Weather/rain"+pathNum.toString()+".png";
             sprite = new Sprite(new Texture (Gdx.files.internal(filepath)));
-
             time=0.1f;
+
         }
+
         duration -= Gdx.graphics.getDeltaTime(); //Reduce time
         System.out.println(duration);
         if (duration<=0){ //Sets toRemove to true if weather effect is expired

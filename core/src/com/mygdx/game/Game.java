@@ -195,11 +195,55 @@ public class Game extends ApplicationAdapter {
 			hittables.add(enemy);
 		}
 		//pickups.add(new Pickup(this, new Vector2(PPT * 25f, PPT * 17.5f), new Buff("maxHealth", 100f, 100f)));
-		obstacles.add(new Obstacles(this, new Vector2(PPT * 25.5f, PPT * 17.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 31f, PPT * 17.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 31f, PPT * 16.5f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 33f, PPT * 15.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 33f, PPT * 14.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 40f, PPT * 18f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 45f, PPT * 20f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 50f, PPT * 16f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.5f, PPT * 19f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.6f, PPT * 17.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 13.5f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55.5f, PPT * 15f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 51f, PPT * 20f), "Seamine"));
 		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.1f, PPT * 17.4f), "Iceberg"));
-		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.7f, PPT * 17.4f), "Rock"));
-		obstacles.add(new Obstacles(this, new Vector2(PPT * 27.3f, PPT * 17.4f), "Rock"));
-		//weather.add(new Weather(this, "rainy", 40f)); // Lasts 10 seconds
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.8f, PPT * 18.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 27.5f, PPT * 19.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 32f, PPT * 19.5f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 32f, PPT * 20.5f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 30f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.5f, PPT * 31f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.5f, PPT * 29f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 56f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54f, PPT * 32f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 58f, PPT * 32.5f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 59f, PPT * 31f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 53f, PPT * 34f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 56f, PPT * 28f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 27f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 52f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55.5f, PPT * 32f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 25f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26f, PPT * 36f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 27f, PPT * 34f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.1f, PPT * 35), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 34f, PPT * 34.5f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 33f, PPT * 34f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 29f, PPT * 32), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 30, PPT * 33f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 40f, PPT * 29f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 39f, PPT * 28f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 40f, PPT * 28f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 39f, PPT * 29f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 44f, PPT * 33f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 43f, PPT * 32f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 44f, PPT * 32f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 43f, PPT * 33f), "Seamine"));
+
+
+		//weather.add(new Weather(this, "foggy", 40f)); // Lasts 10 seconds
 
 		objective = Objective.getRandomObjective(this);
 
