@@ -1,4 +1,4 @@
-name: CI
+name: Build to Test
 
 on:
   push:
