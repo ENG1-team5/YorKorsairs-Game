@@ -2,9 +2,9 @@ name: Build to Test
 
 on:
   push:
-    branches: [ main ]
+    branches: all
   pull_request:
-    branches: [ main ]
+    branches: all
 
   workflow_dispatch:
 
