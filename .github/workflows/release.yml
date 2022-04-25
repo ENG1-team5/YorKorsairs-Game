@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew build
         
       - name: Rename output file
-        run: move ./desktop/build/libs/desktop-1.0.jar ./${{ github.event.inputs.title }}.jar
+        run: move ./desktop/build/libs/desktop-1.0.jar "./${{ github.event.inputs.title }}.jar"
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
