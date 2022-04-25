@@ -32,8 +32,6 @@ public class Weather {
         // Any texture will get stretched out to fit the size of the screen in render() every frame
         if (choice == "cloudy") {
             texture = new Texture(Gdx.files.internal("./Weather/cloudy.png"));
-
-
         }
 
         if (choice == "foggy"){
@@ -62,8 +60,6 @@ public class Weather {
 
         }
 
-
-
         time= Math.max(time-Gdx.graphics.getDeltaTime(),0);
 
         if (time<= 0.0f && choice == "rainy"){
@@ -75,7 +71,6 @@ public class Weather {
         }
 
         duration -= Gdx.graphics.getDeltaTime(); //Reduce time
-        System.out.println(duration);
         if (duration<=0){ //Sets toRemove to true if weather effect is expired
             toRemove = true;
         }

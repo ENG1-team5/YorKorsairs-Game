@@ -40,6 +40,7 @@ public class Game extends ApplicationAdapter {
 	private final int xpPerLevel = 50;
 	private final float xpGain = 0.4f;
 	private final float levelUpTimerMax = 1.5f;
+	private final String[] weatherChoices = {"foggy","rainy"};
 
 	private OrthographicCamera camera;
 	private OrthographicCamera UICamera;
@@ -571,6 +572,17 @@ public class Game extends ApplicationAdapter {
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, levelText, spacing, currentHeight);
 
+		// Draw weather info UI
+		mainFont.getData().setScale(0.6f);
+		String weatherText = "Weather : Clear";
+		if (weather.size() == 1){
+			Weather w = weather.get(0);
+			weatherText = "Weather : " + w.choice + " for " + Math.round(w.duration) + " seconds ";
+		}
+		currentUITextGlyph.setText(mainFont, levelText);
+		mainFont.draw(UIBatch, weatherText, Gdx.graphics.getWidth() - currentUITextGlyph.width - 450, currentHeight);
+		
+
 		// Draw help UI
 		currentHeight = Gdx.graphics.getHeight() - spacing;
 		String[] helpText = new String[] { "'Tab': reset", "WASD: movement", "LMB / RMB: Shoot" };
@@ -640,6 +652,18 @@ public class Game extends ApplicationAdapter {
 	public void addResources(float gold, float xp) {
 		currentGold += gold;
 		currentXP += xp;
+	}
+
+	/**
+	 * Adds a random weather event to the game for 15 seconds, only if no current weather event exists
+	*/
+	public void addRandomWeather(){
+		if(weather.size() < 1){
+			int randomNum = new java.util.Random().nextInt(weatherChoices.length);
+			System.out.println(weatherChoices.length + " " + randomNum);
+			String choice = weatherChoices[randomNum];
+			weather.add(new Weather(this, choice, 15f));
+		}	 
 	}
 
 

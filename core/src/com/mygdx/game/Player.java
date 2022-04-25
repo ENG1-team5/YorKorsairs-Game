@@ -36,7 +36,7 @@ public class Player implements IHittable {
 
     public final float shipWidth = Game.PPT * 1.4f;
 
-    private final float maxSpeed = Game.PPT * 1.25f; // Units / Second
+    private final float maxSpeed = Game.PPT * 4f; // Units / Second
     private final float maxSpeedScale = Game.PPT * 0.5f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float accelerationScale = Game.PPT * 1f;
@@ -55,7 +55,7 @@ public class Player implements IHittable {
     private final int shotCount = 4;
     private float shotTimerMax = 0.55f;
     private float shotTimerMaxScale = -0.1f;
-    private float shotDamage = 15f;
+    private float shotDamage = 300f;
     private float shotSpeed = Game.PPT * 3f;
 
     private final float particleTimerMax = 0.4f;
