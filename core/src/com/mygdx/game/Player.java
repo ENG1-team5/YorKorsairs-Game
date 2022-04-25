@@ -35,7 +35,8 @@ public class Player implements IHittable {
     private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
 
     public final float shipWidth = Game.PPT * 1.4f;
-    private final float maxSpeed = Game.PPT * 4f; // Units / Second originally 1f
+
+    private final float maxSpeed = Game.PPT * 4f; // Units / Second
     private final float maxSpeedScale = Game.PPT * 0.5f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float accelerationScale = Game.PPT * 1f;
@@ -445,8 +446,7 @@ public class Player implements IHittable {
         }
         return acc;
     }
-
-    /**
+   /**
      * @return shotTimerMax scaled based on player level and buffs
      */
     private float getShotTimerMax() {
@@ -561,4 +561,16 @@ public class Player implements IHittable {
         return buffs;
     }
 
+    public void inHazard(){
+
+    }
+
+    public void setVelocity(Vector2 newVel){
+        vel = newVel;
+    }
+
+    public Vector2 getVelocity(){
+        return vel;
+    }
 }
+

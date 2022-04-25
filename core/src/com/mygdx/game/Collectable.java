@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 public class Collectable {
 
     // Declare config, variables
-    protected Texture texture;
+    protected static Texture texture;
     protected final float width = Game.PPT * .5f;
 
     protected final float bounceMag = 0.2f;

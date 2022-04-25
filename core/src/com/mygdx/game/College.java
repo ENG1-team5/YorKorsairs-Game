@@ -1,7 +1,11 @@
 
 package com.mygdx.game;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
@@ -224,7 +228,7 @@ public class College implements IHittable {
 
 
     /**
-     * check is college is destroyed, gives player gold and XP
+     * check is college is destroyed, gives player gold and XP and has a 50% chance of spawning a random weather event
      */
     private void destroy() {
         // Become destroyed
@@ -247,6 +251,9 @@ public class College implements IHittable {
             game.addResources(
                     50 + (int) Math.floor((float) Math.random() * 15),
                     15 + (int) Math.floor((float) Math.random() * 10));
+        }
+        if(new Random().nextInt(2) == 1){
+            game.addRandomWeather();
         }
     }
 

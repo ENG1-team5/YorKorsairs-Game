@@ -1,3 +1,4 @@
+
 package com.mygdx.game;
 
 
@@ -61,12 +62,13 @@ public class Game extends ApplicationAdapter {
 	private final int xpPerLevel = 50;
 	private final float xpGain = 0.4f;
 	private final float levelUpTimerMax = 1.5f;
+	private final String[] weatherChoices = {"foggy","rainy"};
 
 	private OrthographicCamera camera;
 	private OrthographicCamera UICamera;
 	private SpriteBatch gameBatch;
-	private SpriteBatch UIBatch;
-	private TiledMap tiledMap;
+	SpriteBatch UIBatch;
+	public TiledMap tiledMap;
 	private TiledMapRenderer tiledMapRenderer;
 	private MapObjects collisionObjects;
 	private GlyphLayout currentUITextGlyph = new GlyphLayout();
@@ -82,6 +84,9 @@ public class Game extends ApplicationAdapter {
 
 	private float zoomVel;
 	private Vector3 worldMousePos;
+
+	public Game() {
+	}
 
 	private enum GameState {
 		READY, RUNNING, FINISHED
@@ -105,6 +110,8 @@ public class Game extends ApplicationAdapter {
 	private ArrayList<Pickup> pickups;
 	private ArrayList<IHittable> hittables;
 	private ArrayList<Upgrade> upgrades;
+	private ArrayList<Obstacles> obstacles;
+	private ArrayList<Weather> weather;
 
 
 	/**
@@ -166,6 +173,8 @@ public class Game extends ApplicationAdapter {
 		// Setup font
 		mainFont = new BitmapFont(Gdx.files.internal("./fonts/Pixellari.fnt"));
 		mainFont.setColor(0f, 0f, 0f, 1f);
+
+
 	}
 
 	private void setDifficulty(){
@@ -223,6 +232,8 @@ public class Game extends ApplicationAdapter {
 		pickups = new ArrayList<>();
 		hittables = new ArrayList<>();
 		upgrades = new ArrayList<>();
+		obstacles = new ArrayList<>();
+		weather = new ArrayList<>();
 
 		player = new Player(this, new Vector2(PPT * 19f, PPT * 17.5f));
 		colleges.add(new College("Goodricke", this, new Vector2(PPT * 25f, PPT * 14.5f), true));
@@ -261,6 +272,54 @@ public class Game extends ApplicationAdapter {
 		upgrades.add(new Upgrade(this, new Vector2(PPT * 13f, PPT * 18f), new Buff("fireRate", 0.5f), 50));
 		upgrades.add(new Upgrade(this, new Vector2(PPT * 09f, PPT * 18f), new Buff("maxHealth", 25), 50));
 
+		//Long list of manually configured obstacles
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 31f, PPT * 17.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 31f, PPT * 16.5f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 33f, PPT * 15.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 33f, PPT * 14.4f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 40f, PPT * 18f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 45f, PPT * 20f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 50f, PPT * 16f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.5f, PPT * 19f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.6f, PPT * 17.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 13.5f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55.5f, PPT * 15f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 51f, PPT * 20f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.1f, PPT * 17.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.8f, PPT * 18.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 27.5f, PPT * 19.4f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 32f, PPT * 19.5f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 32f, PPT * 20.5f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 30f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.5f, PPT * 31f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54.5f, PPT * 29f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 56f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 54f, PPT * 32f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 58f, PPT * 32.5f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 59f, PPT * 31f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 53f, PPT * 34f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 56f, PPT * 28f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 27f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 52f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55.5f, PPT * 32f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 55f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 25f, PPT * 33f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26f, PPT * 36f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 27f, PPT * 34f), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 26.1f, PPT * 35), "Rock"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 34f, PPT * 34.5f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 33f, PPT * 34f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 29f, PPT * 32), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 30, PPT * 33f), "Iceberg"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 40f, PPT * 29f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 39f, PPT * 28f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 40f, PPT * 28f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 39f, PPT * 29f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 44f, PPT * 33f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 43f, PPT * 32f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 44f, PPT * 32f), "Seamine"));
+		obstacles.add(new Obstacles(this, new Vector2(PPT * 43f, PPT * 33f), "Seamine"));
+		//weather.add(new Weather(this, "foggy", 40f)); // Lasts 10 seconds
 		objective = Objective.getRandomObjective(this);
 
 	}
@@ -563,6 +622,23 @@ public class Game extends ApplicationAdapter {
 				p.beenRemoved();
 			}
 		}
+		for (Iterator<Obstacles> pItr = obstacles.iterator(); pItr.hasNext();) {
+			Obstacles p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
+
+		for (Iterator<Weather> pItr = weather.iterator(); pItr.hasNext();) {
+			Weather p = pItr.next();
+			p.update();
+			if (p.shouldRemove()) {
+				pItr.remove();
+				p.beenRemoved();
+			}
+		}
 
 		// Update upgrades, allowing for deletion
 		for (Iterator<Upgrade> pItr = upgrades.iterator(); pItr.hasNext();) {
@@ -615,6 +691,7 @@ public class Game extends ApplicationAdapter {
 	 * Changes camera position based on player's location
 	 */
 	private void updateCamera() {
+
 		// Follow player with camera
 		Vector2 position = player.getPosition();
 		float diffX = (float) Math.round(position.x * 100f) / 100f - camera.position.x;
@@ -695,6 +772,8 @@ public class Game extends ApplicationAdapter {
 			pickup.render(gameBatch);
 		for (Enemy enemy : enemies)
 			enemy.render(gameBatch);
+		for (Obstacles obstacle : obstacles)
+			obstacle.render(gameBatch);
 		player.render(gameBatch);
 		for (Projectile projectile : projectiles)
 			projectile.render(gameBatch);
@@ -736,6 +815,12 @@ public class Game extends ApplicationAdapter {
 		// Setup batch
 		UIBatch.setProjectionMatrix(UICamera.combined);
 		UIBatch.begin();
+
+		//weather
+
+		for (Weather w : weather){
+			w.render(UIBatch);
+		}
 
 		// Draw start splash
 		float time = (System.currentTimeMillis() - startTime) / 100f;
@@ -825,6 +910,17 @@ public class Game extends ApplicationAdapter {
 		currentUITextGlyph.setText(mainFont, levelText);
 		currentHeight += currentUITextGlyph.height + spacing;
 		mainFont.draw(UIBatch, levelText, spacing, currentHeight);
+
+		// Draw weather info UI
+		mainFont.getData().setScale(0.6f);
+		String weatherText = "Weather : Clear";
+		if (weather.size() == 1){
+			Weather w = weather.get(0);
+			weatherText = "Weather : " + w.choice + " for " + Math.round(w.duration) + " seconds ";
+		}
+		currentUITextGlyph.setText(mainFont, levelText);
+		mainFont.draw(UIBatch, weatherText, Gdx.graphics.getWidth() - currentUITextGlyph.width - 450, currentHeight);
+		
 
 		// Draw help UI
 		currentHeight = Gdx.graphics.getHeight() - spacing;
@@ -919,6 +1015,17 @@ public class Game extends ApplicationAdapter {
 	public void addResources(float gold, float xp) {
 		currentGold += gold;
 		currentXP += xp;
+	}
+
+	/**
+	 * Adds a random weather event to the game for 15 seconds, only if no current weather event exists
+	*/
+	public void addRandomWeather(){
+		if(weather.size() < 1){
+			int randomNum = new java.util.Random().nextInt(weatherChoices.length);
+			String choice = weatherChoices[randomNum];
+			weather.add(new Weather(this, choice, 15f));
+		}	 
 	}
 
 
