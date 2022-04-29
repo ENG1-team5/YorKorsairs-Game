@@ -1145,6 +1145,7 @@ public class Game extends ApplicationAdapter {
 	 */
 	public Vector2 getRandomOverWater() {
 		
+		// Populate waterTiles if empty
 		if (waterTiles == null) {
 			waterTiles = new ArrayList<>();
 			TiledMapTileLayer terrain = (TiledMapTileLayer) tiledMap.getLayers().get("Terrain");
@@ -1152,18 +1153,20 @@ public class Game extends ApplicationAdapter {
 				for (int y = 0; y < terrain.getHeight(); y++) {
 					Cell cell = terrain.getCell(x, y);
 
-					int id = cell.getTile().getId();
-					if (id == 20) {
+					// If tile is water (ID 20)
+					if (cell.getTile().getId() == 20) {
 						waterTiles.add(new Vector2(x, y));
 					}
 				}
 			}
 		}
 
+		// Locate and remove a tile
 		int ind = random.nextInt(waterTiles.size());
 		Vector2 pos = waterTiles.get(ind);
 		waterTiles.remove(ind);
 
+		// Return a randomised location within the tile
 		return new Vector2((float)(pos.x + random.nextDouble()) * PPT, (float)(pos.y + random.nextDouble()) * PPT);
 	}
 
