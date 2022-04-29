@@ -1,4 +1,4 @@
-name: test
+name: Run Tests
 
 on: 
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  release-windows:
+  test-windows:
     runs-on: windows-latest
 
     steps:
