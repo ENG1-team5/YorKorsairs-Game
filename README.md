@@ -40,4 +40,14 @@ Note that CI should make this irrelevant
 
 ## CI
 
-Coming soon
+### Build
+
+Trigger: Automatic on push or pull request.
+
+Ensures that gradlew.bat build runs on the repo.
+
+### Release
+
+Trigger: Manual. Takes the name of the release as a parameter.
+
+Builds the repo and creates a tagged release.
