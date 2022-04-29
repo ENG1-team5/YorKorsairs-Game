@@ -123,6 +123,10 @@ public class Buff {
         return r;
     }
 
+    /**
+     * Get a representation of the object
+     * @return string describing the buffed stats
+     */
     public String describeBuffedStats() {
         return String.join(", ", getBuffedStats());
     }
