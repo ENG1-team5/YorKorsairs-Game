@@ -22,6 +22,12 @@ public class Weather {
     private Game game;
     private boolean toRemove;
 
+    /**
+     * constructs a different weather condition for a given duration based on "choice"
+     * @param game_ the main running class
+     * @param choice the choice of which weather condition to be applied
+     * @param duration how long the weather condition will last for
+     */
     Weather(Game game_, String choice, Float duration){
         this.choice = choice;
         this.duration= duration;
@@ -48,12 +54,17 @@ public class Weather {
 
     }
 
+    /**
+     * checks for the conditions to apply the chosen weather effect
+     * and animates the different weather conditions
+     *
+     */
     public void update() {
 
 
 
         if (time<= 0.0f && choice == "foggy"){
-            if (alphameter>5){
+            if (alphameter>5){ //gradually decreases alpha from 255 to >5
                 alphameter -=1;
                 sprite.setAlpha(alphameter);
             }
@@ -63,7 +74,7 @@ public class Weather {
         time= Math.max(time-Gdx.graphics.getDeltaTime(),0);
 
         if (time<= 0.0f && choice == "rainy"){
-            pathNum = (pathNum+1) % 3; // alternate between frames
+            pathNum = (pathNum+1) % 3; // alternate between frames every 0.1 second
             String filepath = "./Weather/rain"+pathNum.toString()+".png";
             sprite = new Sprite(new Texture (Gdx.files.internal(filepath)));
             time=0.1f;
@@ -75,12 +86,6 @@ public class Weather {
             toRemove = true;
         }
 
-
-
-        // To make something happen, dependent on weather effect
-        // if (choice == "thunder"){
-        //     // Do something?? eg. damage player
-        // }
     }
 
     public static void staticDispose() {
@@ -94,6 +99,10 @@ public class Weather {
     public void beenRemoved() {
     }
 
+    /**
+     * renders the chosen weather condition
+     * @param batch
+     */
     public void render (SpriteBatch batch) { //Called in the renderUI method of Game
 
             // Add any animation effect here, eg. sprite = new Sprite(new Texture (texturePaths[i+1])), to move to the next texture in list of texture filepaths for example

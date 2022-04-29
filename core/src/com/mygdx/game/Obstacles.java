@@ -22,13 +22,16 @@ public class Obstacles {
     private boolean toRemove;
     private Vector2 vel;
     private Vector2 inputDir;
-    private final float maxSpeed = Game.PPT * 1f;
-    private final float acceleration = Game.PPT * 3f;
     private String rock="Rock";
     private String seamine="Seamine";
     private String iceberg="Iceberg";
 
-
+    /**
+     *constructs a different obstacle in a given position depending on the "choice"
+     * @param game_ the main running class
+     * @param pos_ position of which to spawn an obstacles
+     * @param choice the choice of which obstacle to be spawned
+     */
     Obstacles (Game game_, Vector2 pos_, String choice) {
 
         this.choice = choice;
@@ -62,6 +65,9 @@ public class Obstacles {
         sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
         sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());}
 
+        /**
+        * checks for collisions and applies the effects af the obstacles
+        */
         public void update() {
 
 
@@ -86,31 +92,6 @@ public class Obstacles {
 
             if (hittableHit instanceof Player && choice=="Iceberg") {
 
-                if (Math.random() < Gdx.graphics.getDeltaTime() * 1f) {
-                    inputDir.x = (float) Math.random() * 2f - 1f;
-                    inputDir.y = (float) Math.random() * 2f - 1f;
-                    inputDir = inputDir.nor();
-                }
-                float diffX = vel.x * Gdx.graphics.getDeltaTime();
-                float diffY = vel.y * Gdx.graphics.getDeltaTime();
-                pos.x += diffX;
-                pos.y += diffY;
-
-                if (game.checkCollision(rect)) {
-                    pos.x -= diffX;
-                    pos.y -= diffY;
-                    vel.x = 0;
-                    vel.y = 0;
-
-                }
-
-
-                // Update velocity
-                vel.x += inputDir.x * acceleration * Gdx.graphics.getDeltaTime();
-                vel.y += inputDir.y * acceleration * Gdx.graphics.getDeltaTime();
-                if (vel.len2() > (maxSpeed * maxSpeed))
-                    vel = vel.setLength(maxSpeed);
-
                 player.setVelocity(player.getVelocity().scl(0f));
                 player.damage(10.0f);
                 toRemove = true;
@@ -129,7 +110,7 @@ public class Obstacles {
 
 
     /**
-     * renders projectile sprite to output batch
+     * renders obstacle sprite to output batch
      * @param batch graphical output to be rendered to
      */
     public void render(SpriteBatch batch) {
@@ -144,7 +125,7 @@ public class Obstacles {
     }
 
     /**
-     * Deletes projectile to conserve processor if dead
+     * Deletes obstacle to conserve processor if dead
      * @return boolean
      */
     public boolean shouldRemove() {
