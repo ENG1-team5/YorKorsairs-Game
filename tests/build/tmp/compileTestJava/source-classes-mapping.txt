@@ -1,4 +1,0 @@
-com/mygdx/game/tests/AssetTests.java
- com.mygdx.game.tests.AssetTests
-com/mygdx/game/tests/GdxTestRunner.java
- com.mygdx.game.tests.GdxTestRunner
