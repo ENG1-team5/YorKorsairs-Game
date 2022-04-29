@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.Animation;
 
+/**
+ * Class for representing multiple visual effects over the camera relating to weather
+ */
 public class Weather {
 
     static Texture texture;

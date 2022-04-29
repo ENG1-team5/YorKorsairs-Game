@@ -3,8 +3,9 @@ package com.mygdx.game;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-// Generic item in game world that provides a buff
-
+/**
+ * Generic item in game world that provides a buff
+*/
 public class Pickup extends Collectable {
 
     Pickup(Game game_, Vector2 pos_, Buff buff_) {

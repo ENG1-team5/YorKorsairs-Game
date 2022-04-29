@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * Class to represent a projectile fired by another class
+ */
 public class Projectile {
 
     // Declare config, variables
@@ -27,6 +30,14 @@ public class Projectile {
     private float currentTime;
     private boolean toRemove;
 
+    /**
+    * Instantiates a new projectile firing at pos_ from source_
+    * @param game
+    * @param source_ - Object that creates the projectile
+    * @param pos_ - Location to fire at
+    * @param vel_ - Velocity of projectile
+    * @param isFriendly_ - bool representing whether the player is friendly to this projectile
+    */
     Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_) {
         // Declare variables
         game = game_;

@@ -7,7 +7,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-
+/**
+ * Class for representing different kinds of obstacles on the map
+ */
 public class Obstacles {
 
     static Texture texture;

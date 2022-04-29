@@ -48,6 +48,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
 
+/** Main Game class handling most important methods and providing an interface for classes to access others */
 public class Game extends ApplicationAdapter {
 
 	// Declare config, variables
@@ -177,6 +178,10 @@ public class Game extends ApplicationAdapter {
 
 	}
 
+	/**
+	 * Applies a percentage change to attributes in the Enemy, Player and College classes to increase/difficulty based
+	 * on the current difficulty choice "difficultySelection"
+	 */
 	private void setDifficulty(){
 		//Takes raw difficulty selection text as displayed on screen
 		String difficulty = difficultyStrings[difficultySelection];
@@ -325,7 +330,8 @@ public class Game extends ApplicationAdapter {
 	}
 
 	/**
-	 * Saves current game state to JSON
+	 * Saves current game state to JSON, serialising each object in an array of that type 
+	 * that can be unwrapped logically upon loading
 	 */
 	public void saveGame(){
 		

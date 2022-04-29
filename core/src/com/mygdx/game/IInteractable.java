@@ -2,6 +2,9 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.math.Rectangle;
 
+/**
+ * Interface to provide interactability with the player to perform effects
+ */
 public interface IInteractable {
 
     /**

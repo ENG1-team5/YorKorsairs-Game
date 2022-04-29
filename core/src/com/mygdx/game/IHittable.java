@@ -3,6 +3,9 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.math.Rectangle;
 
+/**
+ * Interface for classes to implement collision with the particle class
+ */
 public abstract interface IHittable {
 
     /**

@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Handles all key bindings used by the player in the game
+ */
 public class Binding implements InputProcessor {
 
     // Declare variables

@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents the player's boat in the game, handling all colisions, input and firing
+ */
 public class Player implements IHittable {
 
     // Declare static, config, variables
@@ -87,6 +90,11 @@ public class Player implements IHittable {
 
     private float homeHealthRegen = passiveHealthRegen * 3;
 
+    /**
+    * Instantiates a player belonging to game class at position pos_
+    * @param game_ - Game that the player belongs to
+    * @param pos_  - Where to spawn the player
+    */
     Player(Game game_, Vector2 pos_) {
         // Initialize variables
         game = game_;
@@ -459,6 +467,10 @@ public class Player implements IHittable {
         return Math.max(st, 0.1f);
     }
 
+    /**
+     * Returns projectile damage adjusted for buffs
+     * @return float - Representing the current damage of a projectile
+     */
     private float getDamage() {
         float dmg = shotDamage;
 
@@ -469,6 +481,10 @@ public class Player implements IHittable {
         return dmg;
     }
     
+    /**
+     * Returns projectile speed adjusted for buffs
+     * @return float - Representing the current speed of a projectile
+     */
     private float getProjectileSpeed() {
         float projspeed = shotSpeed;
 
@@ -480,6 +496,7 @@ public class Player implements IHittable {
     }
 
     /**
+     * Returns max health adjusted for buffs
      * @return maxHealth based on buffs
      */
     public float getMaxHealth() {
@@ -492,6 +509,11 @@ public class Player implements IHittable {
         return mh;
     
     }
+
+    /**
+     * Returns passive health regen adjusted for buffs
+     * @return passive health regen based on buffs
+     */
     private float getPassiveHealthRegen() {
         float mh = passiveHealthRegen;
 

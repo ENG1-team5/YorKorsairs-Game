@@ -14,6 +14,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * Class to represent a college that is hittable by the player while being hostile to them
+ */
 public class College implements IHittable {
 
     // Declare config, variables
@@ -51,6 +54,13 @@ public class College implements IHittable {
     private float shotTimer;
     private float smokeTimer;
 
+    /**
+     * Instantiate a new college object
+     * @param name_ - Name of the college, used to find appropriate images (use lower case)
+     * @param game_ - game that college belongs to
+     * @param pos_ -  position to spawn the college at
+     * @param isFriendly_ - Value representing if the college is friendly to the player 
+     */
     College(String name_, Game game_, Vector2 pos_, boolean isFriendly_) {
         // Initialize variables
         name = name_;
