@@ -3,8 +3,8 @@
 
 This repo contains the game for the York Pirates! Team 10 ENG1 group project taken over by Team 5.
 
-Website Repo: https://github.com/AJ141299/YorKorsairs  
-Website Link: https://aj141299.github.io/YorKorsairs/
+Website Repo: https://github.com/ENG1-team5/ENG1-team5.github.io
+Website Link: https://ENG1-team5.github.io
 
 ## Download and build 
 
@@ -40,4 +40,14 @@ Note that CI should make this irrelevant
 
 ## CI
 
-Coming soon
+### Build
+
+Trigger: Automatic on push or pull request.
+
+Ensures that gradlew.bat build runs on the repo.
+
+### Release
+
+Trigger: Manual. Takes the name of the release as a parameter.
+
+Builds the repo and creates a tagged release.

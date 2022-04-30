@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.College;
 import com.mygdx.game.Enemy;
 import com.mygdx.game.Game;
@@ -15,8 +16,10 @@ import com.mygdx.game.Projectile;
 import com.mygdx.game.Upgrade;
 import com.mygdx.game.objectives.GetLevel5Objective;
 import com.mygdx.game.IHittable;
+import com.mygdx.game.Obstacles;
 import com.mygdx.game.Particle;
 import com.mygdx.game.Pickup;
+import com.mygdx.game.Weather;
 
 import org.junit.Test;
 
@@ -47,6 +50,9 @@ public class shipTests {
         game.projectiles = new ArrayList<Projectile>();
         game.enemies = new ArrayList<Enemy>();
         game.hittables = new ArrayList<IHittable>();
+        game.obstacles = new ArrayList<Obstacles>();
+        game.weather = new ArrayList<Weather>();
+
 
         ship = game.getPlayer();
         

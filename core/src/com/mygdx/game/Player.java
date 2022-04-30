@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents the player's boat in the game, handling all colisions, input and firing
+ */
 public class Player implements IHittable {
 
     // Declare static, config, variables
@@ -27,7 +30,8 @@ public class Player implements IHittable {
     private static Texture healthbarFillTexture;
 
     public final float shipWidth = Game.PPT * 1.4f;
-    private final float maxSpeed = Game.PPT * 4f; // Units / Second originally 1f
+
+    private final float maxSpeed = Game.PPT * 4f; // Units / Second
     private final float maxSpeedScale = Game.PPT * 0.5f;
     private final float acceleration = Game.PPT * 7f; // Units / Second^2
     private final float accelerationScale = Game.PPT * 1f;
@@ -79,8 +83,13 @@ public class Player implements IHittable {
     private float homeHealthRegen = passiveHealthRegen * 3;
     protected boolean toInteract;
 
-    public Player(Game game_, Vector2 pos_, Boolean testing){
-
+    /**
+     * Part player(game, pos) constructor changed for accomodating testing
+     * @param game_
+     * @param pos_
+     * @param testing
+     */
+    public Player(Game game_, Vector2 pos_, boolean testing) {
         // Initialize variables
         game = game_;
         pos = pos_;
@@ -99,6 +108,11 @@ public class Player implements IHittable {
         buffs = new ArrayList<Buff>();
     }
 
+    /**
+    * Instantiates a player belonging to game class at position pos_
+    * @param game_ - Game that the player belongs to
+    * @param pos_  - Where to spawn the player
+    */
     public Player(Game game_, Vector2 pos_){
         this(game_, pos_, false);
         initialiseTextures();
@@ -493,8 +507,7 @@ public class Player implements IHittable {
         }
         return acc;
     }
-
-    /**
+   /**
      * @return shotTimerMax scaled based on player level and buffs
      */
     public float getShotTimerMax() {
@@ -507,6 +520,10 @@ public class Player implements IHittable {
         return Math.max(st, 0.1f);
     }
 
+    /**
+     * Returns projectile damage adjusted for buffs
+     * @return float - Representing the current damage of a projectile
+     */
     public float getDamage() {
         float dmg = shotDamage;
 
@@ -517,6 +534,10 @@ public class Player implements IHittable {
         return dmg;
     }
     
+    /**
+     * Returns projectile speed adjusted for buffs
+     * @return float - Representing the current speed of a projectile
+     */
     public float getProjectileSpeed() {
         float projspeed = shotSpeed;
 
@@ -528,6 +549,7 @@ public class Player implements IHittable {
     }
 
     /**
+     * Returns max health adjusted for buffs
      * @return maxHealth based on buffs
      */
     public float getMaxHealth() {
@@ -540,6 +562,11 @@ public class Player implements IHittable {
         return mh;
     
     }
+
+    /**
+     * Returns passive health regen adjusted for buffs
+     * @return passive health regen based on buffs
+     */
     public float getPassiveHealthRegen() {
         float mh = passiveHealthRegen;
 
@@ -609,4 +636,16 @@ public class Player implements IHittable {
         return buffs;
     }
 
+    public void inHazard(){
+
+    }
+
+    public void setVelocity(Vector2 newVel){
+        vel = newVel;
+    }
+
+    public Vector2 getVelocity(){
+        return vel;
+    }
 }
+

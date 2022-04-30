@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Class to represent enemy ships within the game that are hostile to the player with basic movement
+ */
 public class Enemy implements IHittable{
 
     // Declare config, variables
@@ -46,6 +49,11 @@ public class Enemy implements IHittable{
     
     private boolean testing;
 
+    /**
+     * Instantiates a new enemy at a given position
+     * @param game_ - Game that enemy belongs to
+     * @param pos_ - Position to add enemy in
+     */
     public Enemy(Game game_, Vector2 pos_, boolean testing) {
         // Initialize variables
         game = game_;

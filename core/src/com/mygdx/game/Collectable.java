@@ -6,10 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * An item the player can collect
+ */
 public class Collectable {
 
     // Declare config, variables
-    protected Texture texture;
+    protected static Texture texture;
     protected final float width = Game.PPT * .5f;
 
     protected final float bounceMag = 0.2f;
@@ -21,16 +24,20 @@ public class Collectable {
     protected Vector2 pos;
     protected Vector2 startPos;
     protected boolean toRemove;
-
     public boolean testing;
-
+    /**
+     * Creates a new collectable at position, applying buff_ on colision
+     * @param game_ 
+     * @param pos_ - position to spawn collectable at
+     * @param buff_ - buff to apply
+     */
     Collectable(Game game_, Vector2 pos_, Buff buff_, boolean testing) {
-        this.testing  = testing;
         game = game_;
         buff = buff_;
         pos = pos_;
         startPos = pos_;
         toRemove = false;
+        this.testing  = testing;
     }
 
     Collectable(Game game_, Vector2 pos_, Buff buff_){

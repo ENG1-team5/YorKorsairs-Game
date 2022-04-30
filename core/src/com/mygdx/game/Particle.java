@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import java.util.HashMap;
 
+/**
+ * Class used to represent a particle of a given material, used upon collisions and damages
+ */
 public class Particle {
 
     // Declare variables
@@ -29,19 +32,36 @@ public class Particle {
     private float maxTime;
     private boolean toRemove;
 
+    /**
+     * Instantiates a new particle with:
+     * @param path - Filepath of particle material
+     * @param pos_ - Position to spawn particle
+     * @param size_ - Size of particle
+     * @param speed_ - Speed of particle
+     * @param time_ - Time the particle can exist
+     */
     Particle(String path, Vector2 pos_, float size_, float speed_, float time_) {
         this(path, pos_, size_, size_, speed_, time_);
     }
 
+    /**
+     * See Particle(String path, Vector2 pos_, float size_, float speed_, float time_), but with variable size over time
+     */
     Particle(String path, Vector2 pos_, float sizeStart_, float sizeEnd_, float speed_, float time_) {
         this(path, pos_, sizeStart_, sizeEnd_,
                 new Vector2((float) Math.random() - 0.5f, (float) Math.random() - 0.5f).nor().scl(speed_), time_);
     }
 
+    /**
+     * Variant of Particle(String path, Vector2 pos_, float size_, float speed_, float time_), but takes velocity instead of speed
+     */
     Particle(String path, Vector2 pos_, float size_, Vector2 vel_, float time_) {
         this(path, pos_, size_, size_, vel_, time_);
     }
 
+    /**
+     * variant of Particle(String path, Vector2 pos_, float size_, float speed_, float time_), but applies variable particle size over time and velocity instead of speed
+     */
     Particle(String path, Vector2 pos_, float sizeStart_, float sizeEnd_, Vector2 vel_, float time_) {
         // Initialize variables
         sprite = new Sprite(textures.get(path));

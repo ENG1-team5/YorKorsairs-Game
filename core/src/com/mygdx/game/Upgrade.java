@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Variant of Collectable that provides a buff at a cost of gold
+ */
 public class Upgrade extends Collectable implements IInteractable {
 
     public float cost;

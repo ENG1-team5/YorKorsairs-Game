@@ -6,6 +6,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ArrayMap;
 
+/**
+ * Class to apply a buff to the player
+ */
 public class Buff {
 
     // Possible buff icons
@@ -145,6 +148,10 @@ public class Buff {
         return r;
     }
 
+    /**
+     * Get a representation of the object
+     * @return string describing the buffed stats
+     */
     public String describeBuffedStats() {
         return String.join(", ", getBuffedStats());
     }

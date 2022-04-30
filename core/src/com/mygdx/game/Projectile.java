@@ -11,6 +11,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * Class to represent a projectile fired by another class
+ */
 public class Projectile {
 
     // Declare config, variables
@@ -28,11 +31,11 @@ public class Projectile {
     private boolean isFriendly;
     private float currentTime;
     private boolean toRemove;
-
     private boolean testing;
 
+
     /**
-     * Testing Variant of projectile
+     * Part of projectiles constructor seperated for testing projectile, see other constructor
      */
     public Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_, boolean testing){
         // Declare variables
@@ -46,6 +49,14 @@ public class Projectile {
         this.testing = testing;
     }
 
+    /**
+    * Instantiates a new projectile firing at pos_ from source_
+    * @param game
+    * @param source_ - Object that creates the projectile
+    * @param pos_ - Location to fire at
+    * @param vel_ - Velocity of projectile
+    * @param isFriendly_ - bool representing whether the player is friendly to this projectile
+    */
     Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_) {
         this(game_,source_,pos_,vel_,isFriendly_,false);
         InitialiseTextures();

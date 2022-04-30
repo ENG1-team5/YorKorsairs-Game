@@ -17,6 +17,8 @@ import com.mygdx.game.objectives.GetLevel5Objective;
 import com.mygdx.game.Particle;
 import com.mygdx.game.Pickup;
 import com.mygdx.game.IHittable;
+import com.mygdx.game.Weather;
+import com.mygdx.game.Obstacles;
 
 import org.junit.Test;
 
@@ -46,6 +48,8 @@ public class collegeTests {
         game.projectiles = new ArrayList<Projectile>();
         game.enemies = new ArrayList<Enemy>();
         game.hittables = new ArrayList<IHittable>();
+        game.obstacles = new ArrayList<Obstacles>();
+        game.weather = new ArrayList<Weather>();
         
         game.particles = new ArrayList<Particle>();
         ship = game.getPlayer();

@@ -1,7 +1,11 @@
 
 package com.mygdx.game;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
@@ -10,6 +14,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * Class to represent a college that is hittable by the player while being hostile to them
+ */
 public class College implements IHittable {
 
     // Declare config, variables
@@ -46,11 +53,15 @@ public class College implements IHittable {
     private float shotTimerMax = 0.8f;
     private float shotTimer;
     private float smokeTimer;
-
     private boolean testing;
-
+    /**
+     * Instantiate a new college object
+     * @param name_ - Name of the college, used to find appropriate images (use lower case)
+     * @param game_ - game that college belongs to
+     * @param pos_ -  position to spawn the college at
+     * @param isFriendly_ - Value representing if the college is friendly to the player 
+     */
     public College(String name_, Game game_, Vector2 pos_, boolean isFriendly_, boolean testing){
-        this.testing = testing;
         // Initialize variables
         name = name_;
         game = game_;
@@ -59,6 +70,7 @@ public class College implements IHittable {
         isFriendly = isFriendly_;
         shotTimer = 0f;
         smokeTimer = 0f;
+        this.testing = testing;
     }
 
     public College(String name_, Game game_, Vector2 pos_, boolean isFriendly_) {
@@ -261,7 +273,7 @@ public class College implements IHittable {
 
 
     /**
-     * check is college is destroyed, gives player gold and XP
+     * check is college is destroyed, gives player gold and XP and has a 50% chance of spawning a random weather event
      */
     private void destroy() {
         // Become destroyed
@@ -287,6 +299,9 @@ public class College implements IHittable {
             game.addResources(
                     50 + (int) Math.floor((float) Math.random() * 15),
                     15 + (int) Math.floor((float) Math.random() * 10));
+        }
+        if(new Random().nextInt(2) == 1 && !testing){
+            game.addRandomWeather();
         }
     }
 
