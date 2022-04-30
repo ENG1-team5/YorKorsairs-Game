@@ -23,8 +23,8 @@ public class College implements IHittable {
             add("evilgoodricke");
         }
     };
-    private static final Texture healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
-    private static final Texture healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
+    private static Texture healthbarBackTexture;
+    private static Texture healthbarFillTexture;
     public final float collegeWidth = Game.PPT * 2.5f;
     private final float smokeTimerMax = 0.1f;
     private final float shootRange = Game.PPT * 6.5f;
@@ -47,7 +47,10 @@ public class College implements IHittable {
     private float shotTimer;
     private float smokeTimer;
 
-    College(String name_, Game game_, Vector2 pos_, boolean isFriendly_) {
+    private boolean testing;
+
+    public College(String name_, Game game_, Vector2 pos_, boolean isFriendly_, boolean testing){
+        this.testing = testing;
         // Initialize variables
         name = name_;
         game = game_;
@@ -56,7 +59,16 @@ public class College implements IHittable {
         isFriendly = isFriendly_;
         shotTimer = 0f;
         smokeTimer = 0f;
+    }
 
+    public College(String name_, Game game_, Vector2 pos_, boolean isFriendly_) {
+        this(name_, game_, pos_, isFriendly_, false);
+        initialiseTextures();
+    }
+
+    public void initialiseTextures(){
+        healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
+        healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
         // Initialize textures
         String path = name.toLowerCase();
         if (!implemented.contains(path))
@@ -98,14 +110,16 @@ public class College implements IHittable {
      */
     public void update() {
         updateAI();
-        updateParticles();
-        updateSprite();
+        if (!testing){
+            updateParticles();
+            updateSprite();
+        }
     }
 
     /**
      * Updates AI to check for player ship and shoot
      */
-    private void updateAI() {
+    public void updateAI() {
         // Don't update AI if dead
         if (health == 0f)
             return;
@@ -119,24 +133,47 @@ public class College implements IHittable {
                 // Check whether player in range
                 if (dir.len2() < (shootRange * shootRange)) {
                     if (shotTimer == 0.0f) {
+                        //Testing mode values
                         Vector2 pos1 = new Vector2(pos)
-                                .add(new Vector2(-collegeSprite.getWidth() * 0.45f, collegeSprite.getHeight() * 0.65f));
+                            .add(new Vector2(-320 * 0.45f, 320 * 0.65f));
                         Vector2 pos2 = new Vector2(pos)
+                            .add(new Vector2(320 * 0.45f, 320 * 0.65f));
+                        if (!testing){ //If not testin overwrite pos with accurate
+                            pos1 = new Vector2(pos)
+                                .add(new Vector2(-collegeSprite.getWidth() * 0.45f, collegeSprite.getHeight() * 0.65f));
+                            pos2 = new Vector2(pos)
                                 .add(new Vector2(collegeSprite.getWidth() * 0.45f, collegeSprite.getHeight() * 0.65f));
+                        }
+                        
                         Vector2 vel1 = new Vector2(player.getPosition()).sub(pos1);
                         Vector2 vel2 = new Vector2(player.getPosition()).sub(pos2);
-                        Projectile p1 = new Projectile(game, this, pos1, vel1.nor(), false);
-                        Projectile p2 = new Projectile(game, this, pos2, vel2.nor(), false);
-                        game.addProjectile(p1);
-                        game.addProjectile(p2);
+                        //Testing mode projectiles
+                        
+                        if (!testing){ // If not testing overwrite with different non testing projectiles
+                            Projectile p1 = new Projectile(game, this, pos1, vel1.nor(), false);
+                            Projectile p2 = new Projectile(game, this, pos2, vel2.nor(), false);
+                            game.addProjectile(p1);
+                            game.addProjectile(p2);
+                        }
+                        else{
+                            Projectile p1 = new Projectile(game, this, pos1, vel1.nor(), false,true);
+                            Projectile p2 = new Projectile(game, this, pos2, vel2.nor(), false,true);
+                            game.addProjectile(p1);
+                            game.addProjectile(p2);
+                        }
                         shotTimer = shotTimerMax;
                     }
                 }
             }
         }
 
-        // Update shot timer
-        shotTimer = (float) Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0.0f);
+        if (!testing){
+            // Update shot timer
+            shotTimer = (float) Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0.0f);
+        }
+        else{
+            shotTimer = 0.f;
+        }
     }
 
     /**
@@ -231,16 +268,19 @@ public class College implements IHittable {
         if (health != 0f)
             return;
 
-        // Add particles
-        for (int i = 0; i < Math.random() * 3f + 12f; i++) {
-            Particle particle = new Particle(
+        if (!testing){
+            // Add particles
+            for (int i = 0; i < Math.random() * 3f + 12f; i++) {
+                Particle particle = new Particle(
                     "rock",
                     new Vector2(pos),
                     Game.PPT * 0.1f,
                     Game.PPT * ((float) Math.random() * 0.2f + 0.5f),
                     0.7f);
-            game.addParticle(particle);
+                game.addParticle(particle);
+            }
         }
+        
 
         // Give gold and XP
         if (!getFriendly()) {
@@ -289,10 +329,17 @@ public class College implements IHittable {
      */
     @Override
     public Rectangle getCollisionRect() {
-        return new Rectangle(
+        if (!testing){
+            return new Rectangle(
                 pos.x - collegeSprite.getOriginX(),
                 pos.y - collegeSprite.getOriginY() + collegeSprite.getHeight() * 0.2f,
                 collegeSprite.getWidth(), collegeSprite.getHeight() * 0.5f);
+        }
+        else{
+            //programmed using premeasured sizes, not the best...
+            return new Rectangle(pos.x - 160, pos.y - 0, 320, (320 * 0.5f));
+        }
+        
     }
 
     /**

@@ -37,7 +37,7 @@ public class DestroyCollegeObjective extends Objective {
      * return contextual text required for objective
      * @return string
      */
-    protected String getRequirementText() {
+    public String getRequirementText() {
         // Return requirement text
         killableColleges = 0;
         if (!nextCollege.getAlive()) nextCollege = null;

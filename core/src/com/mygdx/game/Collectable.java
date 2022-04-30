@@ -22,16 +22,21 @@ public class Collectable {
     protected Vector2 startPos;
     protected boolean toRemove;
 
-    Collectable(Game game_, Vector2 pos_, Buff buff_) {
+    public boolean testing;
+
+    Collectable(Game game_, Vector2 pos_, Buff buff_, boolean testing) {
+        this.testing  = testing;
         game = game_;
         buff = buff_;
         pos = pos_;
         startPos = pos_;
         toRemove = false;
-        
+    }
+
+    Collectable(Game game_, Vector2 pos_, Buff buff_){
+        this(game_, pos_, buff_, false);
         texture = buff.getTexture();
         sprite = new Sprite(texture);
-    
         sprite.setPosition(pos_.x, pos_.y);
         sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
         sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
@@ -44,12 +49,15 @@ public class Collectable {
     public void update() {
 
         // Bouncing animation
-        float time = (System.currentTimeMillis() - Game.startTime) / 100f;
-        float rel = (float) Math.sin(time * bounceFreq) * bounceMag;
+        if (!testing){
+            float time = (System.currentTimeMillis() - Game.startTime) / 100f;
+            float rel = (float) Math.sin(time * bounceFreq) * bounceMag;
+            pos.set(startPos.x, startPos.y + rel); 
+            sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+        }
+        
 
-        pos.set(startPos.x, startPos.y + rel);
-
-        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+        
     }
 
     /**

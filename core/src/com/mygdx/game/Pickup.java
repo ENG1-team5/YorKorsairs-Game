@@ -5,8 +5,12 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Pickup extends Collectable {
 
-    Pickup(Game game_, Vector2 pos_, Buff buff_) {
+    public Pickup(Game game_, Vector2 pos_, Buff buff_) {
         super(game_, pos_, buff_);
+    }
+
+    public Pickup(Game game_, Vector2 pos_, Buff buff_, boolean testing){
+        super(game_, pos_, buff_, true);
     }
 
     public void update() {

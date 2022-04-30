@@ -1,6 +1,8 @@
 
 package com.mygdx.game;
 
+import javax.swing.text.DefaultStyledDocument.ElementSpec;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -12,11 +14,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Projectile {
 
     // Declare config, variables
-    private static final Texture texture = new Texture(Gdx.files.internal("./projectiles/cannonball.png"));
+    private static Texture texture; ;
     private final float width = Game.PPT * 0.22f;
     private final float timeMax = 3f;
-    private float speed = Game.PPT * 3f;
-    private float damage = 15f;
+    public float speed = Game.PPT * 3f;
+    public float damage = 15f;
 
     private Game game;
     IHittable source;
@@ -27,30 +29,36 @@ public class Projectile {
     private float currentTime;
     private boolean toRemove;
 
-    Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_) {
+    private boolean testing;
+
+    /**
+     * Testing Variant of projectile
+     */
+    public Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_, boolean testing){
         // Declare variables
         game = game_;
         source = source_;
-        sprite = new Sprite(texture);
         pos = pos_;
         vel = vel_.nor();
         isFriendly = isFriendly_;
         currentTime = 0.0f;
         toRemove = false;
-
-        // Setup sprite
-        sprite.setPosition(pos.x, pos.y);
-        sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
-        sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
-        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+        this.testing = testing;
     }
+
+    Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_) {
+        this(game_,source_,pos_,vel_,isFriendly_,false);
+        InitialiseTextures();
+    }
+
+
     
     // Identical to above but with custom speed and damage
     Projectile(Game game_, IHittable source_, Vector2 pos_, Vector2 vel_, boolean isFriendly_, float damage_, float speed_) {
         // Declare variables
         game = game_;
         source = source_;
-        sprite = new Sprite(texture);
+        
         pos = pos_;
         vel = vel_.nor();
         isFriendly = isFriendly_;
@@ -59,7 +67,13 @@ public class Projectile {
 
         damage = damage_;
         speed = speed_;
+        InitialiseTextures();
+        
+    }
 
+    public void InitialiseTextures(){
+        texture = new Texture(Gdx.files.internal("./projectiles/cannonball.png"));
+        sprite = new Sprite(texture);
         // Setup sprite
         sprite.setPosition(pos.x, pos.y);
         sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
@@ -72,16 +86,24 @@ public class Projectile {
      */
     public void update() {
         // Update position with velocity
-        pos.x += vel.x * speed * Gdx.graphics.getDeltaTime();
-        pos.y += vel.y * speed * Gdx.graphics.getDeltaTime();
+        if (!testing){
+            pos.x += vel.x * speed * Gdx.graphics.getDeltaTime();
+            pos.y += vel.y * speed * Gdx.graphics.getDeltaTime();
+        }
+        else{
+            pos.x += vel.x * speed;
+            pos.y += vel.y * speed;
+        }
 
         // Update sprite
-        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
-
-        // Update timer
-        currentTime += Gdx.graphics.getDeltaTime();
-        if (currentTime > timeMax)
-            toRemove = true;
+        if (!testing){
+            sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+               // Update timer
+        
+            currentTime += Gdx.graphics.getDeltaTime();
+            if (currentTime > timeMax)
+                toRemove = true;
+        }
 
         // Check if hit anything
         Rectangle rect = getCollisionRect();
@@ -93,16 +115,15 @@ public class Projectile {
                 hittableHit.damage(damage);
                 toRemove = true;
 
-                for (int i = 0; i < Math.random() * 3f + 4f; i++) {
-                    Particle particle = new Particle("rock", new Vector2(pos), Game.PPT * 0.1f, Game.PPT * 0.5f, 0.7f);
-                    game.addParticle(particle);
+                if (!testing){
+                    addProjectile();
                 }
             }
         }
 
         // Rotate sprite in correct direction
         float angle = MathUtils.radiansToDegrees * (float) Math.atan2(vel.y, vel.x);
-        sprite.setRotation(angle);
+        if (!testing){sprite.setRotation(angle);}
     }
 
 
@@ -122,6 +143,15 @@ public class Projectile {
         texture.dispose();
     }
 
+    /**
+     * Seperated off for testing
+     */
+    public void addProjectile(){
+        for (int i = 0; i < Math.random() * 3f + 4f; i++) {
+            Particle particle = new Particle("rock", new Vector2(pos), Game.PPT * 0.1f, Game.PPT * 0.5f, 0.7f);
+            game.addParticle(particle);
+        }
+    }
 
     /**
      * Deletes projectile to conserve processor if dead
