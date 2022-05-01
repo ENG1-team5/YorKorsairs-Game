@@ -11,9 +11,17 @@ public class Upgrade extends Collectable implements IInteractable {
 
     public float cost;
 
-    Upgrade(Game game_, Vector2 pos_, Buff buff_, float cost_) {
+    private boolean testing;
+
+    public Upgrade(Game game_, Vector2 pos_, Buff buff_, float cost_) {
         super(game_, pos_, buff_);
 
+        cost = cost_;
+    }
+
+    public Upgrade(Game game_, Vector2 pos_, Buff buff_, float cost_, boolean testing) {
+        super(game_, pos_, buff_, testing);
+        this.testing = testing;
         cost = cost_;
     }
 
@@ -36,7 +44,13 @@ public class Upgrade extends Collectable implements IInteractable {
      * Get the area that the player can buy the upgrade
      */
     public Rectangle getInteractRange() {
-        return sprite.getBoundingRectangle();
+        if (!testing){
+            return sprite.getBoundingRectangle();
+        }
+        return new Rectangle(
+            pos.x - width * 0.5f,
+            pos.y - width * 0.5f,
+            width, width);
     }
 
     /**

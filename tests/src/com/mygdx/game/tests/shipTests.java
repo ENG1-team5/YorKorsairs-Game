@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.game.College;
 import com.mygdx.game.Enemy;
 import com.mygdx.game.Game;

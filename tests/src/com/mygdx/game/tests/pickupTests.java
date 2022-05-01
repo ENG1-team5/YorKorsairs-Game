@@ -19,6 +19,7 @@ import com.mygdx.game.Particle;
 import com.mygdx.game.Pickup;
 import com.mygdx.game.Obstacles;
 import com.mygdx.game.Weather;
+import com.mygdx.game.Game.GameState;
 
 import org.junit.Test;
 
@@ -189,5 +190,43 @@ public class pickupTests {
             projSpeedBeforeTest > ship.getShotTimerMax());
     }
 
+    
+    /**
+     * Tests player can buy an upgrade when they have enough plunder
+     */
+    @Test
+    public void testInteractsWithUpgrade(){
+        instantiatePlayer();
+        game.currentGold = 60f;
+        game.gameState = GameState.RUNNING;
+        float maxHealthBeforeTest = ship.getMaxHealth();
+        Upgrade upgrade = new Upgrade(game, new Vector2(10, 10), new Buff("maxHealth", 40f, 60f, true), 50, true);
+        game.upgrades.add(upgrade);
+        ship.toInteract = true;
+        ship.updateLogic();
+        game.update();
+        assertTrue("Expects player has bought the upgrade and it has been removed from world", game.upgrades.size() == 0);
+        assertTrue("Checks if players gold has been reduced by 50", game.currentGold == 10);
+        assertTrue("Checks if player's maximum health has increased", maxHealthBeforeTest < ship.getMaxHealth());
+    }
+
+        /**
+     * Tests player can buy an upgrade when they dont have enough plunder
+     */
+    @Test
+    public void testNotEnoughPlunderForUpgrade(){
+        instantiatePlayer();
+        game.currentGold = 40f;
+        game.gameState = GameState.RUNNING;
+        float maxHealthBeforeTest = ship.getMaxHealth();
+        Upgrade upgrade = new Upgrade(game, new Vector2(10, 10), new Buff("maxHealth", 40f, 60f, true), 50, true);
+        game.upgrades.add(upgrade);
+        ship.toInteract = true;
+        ship.updateLogic();
+        game.update();
+        assertTrue("Expects player has not enough money, therefore not bought the upgrade and it has not been removed from world", game.upgrades.size() == 1);
+        assertTrue("Checks if players gold has begone unchanged", game.currentGold == 40f);
+        assertTrue("Checks if player's maximum health has remained unchanged", maxHealthBeforeTest == ship.getMaxHealth());
+    }
 
 }

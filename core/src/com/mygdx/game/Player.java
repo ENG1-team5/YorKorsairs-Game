@@ -81,7 +81,7 @@ public class Player implements IHittable {
     private boolean testing;
     
     private float homeHealthRegen = passiveHealthRegen * 3;
-    protected boolean toInteract;
+    public boolean toInteract;
 
     /**
      * Part player(game, pos) constructor changed for accomodating testing
@@ -336,7 +336,8 @@ public class Player implements IHittable {
                     Projectile projectile = new Projectile(game, this, newPos, dir.nor(), true, getDamage(), getProjectileSpeed());
                     fire(projectile);
                 }
-
+            }
+            
                 // Interact if needed
                 if (toInteract) {
                     IInteractable inter = game.checkForInteractables(getCollisionRect());
@@ -345,10 +346,12 @@ public class Player implements IHittable {
                     }
                 }
 
+                
+
+            if (!testing){
                 // Update timers
                 shotTimer = Math.max(shotTimer - Gdx.graphics.getDeltaTime(), 0f);
                 combatTimer = Math.max(combatTimer - Gdx.graphics.getDeltaTime(), 0f);
-
             }
             // Regen health passively
             if (!testing){

@@ -1048,7 +1048,8 @@ public class Game extends ApplicationAdapter {
 		if(weather.size() < 1){
 			int randomNum = new java.util.Random().nextInt(weatherChoices.length);
 			String choice = weatherChoices[randomNum];
-			weather.add(new Weather(this, choice, 15f));
+			if (!testing){weather.add(new Weather(this, choice, 15f));}
+			else{weather.add(new Weather(this, choice, 15f,true));}
 		}	 
 	}
 

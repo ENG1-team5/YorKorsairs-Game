@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -27,6 +28,7 @@ public class Obstacles {
     private String rock="Rock";
     private String seamine="Seamine";
     private String iceberg="Iceberg";
+    private boolean testing;
 
     /**
      *constructs a different obstacle in a given position depending on the "choice"
@@ -34,7 +36,7 @@ public class Obstacles {
      * @param pos_ position of which to spawn an obstacles
      * @param choice the choice of which obstacle to be spawned
      */
-    Obstacles (Game game_, Vector2 pos_, String choice) {
+    public Obstacles (Game game_, Vector2 pos_, String choice, boolean testing) {
 
         this.choice = choice;
         game = game_;
@@ -43,29 +45,35 @@ public class Obstacles {
         startPos = pos_;
         toRemove = false;
         vel = new Vector2(0f, 0f);
-        inputDir = new Vector2(0f, 0f);
+        inputDir = new Vector2(0f, 0f);   
+        this.testing = testing;
+    }
 
-        if (choice == rock ){
-            texture = new Texture(Gdx.files.internal("./obstacles/rocks.png"));
+    Obstacles (Game game_, Vector2 pos_, String choice){
+        this(game_, pos_, choice, false); 
+        initialiseTextures();
+    }
+        /**
+         * Setup texture based on choice string
+         */
+        public void initialiseTextures(){
+            if (choice == rock ){
+                texture = new Texture(Gdx.files.internal("./obstacles/rocks.png"));
+            }
+            if (choice == seamine){
+                texture = new Texture(Gdx.files.internal("./obstacles/seamine.png"));
+            }
+            if (choice == iceberg){
+                texture = new Texture(Gdx.files.internal("./obstacles/ice.png")); 
+            }
+    
+            sprite = new Sprite(texture);
+    
+            sprite.setPosition(pos.x, pos.y);
+            sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
+            sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
+            sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());    
         }
-        if (choice == seamine){
-            texture = new Texture(Gdx.files.internal("./obstacles/seamine.png"));
-        }
-        if (choice == iceberg){
-            texture = new Texture(Gdx.files.internal("./obstacles/ice.png"));
-            inputDir.x = (float) Math.random() * 2f - 1f;
-            inputDir.y = (float) Math.random() * 2f - 1f;
-            inputDir = inputDir.nor();
-
-
-        }
-
-        sprite = new Sprite(texture);
-
-        sprite.setPosition(pos.x, pos.y);
-        sprite.setSize(width, width * texture.getHeight() / texture.getWidth());
-        sprite.setOrigin(sprite.getWidth() * 0.5f, sprite.getHeight() * 0.5f);
-        sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());}
 
         /**
         * checks for collisions and applies the effects af the obstacles
@@ -75,7 +83,9 @@ public class Obstacles {
 
             Rectangle rect = getCollisionRect();
 
-            sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+            if (!testing){
+                sprite.setPosition(pos.x - sprite.getOriginX(), pos.y - sprite.getOriginY());
+            }
 
 
             IHittable hittableHit = game.checkHitHittable(rect);
