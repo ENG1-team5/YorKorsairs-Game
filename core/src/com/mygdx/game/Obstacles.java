@@ -14,17 +14,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class Obstacles {
 
     static Texture texture;
-    String choice;
-    Player player;
+    public String choice;
     private final float width = Game.PPT * .5f;
 
     private Game game;
     private Sprite sprite;
-    private Vector2 pos;
-    private Vector2 startPos;
+    public Vector2 pos;
     private boolean toRemove;
-    private Vector2 vel;
-    private Vector2 inputDir;
     private String rock="Rock";
     private String seamine="Seamine";
     private String iceberg="Iceberg";
@@ -40,12 +36,8 @@ public class Obstacles {
 
         this.choice = choice;
         game = game_;
-        player = game.getPlayer();
         pos = pos_;
-        startPos = pos_;
         toRemove = false;
-        vel = new Vector2(0f, 0f);
-        inputDir = new Vector2(0f, 0f);   
         this.testing = testing;
     }
 
@@ -93,19 +85,19 @@ public class Obstacles {
 
 
             if (hittableHit instanceof Player && choice=="Rock") {
-                player.setVelocity(player.getVelocity().scl(0.5f));
-                player.damage(0.1f);
+                game.getPlayer().setVelocity(game.getPlayer().getVelocity().scl(0.5f));
+                game.getPlayer().damage(0.1f);
             }
 
             if (hittableHit instanceof Player && choice == "Seamine"){
-                player.damage(20.0f);
+                game.getPlayer().damage(20.0f);
                 toRemove = true;
             }
 
             if (hittableHit instanceof Player && choice=="Iceberg") {
 
-                player.setVelocity(player.getVelocity().scl(0f));
-                player.damage(10.0f);
+                game.getPlayer().setVelocity(game.getPlayer().getVelocity().scl(0f));
+                game.getPlayer().damage(10.0f);
                 toRemove = true;
             }
 
