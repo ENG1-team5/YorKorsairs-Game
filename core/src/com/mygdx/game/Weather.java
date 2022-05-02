@@ -24,6 +24,7 @@ public class Weather {
     public Float duration;
     private Game game;
     private boolean toRemove;
+    private boolean testing;
 
     /**
      * constructs a different weather condition for a given duration based on "choice"
@@ -32,29 +33,38 @@ public class Weather {
      * @param duration how long the weather condition will last for
      */
     Weather(Game game_, String choice, Float duration){
+        this(game_, choice, duration, false);
+        initialiseTextures();
+    }
+
+    Weather(Game game_, String choice, Float duration, boolean testing){
         this.choice = choice;
         this.duration= duration;
         game = game_;
         player = game.getPlayer();
         toRemove=false;
+        this.testing = testing;
+    }
 
+    /**
+     * Setup textures based on choice string
+     */
+    public void initialiseTextures(){
         // Any texture will get stretched out to fit the size of the screen in render() every frame
         if (choice == "cloudy") {
             texture = new Texture(Gdx.files.internal("./Weather/cloudy.png"));
         }
-
+        
         if (choice == "foggy"){
             texture = new Texture(Gdx.files.internal("./Weather/fog.png"));
             sprite= new Sprite(texture);
-
         }
-
+        
         if (choice == "rainy"){
             texture = new Texture(Gdx.files.internal("./Weather/rain0.png"));
         }
-
+        
         sprite= new Sprite(texture);
-
     }
 
     /**

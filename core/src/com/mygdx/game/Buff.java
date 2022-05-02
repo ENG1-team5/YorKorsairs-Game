@@ -12,18 +12,20 @@ import com.badlogic.gdx.utils.ArrayMap;
 public class Buff {
 
     // Possible buff icons
-    private static final Texture multi = new Texture(Gdx.files.internal("./pickups/multi1.png"));
-    private static final Texture damage = new Texture(Gdx.files.internal("./pickups/dmg1.png"));
-    private static final Texture fireRate = new Texture(Gdx.files.internal("./pickups/speed2.png"));
-    private static final Texture projectileSpeed = new Texture(Gdx.files.internal("./pickups/dmgspeed.png"));
-    private static final Texture regen = new Texture(Gdx.files.internal("./pickups/health1.png"));
-    private static final Texture maxHealth = new Texture(Gdx.files.internal("./pickups/health2.png"));
-    private static final Texture speed = new Texture(Gdx.files.internal("./pickups/speed1.png"));
-    private static final Texture err = new Texture(Gdx.files.internal("./pickups/err.png"));
+    private static Texture multi;
+    private static Texture damage;
+    private static Texture fireRate;
+    private static Texture projectileSpeed;
+    private static Texture regen;
+    private static Texture maxHealth;
+    private static Texture speed;
+    private static Texture err;
     
     private Boolean expires = true;
     public float time;
     public ArrayMap<String, Float> stats;
+
+    public boolean testing;
 
     /**
      * Create a new buff object with specified buff and duration
@@ -31,7 +33,9 @@ public class Buff {
      * @param amount value of buff
      * @param duration The length of the buff
      */
-    public Buff(String stat, float amount, float duration) {
+    public Buff(String stat, float amount, float duration, boolean testing) {
+        this.testing = testing;
+
         if (duration <= 0) { throw new IllegalArgumentException("time must be greater than 0"); }
         this.time = duration;
         
@@ -39,6 +43,11 @@ public class Buff {
         stats.put(stat, amount);
         this.stats = stats;
         checkValid();
+    }
+
+    public Buff(String stat, float amount, float duration){
+        this(stat, amount, duration, false);
+        InitialiseTextures();
     }
 
     /**
@@ -52,6 +61,7 @@ public class Buff {
         ArrayMap<String, Float> stats = new ArrayMap<String, Float>();
         stats.put(stat, amount);
         this.stats = stats;
+        InitialiseTextures();
         checkValid();
 
     }
@@ -64,6 +74,7 @@ public class Buff {
         if (duration <= 0) { throw new IllegalArgumentException("time must be greater than 0"); }
         time = duration;
         stats = stats_;
+        InitialiseTextures();
         checkValid();
     }
 
@@ -74,9 +85,20 @@ public class Buff {
     public Buff(ArrayMap<String, Float> stats_) {
         this.expires = false;
         this.stats = stats_;
+        InitialiseTextures();
         checkValid();
     }
 
+    public void InitialiseTextures(){
+        multi = new Texture(Gdx.files.internal("./pickups/multi1.png"));
+        damage = new Texture(Gdx.files.internal("./pickups/dmg1.png"));
+        fireRate = new Texture(Gdx.files.internal("./pickups/speed2.png"));
+        projectileSpeed = new Texture(Gdx.files.internal("./pickups/dmgspeed.png"));
+        regen = new Texture(Gdx.files.internal("./pickups/health1.png"));
+        maxHealth = new Texture(Gdx.files.internal("./pickups/health2.png"));
+        speed = new Texture(Gdx.files.internal("./pickups/speed1.png"));
+        err = new Texture(Gdx.files.internal("./pickups/err.png"));  
+    }
     /**
      * Check if buff is valid
      */

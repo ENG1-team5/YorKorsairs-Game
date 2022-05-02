@@ -52,7 +52,7 @@ public abstract class Objective {
      * gets text of chosen objective
      * @return string
      */
-    protected abstract String getRequirementText();
+    public abstract String getRequirementText();
 
     /**
      * checks if chosen objective is complete

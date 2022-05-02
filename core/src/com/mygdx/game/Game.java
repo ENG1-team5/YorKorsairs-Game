@@ -60,7 +60,7 @@ public class Game extends ApplicationAdapter {
 	private final float initialZoom = PPT * 0.0135f;
 	private final float zoomSpeed = PPT * 0.0075f;
 	private final float splashWidth = 500f;
-	private final int xpPerLevel = 50;
+	public final int xpPerLevel = 50;
 	private final float xpGain = 0.4f;
 	private final float levelUpTimerMax = 1.5f;
 	private final String[] weatherChoices = {"foggy","rainy"};
@@ -71,7 +71,7 @@ public class Game extends ApplicationAdapter {
 	SpriteBatch UIBatch;
 	public TiledMap tiledMap;
 	private TiledMapRenderer tiledMapRenderer;
-	private MapObjects collisionObjects;
+	public MapObjects collisionObjects;
 	private GlyphLayout currentUITextGlyph = new GlyphLayout();
 
 	private String[] difficultyStrings = {"   Easy ->","<- Normal ->","<- Hard ->","<- Impossible   "};
@@ -86,14 +86,14 @@ public class Game extends ApplicationAdapter {
 	private float zoomVel;
 	private Vector3 worldMousePos;
 
-	public Game() {
-	}
-
-	private enum GameState {
+	public enum GameState {
 		READY, RUNNING, FINISHED
 	};
 
-	private GameState gameState;
+	public Game() {
+	}
+
+	public GameState gameState;
 	private boolean hasWon;
 	private boolean saveExists;
 	public float currentGold;
@@ -102,17 +102,19 @@ public class Game extends ApplicationAdapter {
 	private int tutorialState = 0;
 	private float levelUpTimer;
 
-	private Objective objective;
-	private Player player;
-	private ArrayList<College> colleges;
-	private ArrayList<Projectile> projectiles;
-	private ArrayList<Particle> particles;
-	private ArrayList<Enemy> enemies;
-	private ArrayList<Pickup> pickups;
-	private ArrayList<IHittable> hittables;
-	private ArrayList<Upgrade> upgrades;
-	private ArrayList<Obstacles> obstacles;
-	private ArrayList<Weather> weather;
+	public Objective objective;
+	public Player player;
+	public ArrayList<College> colleges;
+	public ArrayList<Projectile> projectiles;
+	public ArrayList<Particle> particles;
+	public ArrayList<Enemy> enemies;
+	public ArrayList<Pickup> pickups;
+	public ArrayList<IHittable> hittables;
+	public ArrayList<Upgrade> upgrades;
+	public ArrayList<Obstacles> obstacles;
+	public ArrayList<Weather> weather;
+
+	public boolean testing = false;
 
 
 	/**
@@ -139,18 +141,22 @@ public class Game extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(Binding.getInstance());
 	}
 
+	public void setupMap(){
+		// Setup tiled map
+		tiledMap = new TmxMapLoader().load("./tiles/map.tmx");
+		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+		MapLayer collisionLayer = tiledMap.getLayers().get(1);
+		collisionObjects = collisionLayer.getObjects();
+	}
+
 	/**
 	 * Creates the map, as well as initialising the starting sprites onto it by defining their perimeters
 	 * Loads in the splash sprites for when the game is either won, started or lost
 	 * Creates text font for UI
 	 */
 	private void setupAssets() {
-		// Setup tiled map
-		tiledMap = new TmxMapLoader().load("./tiles/map.tmx");
-		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-		MapLayer collisionLayer = tiledMap.getLayers().get(1);
-		collisionObjects = collisionLayer.getObjects();
-
+		setupMap();
+		
 		// Load splash textures
 		startSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/startSplash.png")));
 		startSprite.setSize(splashWidth, splashWidth * (float) startSprite.getHeight() / startSprite.getWidth());
@@ -581,11 +587,13 @@ public class Game extends ApplicationAdapter {
 	/**
 	 * Updates the parameters of the game class
 	 */
-	private void update() {
+	public void update() {
 		// Run update functions
-		handleInput();
-		updateCamera();
-		updateLogic();
+		if (!testing){
+			handleInput();
+			updateCamera();
+			updateLogic();
+		}
 		for (College college : colleges)
 			college.update();
 		for (Particle particle : particles)
@@ -599,19 +607,21 @@ public class Game extends ApplicationAdapter {
 			}
 		}
 
-		// Update projectiles, allowing for deletion
-		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
-			Projectile p = pItr.next();
-			p.update();
-			if (p.shouldRemove()) {
-				pItr.remove();
-				p.beenRemoved();
+		if(!testing){
+			// Update particles, allowing for deletion
+			for (Iterator<Particle> pItr = particles.iterator(); pItr.hasNext();) {
+				Particle p = pItr.next();
+				p.update();
+				if (p.shouldRemove()) {
+					pItr.remove();
+					p.beenRemoved();
+				}
 			}
 		}
 
-		// Update particles, allowing for deletion
-		for (Iterator<Particle> pItr = particles.iterator(); pItr.hasNext();) {
-			Particle p = pItr.next();
+		// Update projectiles, allowing for deletion
+		for (Iterator<Projectile> pItr = projectiles.iterator(); pItr.hasNext();) {
+			Projectile p = pItr.next();
 			p.update();
 			if (p.shouldRemove()) {
 				pItr.remove();
@@ -724,16 +734,24 @@ public class Game extends ApplicationAdapter {
 	/**
 	 * Handles the in game statistics related to XP
 	 */
-	private void updateLogic() {
+	public void updateLogic() {
 		// Increase XP and handle levelling up
 		if (gameState == GameState.RUNNING) {
-			addResources(0, Gdx.graphics.getDeltaTime() * xpGain);
+			if(!testing){
+				addResources(0, Gdx.graphics.getDeltaTime() * xpGain);
+			}
+			else{ //Applys a testing friendly xpGain per tick
+				addResources(0, xpGain);
+			}
+			
 			if (currentXP > xpPerLevel) {
 				currentXP = currentXP % xpPerLevel;
 				currentLevel++;
 				levelUpTimer = levelUpTimerMax;
 			}
-			levelUpTimer = (float) Math.max(levelUpTimer - Gdx.graphics.getDeltaTime(), 0f);
+			if (!testing){
+				levelUpTimer = (float) Math.max(levelUpTimer - Gdx.graphics.getDeltaTime(), 0f);
+			}
 
 			// Tutorial checks
 			if (tutorialState == 0 && player.getIsMoving())
@@ -1030,7 +1048,8 @@ public class Game extends ApplicationAdapter {
 		if(weather.size() < 1){
 			int randomNum = new java.util.Random().nextInt(weatherChoices.length);
 			String choice = weatherChoices[randomNum];
-			weather.add(new Weather(this, choice, 15f));
+			if (!testing){weather.add(new Weather(this, choice, 15f));}
+			else{weather.add(new Weather(this, choice, 15f,true));}
 		}	 
 	}
 

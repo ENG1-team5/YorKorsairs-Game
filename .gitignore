@@ -117,3 +117,8 @@ Thumbs.db
 ## VSCode
 .vscode
 save.txt
+
+## JUnit
+
+tests/build
+tests/bin

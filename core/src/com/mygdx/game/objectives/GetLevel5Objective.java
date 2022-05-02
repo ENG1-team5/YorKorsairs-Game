@@ -17,7 +17,7 @@ public class GetLevel5Objective extends Objective {
     /**
      * return contextual text required for objective
      */
-    protected String getRequirementText() {
+    public String getRequirementText() {
         // Return requirement text
         return "Reach Level 5!";
     }
