@@ -134,7 +134,7 @@ public class Player implements IHittable {
             new Texture(Gdx.files.internal("ships/shipMovingShot3.png")) 
         };
         deadTexture = new Texture(Gdx.files.internal("ships/shipDead.png"));
-        healthbarBackTexture = new Texture(Gdx.files.internal("UI/healthBarBack.png"));
+        healthbarBackTexture = new Texture(Gdx.files.internal("UI/healthbarBack.png"));
         healthbarFillTexture = new Texture(Gdx.files.internal("UI/healthbarFill.png"));
 
         // Initialize ship sprite

@@ -71,7 +71,7 @@ public class Enemy implements IHittable{
 
     public void initialiseTextures(){
         shipTexture = new Texture(Gdx.files.internal("ships/enemy.png"));
-        healthbarBackTexture = new Texture(Gdx.files.internal("UI/healthBarBack.png"));
+        healthbarBackTexture = new Texture(Gdx.files.internal("UI/healthbarBack.png"));
         healthbarFillTexture = new Texture(Gdx.files.internal("UI/healthbarFill.png"));
 
         // Setup sprite
