@@ -83,7 +83,7 @@ public class Projectile {
     }
 
     public void InitialiseTextures(){
-        texture = new Texture(Gdx.files.internal("./projectiles/cannonball.png"));
+        texture = new Texture(Gdx.files.internal("projectiles/cannonball.png"));
         sprite = new Sprite(texture);
         // Setup sprite
         sprite.setPosition(pos.x, pos.y);

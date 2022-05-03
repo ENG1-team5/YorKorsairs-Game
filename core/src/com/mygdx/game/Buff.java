@@ -90,14 +90,14 @@ public class Buff {
     }
 
     public void InitialiseTextures(){
-        multi = new Texture(Gdx.files.internal("./pickups/multi1.png"));
-        damage = new Texture(Gdx.files.internal("./pickups/dmg1.png"));
-        fireRate = new Texture(Gdx.files.internal("./pickups/speed2.png"));
-        projectileSpeed = new Texture(Gdx.files.internal("./pickups/dmgspeed.png"));
-        regen = new Texture(Gdx.files.internal("./pickups/health1.png"));
-        maxHealth = new Texture(Gdx.files.internal("./pickups/health2.png"));
-        speed = new Texture(Gdx.files.internal("./pickups/speed1.png"));
-        err = new Texture(Gdx.files.internal("./pickups/err.png"));  
+        multi = new Texture(Gdx.files.internal("pickups/multi1.png"));
+        damage = new Texture(Gdx.files.internal("pickups/dmg1.png"));
+        fireRate = new Texture(Gdx.files.internal("pickups/speed2.png"));
+        projectileSpeed = new Texture(Gdx.files.internal("pickups/dmgspeed.png"));
+        regen = new Texture(Gdx.files.internal("pickups/health1.png"));
+        maxHealth = new Texture(Gdx.files.internal("pickups/health2.png"));
+        speed = new Texture(Gdx.files.internal("pickups/speed1.png"));
+        err = new Texture(Gdx.files.internal("pickups/err.png"));  
     }
     /**
      * Check if buff is valid

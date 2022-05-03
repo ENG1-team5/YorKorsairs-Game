@@ -143,7 +143,7 @@ public class Game extends ApplicationAdapter {
 
 	public void setupMap(){
 		// Setup tiled map
-		tiledMap = new TmxMapLoader().load("./tiles/map.tmx");
+		tiledMap = new TmxMapLoader().load("tiles/map.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 		MapLayer collisionLayer = tiledMap.getLayers().get(1);
 		collisionObjects = collisionLayer.getObjects();
@@ -158,19 +158,19 @@ public class Game extends ApplicationAdapter {
 		setupMap();
 		
 		// Load splash textures
-		startSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/startSplash.png")));
+		startSprite = new Sprite(new Texture(Gdx.files.internal("splashes/startSplash.png")));
 		startSprite.setSize(splashWidth, splashWidth * (float) startSprite.getHeight() / startSprite.getWidth());
 		startSprite.setOrigin(startSprite.getWidth() * 0.5f, startSprite.getHeight() * 0.5f);
 		startSprite.setPosition(
 				Gdx.graphics.getWidth() * 0.5f - startSprite.getWidth() * 0.5f,
 				Gdx.graphics.getHeight() * 0.5f - startSprite.getHeight() * 0.5f);
-		winSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/winSplash.png")));
+		winSprite = new Sprite(new Texture(Gdx.files.internal("splashes/winSplash.png")));
 		winSprite.setSize(splashWidth, splashWidth * (float) winSprite.getHeight() / winSprite.getWidth());
 		winSprite.setOrigin(startSprite.getWidth() * 0.5f, winSprite.getHeight() * 0.5f);
 		winSprite.setPosition(
 				Gdx.graphics.getWidth() * 0.5f - winSprite.getWidth() * 0.5f,
 				Gdx.graphics.getHeight() * 0.5f - winSprite.getHeight() * 0.5f);
-		lostSprite = new Sprite(new Texture(Gdx.files.internal("./splashes/lostSplash.png")));
+		lostSprite = new Sprite(new Texture(Gdx.files.internal("splashes/lostSplash.png")));
 		lostSprite.setSize(splashWidth, splashWidth * (float) lostSprite.getHeight() / lostSprite.getWidth());
 		lostSprite.setOrigin(lostSprite.getWidth() * 0.5f, lostSprite.getHeight() * 0.5f);
 		lostSprite.setPosition(
@@ -178,7 +178,7 @@ public class Game extends ApplicationAdapter {
 				Gdx.graphics.getHeight() * 0.5f - lostSprite.getHeight() * 0.5f);
 
 		// Setup font
-		mainFont = new BitmapFont(Gdx.files.internal("./fonts/Pixellari.fnt"));
+		mainFont = new BitmapFont(Gdx.files.internal("fonts/Pixellari.fnt"));
 		mainFont.setColor(0f, 0f, 0f, 1f);
 
 
