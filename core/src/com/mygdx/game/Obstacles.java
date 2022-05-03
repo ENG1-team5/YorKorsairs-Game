@@ -50,13 +50,13 @@ public class Obstacles {
          */
         public void initialiseTextures(){
             if (choice == rock ){
-                texture = new Texture(Gdx.files.internal("./obstacles/rocks.png"));
+                texture = new Texture(Gdx.files.internal("obstacles/rocks.png"));
             }
             if (choice == seamine){
-                texture = new Texture(Gdx.files.internal("./obstacles/seamine.png"));
+                texture = new Texture(Gdx.files.internal("obstacles/seamine.png"));
             }
             if (choice == iceberg){
-                texture = new Texture(Gdx.files.internal("./obstacles/ice.png")); 
+                texture = new Texture(Gdx.files.internal("obstacles/ice.png")); 
             }
     
             sprite = new Sprite(texture);

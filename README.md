@@ -42,12 +42,15 @@ Note that CI should make this irrelevant
 
 ### Build
 
-Trigger: Automatic on push or pull request.
-
 Ensures that gradlew.bat build runs on the repo.
+Runs on any push or pull request.
 
 ### Release
 
-Trigger: Manual. Takes the name of the release as a parameter.
-
 Builds the repo and creates a tagged release.
+You need to run this workflow manually.
+
+### Test
+
+Runs all tests and outputs a report.
+Runs on push or pull request to main branch only.

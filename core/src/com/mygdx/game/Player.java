@@ -119,23 +119,23 @@ public class Player implements IHittable {
     }
 
     public void initialiseTextures(){
-        idleTexture = new Texture(Gdx.files.internal("./ships/ship.png"));
+        idleTexture = new Texture(Gdx.files.internal("ships/ship.png"));
         idleShotTextures = new Texture[] {
-            new Texture(Gdx.files.internal("./ships/shipShot0.png")),
-            new Texture(Gdx.files.internal("./ships/shipShot1.png")),
-            new Texture(Gdx.files.internal("./ships/shipShot2.png")),
-            new Texture(Gdx.files.internal("./ships/shipShot3.png")) 
+            new Texture(Gdx.files.internal("ships/shipShot0.png")),
+            new Texture(Gdx.files.internal("ships/shipShot1.png")),
+            new Texture(Gdx.files.internal("ships/shipShot2.png")),
+            new Texture(Gdx.files.internal("ships/shipShot3.png")) 
         };
-        movingTexture = new Texture(Gdx.files.internal("./ships/shipMoving.png"));
+        movingTexture = new Texture(Gdx.files.internal("ships/shipMoving.png"));
         movingShotTextures = new Texture[] {
-            new Texture(Gdx.files.internal("./ships/shipMovingShot0.png")),
-            new Texture(Gdx.files.internal("./ships/shipMovingShot1.png")),
-            new Texture(Gdx.files.internal("./ships/shipMovingShot2.png")),
-            new Texture(Gdx.files.internal("./ships/shipMovingShot3.png")) 
+            new Texture(Gdx.files.internal("ships/shipMovingShot0.png")),
+            new Texture(Gdx.files.internal("ships/shipMovingShot1.png")),
+            new Texture(Gdx.files.internal("ships/shipMovingShot2.png")),
+            new Texture(Gdx.files.internal("ships/shipMovingShot3.png")) 
         };
-        deadTexture = new Texture(Gdx.files.internal("./ships/shipDead.png"));
-        healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
-        healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
+        deadTexture = new Texture(Gdx.files.internal("ships/shipDead.png"));
+        healthbarBackTexture = new Texture(Gdx.files.internal("ui/healthbarBack.png"));
+        healthbarFillTexture = new Texture(Gdx.files.internal("ui/healthbarFill.png"));
 
         // Initialize ship sprite
         float ratio = (float) idleTexture.getHeight() / (float) idleTexture.getWidth();

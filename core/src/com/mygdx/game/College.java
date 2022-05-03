@@ -79,15 +79,15 @@ public class College implements IHittable {
     }
 
     public void initialiseTextures(){
-        healthbarBackTexture = new Texture(Gdx.files.internal("./UI/healthbarBack.png"));
-        healthbarFillTexture = new Texture(Gdx.files.internal("./UI/healthbarFill.png"));
+        healthbarBackTexture = new Texture(Gdx.files.internal("ui/healthbarBack.png"));
+        healthbarFillTexture = new Texture(Gdx.files.internal("ui/healthbarFill.png"));
         // Initialize textures
         String path = name.toLowerCase();
         if (!implemented.contains(path))
             path = "goodricke";
-        collegeTexture = new Texture(Gdx.files.internal("./colleges/" + path + ".png"));
-        collegeDeadTexture = new Texture(Gdx.files.internal("./colleges/" + path + "Dead.png"));
-        collegeShotTexture = new Texture(Gdx.files.internal("./colleges/" + path + "Shot.png"));
+        collegeTexture = new Texture(Gdx.files.internal("colleges/" + path + ".png"));
+        collegeDeadTexture = new Texture(Gdx.files.internal("colleges/" + path + "Dead.png"));
+        collegeShotTexture = new Texture(Gdx.files.internal("colleges/" + path + "Shot.png"));
 
         // Initialize sprite
         float ratio = (float) collegeTexture.getHeight() / (float) collegeTexture.getWidth();

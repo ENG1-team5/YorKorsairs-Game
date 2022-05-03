@@ -52,16 +52,16 @@ public class Weather {
     public void initialiseTextures(){
         // Any texture will get stretched out to fit the size of the screen in render() every frame
         if (choice == "cloudy") {
-            texture = new Texture(Gdx.files.internal("./Weather/cloudy.png"));
+            texture = new Texture(Gdx.files.internal("Weather/cloudy.png"));
         }
         
         if (choice == "foggy"){
-            texture = new Texture(Gdx.files.internal("./Weather/fog.png"));
+            texture = new Texture(Gdx.files.internal("Weather/fog.png"));
             sprite= new Sprite(texture);
         }
         
         if (choice == "rainy"){
-            texture = new Texture(Gdx.files.internal("./Weather/rain0.png"));
+            texture = new Texture(Gdx.files.internal("Weather/rain0.png"));
         }
         
         sprite= new Sprite(texture);
