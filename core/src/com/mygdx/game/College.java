@@ -79,8 +79,8 @@ public class College implements IHittable {
     }
 
     public void initialiseTextures(){
-        healthbarBackTexture = new Texture(Gdx.files.internal("ui/healthbarBack.png"));
-        healthbarFillTexture = new Texture(Gdx.files.internal("ui/healthbarFill.png"));
+        healthbarBackTexture = new Texture(Gdx.files.internal("UI/healthBarBack.png"));
+        healthbarFillTexture = new Texture(Gdx.files.internal("UI/healthbarFill.png"));
         // Initialize textures
         String path = name.toLowerCase();
         if (!implemented.contains(path))
